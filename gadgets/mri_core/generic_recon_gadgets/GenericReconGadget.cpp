@@ -144,13 +144,13 @@ namespace Gadgetron {
         process_called_times_++;
 
         mrd::ReconData* recon_data = m1->getObjectPtr();
-        if (recon_data->rbits.size() > num_encoding_spaces_) {
+        if (recon_data->buffers.size() > num_encoding_spaces_) {
             GWARN_STREAM("Incoming recon_bit has more encoding spaces than the protocol : "
-                         << recon_data->rbits.size() << " instead of " << num_encoding_spaces_);
+                         << recon_data->buffers.size() << " instead of " << num_encoding_spaces_);
         }
 
         // for every encoding space
-        for (size_t e = 0; e < recon_data->rbits.size(); e++) {
+        for (size_t e = 0; e < recon_data->buffers.size(); e++) {
             std::stringstream os;
             os << "_encoding_" << e;
 
@@ -215,23 +215,23 @@ namespace Gadgetron {
 
     // ----------------------------------------------------------------------------------------
 
-    void GenericReconGadget::make_ref_coil_map(mrd::BufferedData& ref, std::vector<size_t> recon_dims,
+    void GenericReconGadget::make_ref_coil_map(mrd::ReconBuffer& ref, std::vector<size_t> recon_dims,
         hoNDArray<std::complex<float>>& ref_calib, hoNDArray<std::complex<float>>& ref_coil_map, size_t encoding)
     {
         hoNDArray<std::complex<float>>& ref_data = ref.data;
 
         // sampling limits
-        size_t sRO = ref.sampling.sampling_limits.ro.minimum;
-        size_t eRO = ref.sampling.sampling_limits.ro.maximum;
-        size_t cRO = ref.sampling.sampling_limits.ro.center;
+        size_t sRO = ref.sampling.sampling_limits.kspace_encoding_step_0.minimum;
+        size_t eRO = ref.sampling.sampling_limits.kspace_encoding_step_0.maximum;
+        size_t cRO = ref.sampling.sampling_limits.kspace_encoding_step_0.center;
 
-        size_t sE1 = ref.sampling.sampling_limits.e1.minimum;
-        size_t eE1 = ref.sampling.sampling_limits.e1.maximum;
-        size_t cE1 = ref.sampling.sampling_limits.e1.center;
+        size_t sE1 = ref.sampling.sampling_limits.kspace_encoding_step_1.minimum;
+        size_t eE1 = ref.sampling.sampling_limits.kspace_encoding_step_1.maximum;
+        size_t cE1 = ref.sampling.sampling_limits.kspace_encoding_step_1.center;
 
-        size_t sE2 = ref.sampling.sampling_limits.e2.minimum;
-        size_t eE2 = ref.sampling.sampling_limits.e2.maximum;
-        size_t cE2 = ref.sampling.sampling_limits.e2.center;
+        size_t sE2 = ref.sampling.sampling_limits.kspace_encoding_step_2.minimum;
+        size_t eE2 = ref.sampling.sampling_limits.kspace_encoding_step_2.maximum;
+        size_t cE2 = ref.sampling.sampling_limits.kspace_encoding_step_2.center;
 
         // recon size
         size_t recon_RO = recon_dims[0];
@@ -311,8 +311,8 @@ namespace Gadgetron {
 
         // filter the ref_coil_map
         if (filter_RO_ref_coi_map_.get_size(0) != RO) {
-            Gadgetron::generate_symmetric_filter_ref(ref_coil_map.get_size(0), ref.sampling.sampling_limits.ro.minimum,
-                ref.sampling.sampling_limits.ro.maximum, filter_RO_ref_coi_map_);
+            Gadgetron::generate_symmetric_filter_ref(ref_coil_map.get_size(0), ref.sampling.sampling_limits.kspace_encoding_step_0.minimum,
+                ref.sampling.sampling_limits.kspace_encoding_step_0.maximum, filter_RO_ref_coi_map_);
 
             if (!debug_folder_full_path_.empty()) {
                 std::stringstream os;
@@ -428,7 +428,7 @@ namespace Gadgetron {
         }
     }
 
-    void GenericReconGadget::compute_image_header(mrd::ReconBit& recon_bit, mrd::ImageArray& res, size_t e)
+    void GenericReconGadget::compute_image_header(mrd::ReconAssembly& recon_bit, mrd::ImageArray& res, size_t e)
     {
         size_t RO  = res.data.get_size(0);
         size_t E1  = res.data.get_size(1);
@@ -565,11 +565,11 @@ namespace Gadgetron {
 
                     meta["recon_matrix"] = {(long)sampling.recon_matrix.x, (long)sampling.recon_matrix.y, (long)sampling.recon_matrix.z};
 
-                    meta["sampling_limits_RO"] = {(long)sampling.sampling_limits.ro.minimum, (long)sampling.sampling_limits.ro.center, (long)sampling.sampling_limits.ro.maximum};
+                    meta["sampling_limits_RO"] = {(long)sampling.sampling_limits.kspace_encoding_step_0.minimum, (long)sampling.sampling_limits.kspace_encoding_step_0.center, (long)sampling.sampling_limits.kspace_encoding_step_0.maximum};
 
-                    meta["sampling_limits_E1"] = {(long)sampling.sampling_limits.e1.minimum, (long)sampling.sampling_limits.e1.center, (long)sampling.sampling_limits.e1.maximum};
+                    meta["sampling_limits_E1"] = {(long)sampling.sampling_limits.kspace_encoding_step_1.minimum, (long)sampling.sampling_limits.kspace_encoding_step_1.center, (long)sampling.sampling_limits.kspace_encoding_step_1.maximum};
 
-                    meta["sampling_limits_E2"] = {(long)sampling.sampling_limits.e2.minimum, (long)sampling.sampling_limits.e2.center, (long)sampling.sampling_limits.e2.maximum};
+                    meta["sampling_limits_E2"] = {(long)sampling.sampling_limits.kspace_encoding_step_2.minimum, (long)sampling.sampling_limits.kspace_encoding_step_2.center, (long)sampling.sampling_limits.kspace_encoding_step_2.maximum};
 
                     meta["PatientPosition"] = {im_header.position[0], im_header.position[1], im_header.position[2]};
 
@@ -615,7 +615,7 @@ namespace Gadgetron {
         }
     }
 
-    void GenericReconGadget::compute_snr_scaling_factor(mrd::ReconBit& recon_bit, float& effective_acce_factor, float& snr_scaling_ratio)
+    void GenericReconGadget::compute_snr_scaling_factor(mrd::ReconAssembly& recon_bit, float& effective_acce_factor, float& snr_scaling_ratio)
     {
         size_t RO     = recon_bit.data.data.get_size(0);
         size_t E1     = recon_bit.data.data.get_size(1);
@@ -645,8 +645,8 @@ namespace Gadgetron {
         if (num_readout_lines > 0) {
             float lenRO = RO;
 
-            size_t start_RO = recon_bit.data.sampling.sampling_limits.ro.minimum;
-            size_t end_RO   = recon_bit.data.sampling.sampling_limits.ro.maximum;
+            size_t start_RO = recon_bit.data.sampling.sampling_limits.kspace_encoding_step_0.minimum;
+            size_t end_RO   = recon_bit.data.sampling.sampling_limits.kspace_encoding_step_0.maximum;
 
             if ((start_RO < RO) && (end_RO < RO) && (end_RO - start_RO + 1 < RO)) {
                 lenRO = (end_RO - start_RO + 1);

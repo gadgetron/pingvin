@@ -86,16 +86,16 @@ namespace Gadgetron {
         // --------------------------------------------------
 
         // make the ref data for coil map estimation
-        virtual void make_ref_coil_map(mrd::BufferedData& ref_, std::vector<size_t> recon_dims, hoNDArray< std::complex<float> >& ref_calib, hoNDArray< std::complex<float> >& ref_coil_map, size_t encoding);
+        virtual void make_ref_coil_map(mrd::ReconBuffer& ref_, std::vector<size_t> recon_dims, hoNDArray< std::complex<float> >& ref_calib, hoNDArray< std::complex<float> >& ref_coil_map, size_t encoding);
 
         // estimate coil map
         virtual void perform_coil_map_estimation(const hoNDArray< std::complex<float> >& ref_coil_map, hoNDArray< std::complex<float> >& coil_map, size_t encoding);
 
         // compute image header
-        virtual void compute_image_header(mrd::ReconBit& recon_bit, mrd::ImageArray& res, size_t encoding);
+        virtual void compute_image_header(mrd::ReconAssembly& recon_bit, mrd::ImageArray& res, size_t encoding);
 
         // compute snr scaling factor from effective acceleration rate and sampling region
-        void compute_snr_scaling_factor(mrd::ReconBit& recon_bit, float& effective_acce_factor, float& snr_scaling_ratio);
+        void compute_snr_scaling_factor(mrd::ReconAssembly& recon_bit, float& effective_acce_factor, float& snr_scaling_ratio);
 
         // --------------------------------------------------
         // recon record functions

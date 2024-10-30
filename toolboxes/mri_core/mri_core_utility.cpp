@@ -996,48 +996,160 @@ namespace Gadgetron
     }
 
 
-void initialize_bucket_stats(mrd::AcquisitionBucketStats& stats)
+void add_stats_to_bucket(mrd::EncodingLimitsType& stats, const mrd::Acquisition& acq)
 {
-    stats.kspace_encode_step_1.minimum = std::numeric_limits<uint32_t>::max();
-    stats.kspace_encode_step_2.minimum = std::numeric_limits<uint32_t>::max();
-    stats.average.minimum = std::numeric_limits<uint32_t>::max();
-    stats.slice.minimum = std::numeric_limits<uint32_t>::max();
-    stats.contrast.minimum = std::numeric_limits<uint32_t>::max();
-    stats.phase.minimum = std::numeric_limits<uint32_t>::max();
-    stats.repetition.minimum = std::numeric_limits<uint32_t>::max();
-    stats.set.minimum = std::numeric_limits<uint32_t>::max();
-    stats.segment.minimum = std::numeric_limits<uint32_t>::max();
-}
+    if (!stats.kspace_encoding_step_0) {
+        auto limit = mrd::LimitType{};
+        limit.minimum = acq.Samples();
+        limit.maximum = acq.Samples();
+        stats.kspace_encoding_step_0 = limit;
+    } else {
+        auto& limit = stats.kspace_encoding_step_0.value();
+        if (acq.Samples() < limit.minimum) limit.minimum = acq.Samples();
+        if (acq.Samples() > limit.maximum) limit.maximum = acq.Samples();
+    }
 
-void add_stats_to_bucket(mrd::AcquisitionBucketStats& stats, const mrd::AcquisitionHeader& header)
-{
-    auto ke1 = header.idx.kspace_encode_step_1.value_or(0);
-    if (ke1 < stats.kspace_encode_step_1.minimum) stats.kspace_encode_step_1.minimum = ke1;
-    if (ke1 > stats.kspace_encode_step_1.maximum) stats.kspace_encode_step_1.maximum = ke1;
-    auto ke2 = header.idx.kspace_encode_step_2.value_or(0);
-    if (ke2 < stats.kspace_encode_step_2.minimum) stats.kspace_encode_step_2.minimum = ke2;
-    if (ke2 > stats.kspace_encode_step_2.maximum) stats.kspace_encode_step_2.maximum = ke2;
-    auto average = header.idx.average.value_or(0);
-    if (average < stats.average.minimum) stats.average.minimum = average;
-    if (average > stats.average.maximum) stats.average.maximum = average;
-    auto slice = header.idx.slice.value_or(0);
-    if (slice < stats.slice.minimum) stats.slice.minimum = slice;
-    if (slice > stats.slice.maximum) stats.slice.maximum = slice;
-    auto contrast = header.idx.contrast.value_or(0);
-    if (contrast < stats.contrast.minimum) stats.contrast.minimum = contrast;
-    if (contrast > stats.contrast.maximum) stats.contrast.maximum = contrast;
-    auto phase = header.idx.phase.value_or(0);
-    if (phase < stats.phase.minimum) stats.phase.minimum = phase;
-    if (phase > stats.phase.maximum) stats.phase.maximum = phase;
-    auto repetition = header.idx.repetition.value_or(0);
-    if (repetition < stats.repetition.minimum) stats.repetition.minimum = repetition;
-    if (repetition > stats.repetition.maximum) stats.repetition.maximum = repetition;
-    auto set = header.idx.set.value_or(0);
-    if (set < stats.set.minimum) stats.set.minimum = set;
-    if (set > stats.set.maximum) stats.set.maximum = set;
-    auto segment = header.idx.segment.value_or(0);
-    if (segment < stats.segment.minimum) stats.segment.minimum = segment;
-    if (segment > stats.segment.maximum) stats.segment.maximum = segment;
+    auto const& idx = acq.head.idx;
+
+    if (idx.kspace_encode_step_1) {
+        auto ke1 = idx.kspace_encode_step_1.value();
+        if (!stats.kspace_encoding_step_1) {
+            auto limit = mrd::LimitType{};
+            limit.minimum = ke1;
+            limit.maximum = ke1;
+            stats.kspace_encoding_step_1 = limit;
+        } else {
+            auto& limit = stats.kspace_encoding_step_1.value();
+            if (ke1 < limit.minimum) limit.minimum = ke1;
+            if (ke1 > limit.maximum) limit.maximum = ke1;
+        }
+    }
+
+    if (idx.kspace_encode_step_2) {
+        auto ke2 = idx.kspace_encode_step_2.value();
+        if (!stats.kspace_encoding_step_2) {
+            auto limit = mrd::LimitType{};
+            limit.minimum = ke2;
+            limit.maximum = ke2;
+            stats.kspace_encoding_step_2 = limit;
+        } else {
+            auto& limit = stats.kspace_encoding_step_2.value();
+            if (ke2 < limit.minimum) limit.minimum = ke2;
+            if (ke2 > limit.maximum) limit.maximum = ke2;
+        }
+    }
+
+    if (idx.average) {
+        auto average = idx.average.value();
+        if (!stats.average) {
+            auto limit = mrd::LimitType{};
+            limit.minimum = average;
+            limit.maximum = average;
+            stats.average = limit;
+        } else {
+            auto& limit = stats.average.value();
+            if (average < limit.minimum) limit.minimum = average;
+            if (average > limit.maximum) limit.maximum = average;
+        }
+    }
+
+    if (idx.slice) {
+        auto slice = idx.slice.value();
+        if (!stats.slice) {
+            auto limit = mrd::LimitType{};
+            limit.minimum = slice;
+            limit.maximum = slice;
+            stats.slice = limit;
+        } else {
+            auto& limit = stats.slice.value();
+            if (slice < limit.minimum) limit.minimum = slice;
+            if (slice > limit.maximum) limit.maximum = slice;
+        }
+    }
+
+    if (idx.contrast) {
+        auto contrast = idx.contrast.value();
+        if (!stats.contrast) {
+            auto limit = mrd::LimitType{};
+            limit.minimum = contrast;
+            limit.maximum = contrast;
+            stats.contrast = limit;
+        } else {
+            auto& limit = stats.contrast.value();
+            if (contrast < limit.minimum) limit.minimum = contrast;
+            if (contrast > limit.maximum) limit.maximum = contrast;
+        }
+    }
+
+    if (idx.phase) {
+        auto phase = idx.phase.value();
+        if (!stats.phase) {
+            auto limit = mrd::LimitType{};
+            limit.minimum = phase;
+            limit.maximum = phase;
+            stats.phase = limit;
+        } else {
+            auto& limit = stats.phase.value();
+            if (phase < limit.minimum) limit.minimum = phase;
+            if (phase > limit.maximum) limit.maximum = phase;
+        }
+    }
+
+    if (idx.repetition) {
+        auto repetition = idx.repetition.value();
+        if (!stats.repetition) {
+            auto limit = mrd::LimitType{};
+            limit.minimum = repetition;
+            limit.maximum = repetition;
+            stats.repetition = limit;
+        } else {
+            auto& limit = stats.repetition.value();
+            if (repetition < limit.minimum) limit.minimum = repetition;
+            if (repetition > limit.maximum) limit.maximum = repetition;
+        }
+    }
+
+    if (idx.set) {
+        auto set = idx.set.value();
+        if (!stats.set) {
+            auto limit = mrd::LimitType{};
+            limit.minimum = set;
+            limit.maximum = set;
+            stats.set = limit;
+        } else {
+            auto& limit = stats.set.value();
+            if (set < limit.minimum) limit.minimum = set;
+            if (set > limit.maximum) limit.maximum = set;
+        }
+    }
+
+    if (idx.segment) {
+        auto segment = idx.segment.value();
+        if (!stats.segment) {
+            auto limit = mrd::LimitType{};
+            limit.minimum = segment;
+            limit.maximum = segment;
+            stats.segment = limit;
+        } else {
+            auto& limit = stats.segment.value();
+            if (segment < limit.minimum) limit.minimum = segment;
+            if (segment > limit.maximum) limit.maximum = segment;
+        }
+    }
+
+    std::vector<std::pair<uint32_t, std::optional<mrd::LimitType>&>> user_limits;
+    for (auto& user_n : user_limits) {
+        if (!user_n.second) {
+            auto limit = mrd::LimitType{};
+            limit.minimum = user_n.first;
+            limit.maximum = user_n.first;
+            user_n.second = limit;
+        } else {
+            auto& limit = user_n.second.value();
+            if (user_n.first < limit.minimum) limit.minimum = user_n.first;
+            if (user_n.first > limit.maximum) limit.maximum = user_n.first;
+        }
+    }
 }
 
 void add_acquisition_to_bucket(mrd::AcquisitionBucket& bucket, mrd::Acquisition acq)
@@ -1049,18 +1161,17 @@ void add_acquisition_to_bucket(mrd::AcquisitionBucket& bucket, mrd::Acquisition 
         bucket.ref.push_back(acq);
         if (bucket.refstats.size() < (espace + 1)) {
             bucket.refstats.resize(espace + 1);
-            initialize_bucket_stats(bucket.refstats[espace]);
         }
-        add_stats_to_bucket(bucket.refstats[espace], acq.head);
+        add_stats_to_bucket(bucket.refstats[espace], acq);
     }
     if (!(acq.head.flags.HasFlags(mrd::AcquisitionFlags::kIsParallelCalibration) ||
           acq.head.flags.HasFlags(mrd::AcquisitionFlags::kIsPhasecorrData))) {
         if (bucket.datastats.size() < (espace + 1)) {
             bucket.datastats.resize(espace + 1);
-            initialize_bucket_stats(bucket.datastats[espace]);
         }
-        add_stats_to_bucket(bucket.datastats[espace], acq.head);
+        add_stats_to_bucket(bucket.datastats[espace], acq);
         bucket.data.emplace_back(std::move(acq));
     }
 }
-}
+
+} // namespace Gadgetron

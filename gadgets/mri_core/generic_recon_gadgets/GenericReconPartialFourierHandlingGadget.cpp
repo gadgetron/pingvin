@@ -77,44 +77,44 @@ namespace Gadgetron {
 
         if (recon_res.meta[0].count("sampling_limits_RO")) {
             auto& sl = recon_res.meta[0]["sampling_limits_RO"];
-            sampling_limits.ro.minimum = (uint32_t)std::get<long>(sl[0]);
-            sampling_limits.ro.center = (uint32_t)std::get<long>(sl[1]);
-            sampling_limits.ro.maximum = (uint32_t)std::get<long>(sl[2]);
+            sampling_limits.kspace_encoding_step_0.minimum = (uint32_t)std::get<long>(sl[0]);
+            sampling_limits.kspace_encoding_step_0.center = (uint32_t)std::get<long>(sl[1]);
+            sampling_limits.kspace_encoding_step_0.maximum = (uint32_t)std::get<long>(sl[2]);
         }
 
-        if (!((sampling_limits.ro.minimum >= 0) && (sampling_limits.ro.maximum < RO)
-                && (sampling_limits.ro.minimum <= sampling_limits.ro.maximum))) {
-            sampling_limits.ro.minimum    = 0;
-            sampling_limits.ro.center = RO / 2;
-            sampling_limits.ro.maximum    = RO - 1;
+        if (!((sampling_limits.kspace_encoding_step_0.minimum >= 0) && (sampling_limits.kspace_encoding_step_0.maximum < RO)
+                && (sampling_limits.kspace_encoding_step_0.minimum <= sampling_limits.kspace_encoding_step_0.maximum))) {
+            sampling_limits.kspace_encoding_step_0.minimum    = 0;
+            sampling_limits.kspace_encoding_step_0.center = RO / 2;
+            sampling_limits.kspace_encoding_step_0.maximum    = RO - 1;
         }
 
         if (recon_res.meta[0].count("sampling_limits_E1")) {
             auto& sl = recon_res.meta[0]["sampling_limits_E1"];
-            sampling_limits.e1.minimum = (uint32_t)std::get<long>(sl[0]);
-            sampling_limits.e1.center = (uint32_t)std::get<long>(sl[1]);
-            sampling_limits.e1.maximum = (uint32_t)std::get<long>(sl[2]);
+            sampling_limits.kspace_encoding_step_1.minimum = (uint32_t)std::get<long>(sl[0]);
+            sampling_limits.kspace_encoding_step_1.center = (uint32_t)std::get<long>(sl[1]);
+            sampling_limits.kspace_encoding_step_1.maximum = (uint32_t)std::get<long>(sl[2]);
         }
 
-        if (!((sampling_limits.e1.minimum >= 0) && (sampling_limits.e1.maximum < E1)
-                && (sampling_limits.e1.minimum <= sampling_limits.e1.maximum))) {
-            sampling_limits.e1.minimum    = 0;
-            sampling_limits.e1.center = E1 / 2;
-            sampling_limits.e1.maximum    = E1 - 1;
+        if (!((sampling_limits.kspace_encoding_step_1.minimum >= 0) && (sampling_limits.kspace_encoding_step_1.maximum < E1)
+                && (sampling_limits.kspace_encoding_step_1.minimum <= sampling_limits.kspace_encoding_step_1.maximum))) {
+            sampling_limits.kspace_encoding_step_1.minimum    = 0;
+            sampling_limits.kspace_encoding_step_1.center = E1 / 2;
+            sampling_limits.kspace_encoding_step_1.maximum    = E1 - 1;
         }
 
         if (recon_res.meta[0].count("sampling_limits_E2")) {
             auto& sl = recon_res.meta[0]["sampling_limits_E2"];
-            sampling_limits.e2.minimum = (uint32_t)std::get<long>(sl[0]);
-            sampling_limits.e2.center = (uint32_t)std::get<long>(sl[1]);
-            sampling_limits.e2.maximum = (uint32_t)std::get<long>(sl[2]);
+            sampling_limits.kspace_encoding_step_2.minimum = (uint32_t)std::get<long>(sl[0]);
+            sampling_limits.kspace_encoding_step_2.center = (uint32_t)std::get<long>(sl[1]);
+            sampling_limits.kspace_encoding_step_2.maximum = (uint32_t)std::get<long>(sl[2]);
         }
 
-        if (!((sampling_limits.e2.minimum >= 0) && (sampling_limits.e2.maximum < E2)
-                && (sampling_limits.e2.minimum <= sampling_limits.e2.maximum))) {
-            sampling_limits.e2.minimum    = 0;
-            sampling_limits.e2.center = E2 / 2;
-            sampling_limits.e2.maximum    = E2 - 1;
+        if (!((sampling_limits.kspace_encoding_step_2.minimum >= 0) && (sampling_limits.kspace_encoding_step_2.maximum < E2)
+                && (sampling_limits.kspace_encoding_step_2.minimum <= sampling_limits.kspace_encoding_step_2.maximum))) {
+            sampling_limits.kspace_encoding_step_2.minimum    = 0;
+            sampling_limits.kspace_encoding_step_2.center = E2 / 2;
+            sampling_limits.kspace_encoding_step_2.maximum    = E2 - 1;
         }
 
         // ----------------------------------------------------------
@@ -122,8 +122,8 @@ namespace Gadgetron {
         // ----------------------------------------------------------
         // if image padding is performed, those dimension may not need partial fourier handling
 
-        size_t startRO_ = sampling_limits.ro.minimum;
-        size_t endRO_   = sampling_limits.ro.maximum;
+        size_t startRO_ = sampling_limits.kspace_encoding_step_0.minimum;
+        size_t endRO_   = sampling_limits.kspace_encoding_step_0.maximum;
 
         size_t startE1_ = 0;
         size_t endE1_   = E1 - 1;
@@ -131,17 +131,17 @@ namespace Gadgetron {
         size_t startE2_ = 0;
         size_t endE2_   = E2 - 1;
 
-        if (std::abs((double)(sampling_limits.e1.maximum - E1 / 2) - (double)(E1 / 2 - sampling_limits.e1.minimum))
+        if (std::abs((double)(sampling_limits.kspace_encoding_step_1.maximum - E1 / 2) - (double)(E1 / 2 - sampling_limits.kspace_encoding_step_1.minimum))
             > acceFactorE1_[encoding]) {
-            startE1_ = sampling_limits.e1.minimum;
-            endE1_   = sampling_limits.e1.maximum;
+            startE1_ = sampling_limits.kspace_encoding_step_1.minimum;
+            endE1_   = sampling_limits.kspace_encoding_step_1.maximum;
         }
 
         if ((E2 > 1)
-            && (std::abs((double)(sampling_limits.e2.maximum - E2 / 2) - (double)(E2 / 2 - sampling_limits.e2.minimum))
+            && (std::abs((double)(sampling_limits.kspace_encoding_step_2.maximum - E2 / 2) - (double)(E2 / 2 - sampling_limits.kspace_encoding_step_2.minimum))
                 > acceFactorE2_[encoding])) {
-            startE2_ = sampling_limits.e2.minimum;
-            endE2_   = sampling_limits.e2.maximum;
+            startE2_ = sampling_limits.kspace_encoding_step_2.minimum;
+            endE2_   = sampling_limits.kspace_encoding_step_2.maximum;
         }
 
         long lenRO = endRO_ - startRO_ + 1;

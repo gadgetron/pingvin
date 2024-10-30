@@ -27,18 +27,24 @@ namespace std {
 namespace Gadgetron {
     namespace {
 
-        mrd::ReconBit& getRBit(std::map<BufferKey, mrd::ReconData>& recon_data_buffers,
+        mrd::ReconAssembly& getReconAssembly(std::map<BufferKey, mrd::ReconData>& recon_data_buffers,
             const BufferKey& key, uint32_t espace) {
 
-            // Look up the mrd::BufferedData entry corresponding to this encoding space
+            // Look up the mrd::ReconBuffer entry corresponding to this encoding space
             // create if needed and set the fields of view and matrix size
-            if (recon_data_buffers[key].rbits.size() < (espace + 1)) {
-                recon_data_buffers[key].rbits.resize(espace + 1);
+            if (recon_data_buffers[key].buffers.size() < (espace + 1)) {
+                recon_data_buffers[key].buffers.resize(espace + 1);
             }
 
-            return recon_data_buffers[key].rbits[espace];
+            return recon_data_buffers[key].buffers[espace];
         }
 
+        uint32_t getLimitSize(std::optional<mrd::LimitType> const& limit) {
+            if (limit) {
+                return limit->maximum - limit->minimum + 1;
+            }
+            return 1;
+        }
     }
 
     void BucketToBufferGadget::process(Core::InputChannel<mrd::AcquisitionBucket>& input, Core::OutputChannel& out) {
@@ -51,24 +57,24 @@ namespace Gadgetron {
             for (auto& acq : acq_bucket.ref) {
                 auto key              = getKey(acq.head.idx);
                 uint32_t espace       = acq.head.encoding_space_ref.value_or(0);
-                mrd::ReconBit& rbit = getRBit(recon_data_buffers, key, espace);
-                if (!rbit.ref) {
-                    rbit.ref = makeDataBuffer(acq, header.encoding[espace], acq_bucket.refstats[espace], true);
+                mrd::ReconAssembly& assembly = getReconAssembly(recon_data_buffers, key, espace);
+                if (!assembly.ref) {
+                    assembly.ref = makeDataBuffer(acq, header.encoding[espace], acq_bucket.refstats[espace], true);
                 }
 
-                add_acquisition(*rbit.ref, acq, header.encoding[espace], acq_bucket.refstats[espace], true);
+                add_acquisition(*assembly.ref, acq, header.encoding[espace], acq_bucket.refstats[espace], true);
             }
 
             // Buffer the bucketed Acquisitions
             for (auto& acq : acq_bucket.data) {
                 auto key              = getKey(acq.head.idx);
                 uint32_t espace       = acq.head.encoding_space_ref.value_or(0);
-                mrd::ReconBit& rbit = getRBit(recon_data_buffers, key, espace);
-                if (rbit.data.data.empty()) {
-                    rbit.data = makeDataBuffer(acq, header.encoding[espace], acq_bucket.datastats[espace], false);
+                mrd::ReconAssembly& assembly = getReconAssembly(recon_data_buffers, key, espace);
+                if (assembly.data.data.empty()) {
+                    assembly.data = makeDataBuffer(acq, header.encoding[espace], acq_bucket.datastats[espace], false);
                 }
 
-                add_acquisition(rbit.data, acq, header.encoding[espace], acq_bucket.datastats[espace], false);
+                add_acquisition(assembly.data, acq, header.encoding[espace], acq_bucket.datastats[espace], false);
             }
 
             // Send all the ReconData messages
@@ -133,25 +139,44 @@ namespace Gadgetron {
     }
 
     namespace {
-        uint32_t getSizeFromDimension(BucketToBufferGadget::Dimension dimension, const mrd::AcquisitionBucketStats& stats) {
+        uint32_t getSizeFromDimension(BucketToBufferGadget::Dimension dimension, const mrd::EncodingLimitsType& stats) {
             switch (dimension) {
-            case BucketToBufferGadget::Dimension::phase: return stats.phase.maximum - stats.phase.minimum + 1;
+            case BucketToBufferGadget::Dimension::phase:
+                if (stats.phase) {
+                    return stats.phase->maximum - stats.phase->minimum + 1;
+                }
             case BucketToBufferGadget::Dimension::contrast:
-                return stats.contrast.maximum - stats.contrast.minimum + 1;
+                if (stats.contrast) {
+                    return stats.contrast->maximum - stats.contrast->minimum + 1;
+                }
             case BucketToBufferGadget::Dimension::repetition:
-                return stats.repetition.maximum - stats.repetition.minimum + 1;
-            case BucketToBufferGadget::Dimension::set: return stats.set.maximum - stats.set.minimum + 1;
+                if (stats.repetition) {
+                    return stats.repetition->maximum - stats.repetition->minimum + 1;
+                }
+            case BucketToBufferGadget::Dimension::set:
+                if (stats.set) {
+                    return stats.set->maximum - stats.set->minimum + 1;
+                }
             case BucketToBufferGadget::Dimension::segment: // TODO: Is this an intentional fallthrough? See 3b643b814b3b9a88c7dbc48879471ce718c7ab56
-            case BucketToBufferGadget::Dimension::average: return stats.average.maximum - stats.average.minimum + 1;
-            case BucketToBufferGadget::Dimension::slice: return stats.slice.maximum - stats.slice.minimum + 1;
-            case BucketToBufferGadget::Dimension::none:; return 1;
+            case BucketToBufferGadget::Dimension::average:
+                if (stats.average) {
+                    return stats.average->maximum - stats.average->minimum + 1;
+                }
+            case BucketToBufferGadget::Dimension::slice:
+                if (stats.slice) {
+                    return stats.slice->maximum - stats.slice->minimum + 1;
+                }
+            case BucketToBufferGadget::Dimension::none:;
+                return 1;
             default: throw std::runtime_error("Illegal enum value.");
             }
+
+            return 1;
         }
     }
 
-    mrd::BufferedData BucketToBufferGadget::makeDataBuffer(const mrd::Acquisition& acq,
-        mrd::EncodingType encoding, const mrd::AcquisitionBucketStats& stats, bool forref) const
+    mrd::ReconBuffer BucketToBufferGadget::makeDataBuffer(const mrd::Acquisition& acq,
+        mrd::EncodingType encoding, const mrd::EncodingLimitsType& stats, bool forref) const
     {
         // Allocate the reference data array
         // 7D,  fixed order [E0, E1, E2, CHA, N, S, LOC]
@@ -168,7 +193,7 @@ namespace Gadgetron {
                                              << NE0 << " " << NE1 << " " << NE2 << " " << NCHA << " " << NN << " " << NS
                                              << " " << NLOC << "]");
 
-        mrd::BufferedData buffer;
+        mrd::ReconBuffer buffer;
 
         // Allocate the array for the data
         buffer.data = hoNDArray<std::complex<float>>(NE0, NE1, NE2, NCHA, NN, NS, NLOC);
@@ -192,7 +217,7 @@ namespace Gadgetron {
     }
 
     uint32_t BucketToBufferGadget::getNLOC(
-        const mrd::EncodingType& encoding, const mrd::AcquisitionBucketStats& stats) const {
+        const mrd::EncodingType& encoding, const mrd::EncodingLimitsType& stats) const {
         uint32_t NLOC;
         if (split_slices) {
             NLOC = 1;
@@ -204,7 +229,8 @@ namespace Gadgetron {
             }
 
             // if the AcquisitionAccumulateTriggerGadget sort by SLC, then the stats should be used to determine NLOC
-            size_t NLOC_received = stats.slice.maximum - stats.slice.minimum + 1;
+            // size_t NLOC_received = stats.slice ? stats.slice->maximum - stats.slice->minimum + 1 : 1;
+            size_t NLOC_received = getLimitSize(stats.slice); // TODO: Clean up
             if (NLOC_received < NLOC) {
                 NLOC = NLOC_received;
             }
@@ -212,7 +238,7 @@ namespace Gadgetron {
         return NLOC;
     }
     uint32_t BucketToBufferGadget::getNE2(
-        const mrd::EncodingType& encoding, const mrd::AcquisitionBucketStats& stats, bool forref) const {
+        const mrd::EncodingType& encoding, const mrd::EncodingLimitsType& stats, bool forref) const {
         uint32_t NE2;
 
         /** TODO: This is ugly... */
@@ -240,13 +266,13 @@ namespace Gadgetron {
                 NE2 = encoding.encoding_limits.kspace_encoding_step_2->maximum
                       - encoding.encoding_limits.kspace_encoding_step_2->minimum + 1;
             } else {
-                NE2 = stats.kspace_encode_step_2.maximum - stats.kspace_encode_step_2.minimum + 1;
+                NE2 = getLimitSize(stats.kspace_encoding_step_2);
             }
         }
         return NE2;
     }
     uint32_t BucketToBufferGadget::getNE1(
-        const mrd::EncodingType& encoding, const mrd::AcquisitionBucketStats& stats, bool forref) const {
+        const mrd::EncodingType& encoding, const mrd::EncodingLimitsType& stats, bool forref) const {
         uint32_t NE1;
 
         /** TODO: This is also ugly... */
@@ -256,7 +282,7 @@ namespace Gadgetron {
                 if (forref && encoding.parallel_imaging->calibration_mode &&
                         (encoding.parallel_imaging->calibration_mode.value() == mrd::CalibrationMode::kSeparate ||
                         encoding.parallel_imaging->calibration_mode.value() == mrd::CalibrationMode::kExternal)) {
-                    NE1 = stats.kspace_encode_step_1.maximum - stats.kspace_encode_step_1.minimum + 1;
+                    NE1 = stats.kspace_encoding_step_1 ? stats.kspace_encoding_step_1->maximum - stats.kspace_encoding_step_1->minimum + 1 : 1;
                 } else {
                     NE1 = encoding.encoded_space.matrix_size.y;
                 }
@@ -273,7 +299,7 @@ namespace Gadgetron {
                 NE1 = encoding.encoding_limits.kspace_encoding_step_1->maximum
                       - encoding.encoding_limits.kspace_encoding_step_1->minimum + 1;
             } else {
-                NE1 = stats.kspace_encode_step_1.maximum - stats.kspace_encode_step_1.minimum + 1;
+                NE1 = getLimitSize(stats.kspace_encoding_step_1);
             }
         }
         return NE1;
@@ -295,7 +321,7 @@ namespace Gadgetron {
     }
 
     mrd::SamplingDescription BucketToBufferGadget::createSamplingDescription(const mrd::EncodingType& encoding,
-        const mrd::AcquisitionBucketStats& stats, const mrd::Acquisition& acq, bool forref) const
+        const mrd::EncodingLimitsType& stats, const mrd::Acquisition& acq, bool forref) const
     {
         mrd::SamplingDescription sampling;
         sampling.encoded_fov    = encoding.encoded_space.field_of_view_mm;
@@ -314,13 +340,13 @@ namespace Gadgetron {
 
         // For cartesian trajectories, assume that any oversampling has been removed.
         if (((encoding.trajectory == mrd::Trajectory::kCartesian)) || (encoding.trajectory == mrd::Trajectory::kEpi)) {
-            sampling.sampling_limits.ro.minimum = acq.head.discard_pre.value_or(0);
-            sampling.sampling_limits.ro.maximum = acq.Samples() - acq.head.discard_post.value_or(0) - 1;
-            sampling.sampling_limits.ro.center  = acq.Samples() / 2;
+            sampling.sampling_limits.kspace_encoding_step_0.minimum = acq.head.discard_pre.value_or(0);
+            sampling.sampling_limits.kspace_encoding_step_0.maximum = acq.Samples() - acq.head.discard_post.value_or(0) - 1;
+            sampling.sampling_limits.kspace_encoding_step_0.center  = acq.Samples() / 2;
         } else {
-            sampling.sampling_limits.ro.minimum = 0;
-            sampling.sampling_limits.ro.maximum = encoding.encoded_space.matrix_size.x - 1;
-            sampling.sampling_limits.ro.center  = encoding.encoded_space.matrix_size.x / 2;
+            sampling.sampling_limits.kspace_encoding_step_0.minimum = 0;
+            sampling.sampling_limits.kspace_encoding_step_0.maximum = encoding.encoded_space.matrix_size.x - 1;
+            sampling.sampling_limits.kspace_encoding_step_0.center  = encoding.encoded_space.matrix_size.x / 2;
         }
 
         // if the scan is cartesian
@@ -343,36 +369,36 @@ namespace Gadgetron {
             }
 
             // E1
-            sampling.sampling_limits.e1.minimum
+            sampling.sampling_limits.kspace_encoding_step_1.minimum
                 = encoding.encoding_limits.kspace_encoding_step_1->minimum + space_matrix_offset_E1;
-            sampling.sampling_limits.e1.maximum
+            sampling.sampling_limits.kspace_encoding_step_1.maximum
                 = encoding.encoding_limits.kspace_encoding_step_1->maximum + space_matrix_offset_E1;
-            sampling.sampling_limits.e1.center = sampling.encoded_matrix.y / 2;
+            sampling.sampling_limits.kspace_encoding_step_1.center = sampling.encoded_matrix.y / 2;
 
-            GADGET_CHECK_THROW(sampling.sampling_limits.e1.minimum < encoding.encoded_space.matrix_size.y);
-            GADGET_CHECK_THROW(sampling.sampling_limits.e1.maximum >= sampling.sampling_limits.e1.minimum);
-            GADGET_CHECK_THROW(sampling.sampling_limits.e1.center >= sampling.sampling_limits.e1.minimum);
-            GADGET_CHECK_THROW(sampling.sampling_limits.e1.center <= sampling.sampling_limits.e1.maximum);
+            GADGET_CHECK_THROW(sampling.sampling_limits.kspace_encoding_step_1.minimum < encoding.encoded_space.matrix_size.y);
+            GADGET_CHECK_THROW(sampling.sampling_limits.kspace_encoding_step_1.maximum >= sampling.sampling_limits.kspace_encoding_step_1.minimum);
+            GADGET_CHECK_THROW(sampling.sampling_limits.kspace_encoding_step_1.center >= sampling.sampling_limits.kspace_encoding_step_1.minimum);
+            GADGET_CHECK_THROW(sampling.sampling_limits.kspace_encoding_step_1.center <= sampling.sampling_limits.kspace_encoding_step_1.maximum);
 
             // E2
-            sampling.sampling_limits.e2.minimum
+            sampling.sampling_limits.kspace_encoding_step_2.minimum
                 = encoding.encoding_limits.kspace_encoding_step_2->minimum + space_matrix_offset_E2;
-            sampling.sampling_limits.e2.maximum
+            sampling.sampling_limits.kspace_encoding_step_2.maximum
                 = encoding.encoding_limits.kspace_encoding_step_2->maximum + space_matrix_offset_E2;
-            sampling.sampling_limits.e2.center = sampling.encoded_matrix.z / 2;
+            sampling.sampling_limits.kspace_encoding_step_2.center = sampling.encoded_matrix.z / 2;
 
-            GADGET_CHECK_THROW(sampling.sampling_limits.e2.minimum < encoding.encoded_space.matrix_size.y);
-            GADGET_CHECK_THROW(sampling.sampling_limits.e2.maximum >= sampling.sampling_limits.e2.minimum);
-            GADGET_CHECK_THROW(sampling.sampling_limits.e2.center >= sampling.sampling_limits.e2.minimum);
-            GADGET_CHECK_THROW(sampling.sampling_limits.e2.center <= sampling.sampling_limits.e2.maximum);
+            GADGET_CHECK_THROW(sampling.sampling_limits.kspace_encoding_step_2.minimum < encoding.encoded_space.matrix_size.y);
+            GADGET_CHECK_THROW(sampling.sampling_limits.kspace_encoding_step_2.maximum >= sampling.sampling_limits.kspace_encoding_step_2.minimum);
+            GADGET_CHECK_THROW(sampling.sampling_limits.kspace_encoding_step_2.center >= sampling.sampling_limits.kspace_encoding_step_2.minimum);
+            GADGET_CHECK_THROW(sampling.sampling_limits.kspace_encoding_step_2.center <= sampling.sampling_limits.kspace_encoding_step_2.maximum);
         } else {
-            sampling.sampling_limits.e1.minimum    = encoding.encoding_limits.kspace_encoding_step_1->minimum;
-            sampling.sampling_limits.e1.maximum    = encoding.encoding_limits.kspace_encoding_step_1->maximum;
-            sampling.sampling_limits.e1.center = encoding.encoding_limits.kspace_encoding_step_1->center;
+            sampling.sampling_limits.kspace_encoding_step_1.minimum    = encoding.encoding_limits.kspace_encoding_step_1->minimum;
+            sampling.sampling_limits.kspace_encoding_step_1.maximum    = encoding.encoding_limits.kspace_encoding_step_1->maximum;
+            sampling.sampling_limits.kspace_encoding_step_1.center = encoding.encoding_limits.kspace_encoding_step_1->center;
 
-            sampling.sampling_limits.e2.minimum    = encoding.encoding_limits.kspace_encoding_step_2->minimum;
-            sampling.sampling_limits.e2.maximum    = encoding.encoding_limits.kspace_encoding_step_2->maximum;
-            sampling.sampling_limits.e2.center = encoding.encoding_limits.kspace_encoding_step_2->center;
+            sampling.sampling_limits.kspace_encoding_step_2.minimum    = encoding.encoding_limits.kspace_encoding_step_2->minimum;
+            sampling.sampling_limits.kspace_encoding_step_2.maximum    = encoding.encoding_limits.kspace_encoding_step_2->maximum;
+            sampling.sampling_limits.kspace_encoding_step_2.center = encoding.encoding_limits.kspace_encoding_step_2->center;
         }
 
         if (verbose) {
@@ -384,18 +410,18 @@ namespace Gadgetron {
                           << encoding.encoded_space.matrix_size.y << " " << encoding.encoded_space.matrix_size.z << " ] ");
 
             GDEBUG_STREAM("Sampling limits : "
-                          << "- RO : [ " << sampling.sampling_limits.ro.minimum << " "
-                          << sampling.sampling_limits.ro.center << " " << sampling.sampling_limits.ro.maximum
-                          << " ] - E1 : [ " << sampling.sampling_limits.e1.minimum << " "
-                          << sampling.sampling_limits.e1.center << " " << sampling.sampling_limits.e1.maximum
-                          << " ] - E2 : [ " << sampling.sampling_limits.e2.minimum << " "
-                          << sampling.sampling_limits.e2.center << " " << sampling.sampling_limits.e2.maximum << " ]");
+                          << "- kspace_encoding_step_0 : [ " << sampling.sampling_limits.kspace_encoding_step_0.minimum << " "
+                          << sampling.sampling_limits.kspace_encoding_step_0.center << " " << sampling.sampling_limits.kspace_encoding_step_0.maximum
+                          << " ] - kspace_encoding_step_1 : [ " << sampling.sampling_limits.kspace_encoding_step_1.minimum << " "
+                          << sampling.sampling_limits.kspace_encoding_step_1.center << " " << sampling.sampling_limits.kspace_encoding_step_1.maximum
+                          << " ] - kspace_encoding_step_2 : [ " << sampling.sampling_limits.kspace_encoding_step_2.minimum << " "
+                          << sampling.sampling_limits.kspace_encoding_step_2.center << " " << sampling.sampling_limits.kspace_encoding_step_2.maximum << " ]");
         }
         return sampling;
     }
 
-    void BucketToBufferGadget::add_acquisition(mrd::BufferedData& dataBuffer, const mrd::Acquisition& acq,
-        mrd::EncodingType encoding, const mrd::AcquisitionBucketStats& stats, bool forref) {
+    void BucketToBufferGadget::add_acquisition(mrd::ReconBuffer& dataBuffer, const mrd::Acquisition& acq,
+        mrd::EncodingType encoding, const mrd::EncodingLimitsType& stats, bool forref) {
 
         uint16_t NE0  = (uint16_t)dataBuffer.data.get_size(0);
         uint16_t NE1  = (uint16_t)dataBuffer.data.get_size(1);
@@ -417,7 +443,7 @@ namespace Gadgetron {
                 // acq has been corrected for center, e.g. by asymmetric handling
                 offset = acq.head.discard_pre.value_or(0);
             } else {
-                offset = (long long)dataBuffer.sampling.sampling_limits.ro.center - (long long)acq.head.center_sample.value_or(0);
+                offset = (long long)dataBuffer.sampling.sampling_limits.kspace_encoding_step_0.center - (long long)acq.head.center_sample.value_or(0);
             }
         } else {
             // TODO what about EPI with asymmetric readouts?
@@ -478,12 +504,12 @@ namespace Gadgetron {
                     ((encoding.parallel_imaging->calibration_mode.value() == mrd::CalibrationMode::kSeparate)
                         || (encoding.parallel_imaging->calibration_mode.value() == mrd::CalibrationMode::kExternal)))
             {
-                if (stats.kspace_encode_step_1.minimum > 0) {
-                    e1 = acq.head.idx.kspace_encode_step_1.value_or(0) - stats.kspace_encode_step_1.minimum;
+                if (stats.kspace_encoding_step_1 && stats.kspace_encoding_step_1->minimum > 0) {
+                    e1 = acq.head.idx.kspace_encode_step_1.value_or(0) - stats.kspace_encoding_step_1->minimum;
                 }
 
-                if (stats.kspace_encode_step_2.minimum > 0) {
-                    e2 = acq.head.idx.kspace_encode_step_2.value_or(0) - stats.kspace_encode_step_2.minimum;
+                if (stats.kspace_encoding_step_2 && stats.kspace_encoding_step_2->minimum > 0) {
+                    e2 = acq.head.idx.kspace_encode_step_2.value_or(0) - stats.kspace_encoding_step_2->minimum;
                 }
             }
 

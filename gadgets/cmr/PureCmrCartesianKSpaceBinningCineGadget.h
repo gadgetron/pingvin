@@ -109,8 +109,8 @@ namespace Gadgetron {
         // calibration mode
         std::vector<mrd::CalibrationMode> calib_mode_;
 
-        BinningResult perform_binning(mrd::ReconBit reconBit, size_t encoding) const;
-        void set_image_header(const mrd::ReconBit& recon_bit, mrd::ImageArray& res, size_t enc) const;
+        BinningResult perform_binning(mrd::ReconAssembly reconBit, size_t encoding) const;
+        void set_image_header(const mrd::ReconAssembly& recon_bit, mrd::ImageArray& res, size_t enc) const;
     };
 
 }

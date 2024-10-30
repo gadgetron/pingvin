@@ -488,36 +488,36 @@ TEST_F(python_converter_test, mrd_recon_data)
         boost::python::object global(main.attr("__dict__"));
         boost::python::exec("import mrd\n"
             "def mk_mrd_recon_data(recon_data): \n"
-            "    recon_data.rbits[0].data.data *= 2\n"
-            "    recon_data.rbits[0].data.headers[1, 4, 3].measurement_uid = 12345\n"
+            "    recon_data.buffers[0].data.data *= 2\n"
+            "    recon_data.buffers[0].data.headers[1, 4, 3].measurement_uid = 12345\n"
             "    return recon_data\n",
             global, global);
     }
 
     mrd::ReconData recon_data;
-    recon_data.rbits.resize(1);
-    recon_data.rbits[0].data.data.create(192, 144, 1, 2, 4, 5, 2); // [RO E1 E2 CHA N S SLC]
-    recon_data.rbits[0].data.headers.create(4, 5, 2);
+    recon_data.buffers.resize(1);
+    recon_data.buffers[0].data.data.create(192, 144, 1, 2, 4, 5, 2); // [RO E1 E2 CHA N S SLC]
+    recon_data.buffers[0].data.headers.create(4, 5, 2);
 
     size_t n;
-    for (n = 0; n < recon_data.rbits[0].data.data.get_number_of_elements(); n++)
+    for (n = 0; n < recon_data.buffers[0].data.data.get_number_of_elements(); n++)
     {
-        recon_data.rbits[0].data.data(n) = std::complex<float>(3.0, 124.2);
+        recon_data.buffers[0].data.data(n) = std::complex<float>(3.0, 124.2);
     }
 
-    for (n = 0; n < recon_data.rbits[0].data.headers.get_number_of_elements(); n++)
+    for (n = 0; n < recon_data.buffers[0].data.headers.get_number_of_elements(); n++)
     {
-        recon_data.rbits[0].data.headers(n).measurement_uid = 123;
+        recon_data.buffers[0].data.headers(n).measurement_uid = 123;
     }
 
     PythonFunction< mrd::ReconData > mk_mrd_recon_data("__main__", "mk_mrd_recon_data");
     recon_data = mk_mrd_recon_data(recon_data);
 
-    EXPECT_FLOAT_EQ(recon_data.rbits[0].data.data(65558).real(), 6.0);
-    EXPECT_FLOAT_EQ(recon_data.rbits[0].data.data(65558).imag(), 248.4);
+    EXPECT_FLOAT_EQ(recon_data.buffers[0].data.data(65558).real(), 6.0);
+    EXPECT_FLOAT_EQ(recon_data.buffers[0].data.data(65558).imag(), 248.4);
 
-    EXPECT_EQ(recon_data.rbits[0].data.headers(0, 2, 0).measurement_uid, 123);
-    EXPECT_EQ(recon_data.rbits[0].data.headers(1, 3, 1).measurement_uid, 123);
-    EXPECT_EQ(recon_data.rbits[0].data.headers(2, 1, 0).measurement_uid, 123);
-    EXPECT_EQ(recon_data.rbits[0].data.headers(3, 4, 1).measurement_uid, 12345);
+    EXPECT_EQ(recon_data.buffers[0].data.headers(0, 2, 0).measurement_uid, 123);
+    EXPECT_EQ(recon_data.buffers[0].data.headers(1, 3, 1).measurement_uid, 123);
+    EXPECT_EQ(recon_data.buffers[0].data.headers(2, 1, 0).measurement_uid, 123);
+    EXPECT_EQ(recon_data.buffers[0].data.headers(3, 4, 1).measurement_uid, 12345);
 }

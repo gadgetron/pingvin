@@ -86,7 +86,7 @@ namespace Gadgetron {
         return GADGET_OK;
     }
 
-    void GenericReconCartesianNonLinearSpirit2DTGadget::perform_unwrapping(mrd::ReconBit& recon_bit, ReconObjType& recon_obj, size_t e)
+    void GenericReconCartesianNonLinearSpirit2DTGadget::perform_unwrapping(mrd::ReconAssembly& recon_bit, ReconObjType& recon_obj, size_t e)
     {
         try
         {

@@ -70,16 +70,16 @@ namespace Gadgetron {
         process_called_times_++;
 
         mrd::ReconData* recon_data = m1->getObjectPtr();
-        if (recon_data->rbits.size() > num_encoding_spaces_)
+        if (recon_data->buffers.size() > num_encoding_spaces_)
         {
-            GWARN_STREAM("Incoming recon_bit has more encoding spaces than the protocol : " << recon_data->rbits.size() << " instead of " << num_encoding_spaces_);
+            GWARN_STREAM("Incoming recon_bit has more encoding spaces than the protocol : " << recon_data->buffers.size() << " instead of " << num_encoding_spaces_);
         }
 
-        // for every encoding space, prepare the recon_data->rbits[e].ref
+        // for every encoding space, prepare the recon_data->buffers[e].ref
         size_t e, n, s, slc;
-        for (e = 0; e < recon_data->rbits.size(); e++)
+        for (e = 0; e < recon_data->buffers.size(); e++)
         {
-            auto & rbit = recon_data->rbits[e];
+            auto & rbit = recon_data->buffers[e];
 
             hoNDArray< std::complex<float> >& data = rbit.data.data;
 

@@ -461,23 +461,23 @@ public:
     try {
       bp::object pyRecondata((bp::handle<>(bp::borrowed(obj))));
 
-      bp::list pyRbits = bp::list(pyRecondata.attr("rbits"));
+      bp::list pyBuffers = bp::list(pyRecondata.attr("buffers"));
 
-      auto length = bp::len(pyRbits);
+      auto length = bp::len(pyBuffers);
       for (int i = 0; i < length; i++){
-        bp::object reconBit = pyRbits[i];
+        bp::object pyReconAssembly = pyBuffers[i];
 
-        mrd::ReconBit rBit;
-        rBit.data = extractBufferedData(reconBit.attr("data"));
+        mrd::ReconAssembly assembly;
+        assembly.data = extractReconBuffer(pyReconAssembly.attr("data"));
 
-        auto pyRef = bp::object(reconBit.attr("ref"));
+        auto pyRef = bp::object(pyReconAssembly.attr("ref"));
         if (pyRef.is_none()){
-          rBit.ref = std::nullopt;
+          assembly.ref = std::nullopt;
         } else {
-          rBit.ref = extractBufferedData(reconBit.attr("ref"));
+          assembly.ref = extractReconBuffer(pyReconAssembly.attr("ref"));
         }
 
-        reconData->rbits.push_back(rBit);
+        reconData->buffers.push_back(assembly);
       }
 
     }catch (const bp::error_already_set&) {
@@ -491,28 +491,28 @@ public:
       GILLock lock;
       bp::object module = bp::import("mrd");
 
-      bp::list pyRbits;
-      for (auto& reconBit : reconData.rbits) {
-          auto data = BufferedDataToPython(reconBit.data);
-          auto ref = reconBit.ref ? BufferedDataToPython(*reconBit.ref) : bp::object();
+      bp::list pyBuffers;
+      for (auto& reconAssembly : reconData.buffers) {
+          auto data = ReconBufferToPython(reconAssembly.data);
+          auto ref = reconAssembly.ref ? ReconBufferToPython(*reconAssembly.ref) : bp::object();
 
-          auto pyReconBit = module.attr("ReconBit")();
-          pyReconBit.attr("data") = data;
-          pyReconBit.attr("ref") = ref;
+          auto pyReconAssembly = module.attr("ReconAssembly")();
+          pyReconAssembly.attr("data") = data;
+          pyReconAssembly.attr("ref") = ref;
 
-          pyRbits.append(pyReconBit);
+          pyBuffers.append(pyReconAssembly);
       }
-      bp::incref(pyRbits.ptr());
+      bp::incref(pyBuffers.ptr());
 
       auto pyReconData = module.attr("ReconData")();
-      pyReconData.attr("rbits") = pyRbits;
+      pyReconData.attr("buffers") = pyBuffers;
 
       // increment the reference count so it exists after `return`
       return bp::incref(pyReconData.ptr());
   }
 
 private:
-  static bp::object BufferedDataToPython( const mrd::BufferedData & dataBuffer){
+  static bp::object ReconBufferToPython( const mrd::ReconBuffer & dataBuffer){
     const hoNDArray<std::complex<float>>& data = dataBuffer.data;
     auto pyData = bp::object(data);
     bp::incref(pyData.ptr());
@@ -536,7 +536,7 @@ private:
     bp::incref(pySampling.ptr());
 
     bp::object module = bp::import("mrd");
-    auto buffer = module.attr("BufferedData")();
+    auto buffer = module.attr("ReconBuffer")();
 
     buffer.attr("data") = pyData;
     buffer.attr("trajectory") = pyTraj;
@@ -576,25 +576,25 @@ private:
         recon_matrix.attr("z") = sD.recon_matrix.z;
         pySd.attr("recon_matrix") = recon_matrix;
 
-        auto sampling_limit_ro = module.attr("LimitType")();
-        sampling_limit_ro.attr("minimum") = sD.sampling_limits.ro.minimum;
-        sampling_limit_ro.attr("maximum") = sD.sampling_limits.ro.maximum;
-        sampling_limit_ro.attr("center") = sD.sampling_limits.ro.center;
+        auto sampling_limit_e0 = module.attr("LimitType")();
+        sampling_limit_e0.attr("minimum") = sD.sampling_limits.kspace_encoding_step_0.minimum;
+        sampling_limit_e0.attr("maximum") = sD.sampling_limits.kspace_encoding_step_0.maximum;
+        sampling_limit_e0.attr("center") = sD.sampling_limits.kspace_encoding_step_0.center;
 
         auto sampling_limit_e1 = module.attr("LimitType")();
-        sampling_limit_e1.attr("minimum") = sD.sampling_limits.e1.minimum;
-        sampling_limit_e1.attr("maximum") = sD.sampling_limits.e1.maximum;
-        sampling_limit_e1.attr("center") = sD.sampling_limits.e1.center;
+        sampling_limit_e1.attr("minimum") = sD.sampling_limits.kspace_encoding_step_1.minimum;
+        sampling_limit_e1.attr("maximum") = sD.sampling_limits.kspace_encoding_step_1.maximum;
+        sampling_limit_e1.attr("center") = sD.sampling_limits.kspace_encoding_step_1.center;
 
         auto sampling_limit_e2 = module.attr("LimitType")();
-        sampling_limit_e2.attr("minimum") = sD.sampling_limits.e2.minimum;
-        sampling_limit_e2.attr("maximum") = sD.sampling_limits.e2.maximum;
-        sampling_limit_e2.attr("center") = sD.sampling_limits.e2.center;
+        sampling_limit_e2.attr("minimum") = sD.sampling_limits.kspace_encoding_step_2.minimum;
+        sampling_limit_e2.attr("maximum") = sD.sampling_limits.kspace_encoding_step_2.maximum;
+        sampling_limit_e2.attr("center") = sD.sampling_limits.kspace_encoding_step_2.center;
 
         auto sampling_limits = module.attr("SamplingLimits")();
-        sampling_limits.attr("ro") = sampling_limit_ro;
-        sampling_limits.attr("e1") = sampling_limit_e1;
-        sampling_limits.attr("e2") = sampling_limit_e2;
+        sampling_limits.attr("kspace_encoding_step_0") = sampling_limit_e0;
+        sampling_limits.attr("kspace_encoding_step_1") = sampling_limit_e1;
+        sampling_limits.attr("kspace_encoding_step_2") = sampling_limit_e2;
         pySd.attr("sampling_limits") = sampling_limits;
 
         return pySd;
@@ -605,15 +605,15 @@ private:
     }
   }
 
-  static mrd::BufferedData extractBufferedData(bp::object pyBufferedData){
-    mrd::BufferedData result;
+  static mrd::ReconBuffer extractReconBuffer(bp::object pyReconBuffer){
+    mrd::ReconBuffer result;
 
-    result.data = bp::extract<hoNDArray<std::complex<float>>>(pyBufferedData.attr("data"))();
-    result.trajectory = bp::extract<hoNDArray<float>>(pyBufferedData.attr("trajectory"))();
-    result.density = bp::extract<std::optional<hoNDArray<float>>>(pyBufferedData.attr("density"))();
-    result.headers = bp::extract<hoNDArray<mrd::AcquisitionHeader>>(pyBufferedData.attr("headers"))();
+    result.data = bp::extract<hoNDArray<std::complex<float>>>(pyReconBuffer.attr("data"))();
+    result.trajectory = bp::extract<hoNDArray<float>>(pyReconBuffer.attr("trajectory"))();
+    result.density = bp::extract<std::optional<hoNDArray<float>>>(pyReconBuffer.attr("density"))();
+    result.headers = bp::extract<hoNDArray<mrd::AcquisitionHeader>>(pyReconBuffer.attr("headers"))();
 
-    auto pySampling = pyBufferedData.attr("sampling");
+    auto pySampling = pyReconBuffer.attr("sampling");
     mrd::SamplingDescription sampling;
     sampling.encoded_fov.x = bp::extract<float>(pySampling.attr("encoded_fov").attr("x"));
     sampling.encoded_fov.y = bp::extract<float>(pySampling.attr("encoded_fov").attr("y"));
@@ -628,18 +628,18 @@ private:
     sampling.recon_matrix.y = bp::extract<uint32_t>(pySampling.attr("recon_matrix").attr("y"));
     sampling.recon_matrix.z = bp::extract<uint32_t>(pySampling.attr("recon_matrix").attr("z"));
 
-    auto pySLro = pySampling.attr("sampling_limits").attr("ro");
-    sampling.sampling_limits.ro.minimum = bp::extract<uint32_t>(pySLro.attr("minimum"));
-    sampling.sampling_limits.ro.center = bp::extract<uint32_t>(pySLro.attr("center"));
-    sampling.sampling_limits.ro.maximum = bp::extract<uint32_t>(pySLro.attr("maximum"));
-    auto pySLe1 = pySampling.attr("sampling_limits").attr("e1");
-    sampling.sampling_limits.e1.minimum = bp::extract<uint32_t>(pySLe1.attr("minimum"));
-    sampling.sampling_limits.e1.center = bp::extract<uint32_t>(pySLe1.attr("center"));
-    sampling.sampling_limits.e1.maximum = bp::extract<uint32_t>(pySLe1.attr("maximum"));
-    auto pySLe2 = pySampling.attr("sampling_limits").attr("e2");
-    sampling.sampling_limits.e2.minimum = bp::extract<uint32_t>(pySLe2.attr("minimum"));
-    sampling.sampling_limits.e2.center = bp::extract<uint32_t>(pySLe2.attr("center"));
-    sampling.sampling_limits.e2.maximum = bp::extract<uint32_t>(pySLe2.attr("maximum"));
+    auto pySLro = pySampling.attr("sampling_limits").attr("kspace_encoding_step_0");
+    sampling.sampling_limits.kspace_encoding_step_0.minimum = bp::extract<uint32_t>(pySLro.attr("minimum"));
+    sampling.sampling_limits.kspace_encoding_step_0.center = bp::extract<uint32_t>(pySLro.attr("center"));
+    sampling.sampling_limits.kspace_encoding_step_0.maximum = bp::extract<uint32_t>(pySLro.attr("maximum"));
+    auto pySLe1 = pySampling.attr("sampling_limits").attr("kspace_encoding_step_1");
+    sampling.sampling_limits.kspace_encoding_step_1.minimum = bp::extract<uint32_t>(pySLe1.attr("minimum"));
+    sampling.sampling_limits.kspace_encoding_step_1.center = bp::extract<uint32_t>(pySLe1.attr("center"));
+    sampling.sampling_limits.kspace_encoding_step_1.maximum = bp::extract<uint32_t>(pySLe1.attr("maximum"));
+    auto pySLe2 = pySampling.attr("sampling_limits").attr("kspace_encoding_step_2");
+    sampling.sampling_limits.kspace_encoding_step_2.minimum = bp::extract<uint32_t>(pySLe2.attr("minimum"));
+    sampling.sampling_limits.kspace_encoding_step_2.center = bp::extract<uint32_t>(pySLe2.attr("center"));
+    sampling.sampling_limits.kspace_encoding_step_2.maximum = bp::extract<uint32_t>(pySLe2.attr("maximum"));
 
     result.sampling = sampling;
 

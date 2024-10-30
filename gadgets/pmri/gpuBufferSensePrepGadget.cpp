@@ -64,15 +64,15 @@ int gpuBufferSensePrepGadget::process(
 
 	mrd::ReconData* recondata= m1->getObjectPtr();
 
-	if (recondata->rbits.size() != 1){
+	if (recondata->buffers.size() != 1){
 		throw std::runtime_error("gpuBufferSensePrepGadget only support a single encoding space");
 	}
 
-	mrd::ReconBit& reconbit = recondata->rbits[0];
+	mrd::ReconAssembly& reconbit = recondata->buffers[0];
 
 	GenericReconJob job;
 
-	mrd::BufferedData* buffer = &reconbit.data;
+	mrd::ReconBuffer* buffer = &reconbit.data;
 
 	//Use reference data if available.
 	if (reconbit.ref){
@@ -131,7 +131,7 @@ int gpuBufferSensePrepGadget::process(
 	}
 
 
-	mrd::BufferedData* mainbuffer = &reconbit.data;
+	mrd::ReconBuffer* mainbuffer = &reconbit.data;
 
 	//Permute as Sensegadgets expect last dimension to be coils. *Sigh*
 	job.dat_host_ = boost::make_shared<hoNDArray<complext<float>>>(permute(*(hoNDArray<float_complext>*)&mainbuffer->data,new_order));

@@ -124,44 +124,44 @@ namespace Gadgetron {
 
         if (recon_res_->meta[0].count("sampling_limits_RO")) {
             auto& sl = recon_res_->meta[0]["sampling_limits_RO"];
-            sampling_limits.ro.minimum = (uint32_t)std::get<long>(sl[0]);
-            sampling_limits.ro.center = (uint32_t)std::get<long>(sl[1]);
-            sampling_limits.ro.maximum = (uint32_t)std::get<long>(sl[2]);
+            sampling_limits.kspace_encoding_step_0.minimum = (uint32_t)std::get<long>(sl[0]);
+            sampling_limits.kspace_encoding_step_0.center = (uint32_t)std::get<long>(sl[1]);
+            sampling_limits.kspace_encoding_step_0.maximum = (uint32_t)std::get<long>(sl[2]);
         }
 
-        if ( !( (sampling_limits.ro.minimum >= 0) && (sampling_limits.ro.maximum < RO) && (sampling_limits.ro.minimum <= sampling_limits.ro.maximum)) )
+        if ( !( (sampling_limits.kspace_encoding_step_0.minimum >= 0) && (sampling_limits.kspace_encoding_step_0.maximum < RO) && (sampling_limits.kspace_encoding_step_0.minimum <= sampling_limits.kspace_encoding_step_0.maximum)) )
         {
-            sampling_limits.ro.minimum    = 0;
-            sampling_limits.ro.center = RO / 2;
-            sampling_limits.ro.maximum    = RO - 1;
+            sampling_limits.kspace_encoding_step_0.minimum    = 0;
+            sampling_limits.kspace_encoding_step_0.center = RO / 2;
+            sampling_limits.kspace_encoding_step_0.maximum    = RO - 1;
         }
 
         if (recon_res_->meta[0].count("sampling_limits_E1")) {
             auto& sl = recon_res_->meta[0]["sampling_limits_E1"];
-            sampling_limits.e1.minimum = (uint32_t)std::get<long>(sl[0]);
-            sampling_limits.e1.center = (uint32_t)std::get<long>(sl[1]);
-            sampling_limits.e1.maximum = (uint32_t)std::get<long>(sl[2]);
+            sampling_limits.kspace_encoding_step_1.minimum = (uint32_t)std::get<long>(sl[0]);
+            sampling_limits.kspace_encoding_step_1.center = (uint32_t)std::get<long>(sl[1]);
+            sampling_limits.kspace_encoding_step_1.maximum = (uint32_t)std::get<long>(sl[2]);
         }
 
-        if (!((sampling_limits.e1.minimum >= 0) && (sampling_limits.e1.maximum < E1) && (sampling_limits.e1.minimum <= sampling_limits.e1.maximum)))
+        if (!((sampling_limits.kspace_encoding_step_1.minimum >= 0) && (sampling_limits.kspace_encoding_step_1.maximum < E1) && (sampling_limits.kspace_encoding_step_1.minimum <= sampling_limits.kspace_encoding_step_1.maximum)))
         {
-            sampling_limits.e1.minimum    = 0;
-            sampling_limits.e1.center = E1 / 2;
-            sampling_limits.e1.maximum    = E1 - 1;
+            sampling_limits.kspace_encoding_step_1.minimum    = 0;
+            sampling_limits.kspace_encoding_step_1.center = E1 / 2;
+            sampling_limits.kspace_encoding_step_1.maximum    = E1 - 1;
         }
 
         if (recon_res_->meta[0].count("sampling_limits_E2")) {
             auto& sl = recon_res_->meta[0]["sampling_limits_E2"];
-            sampling_limits.e2.minimum = (uint32_t)std::get<long>(sl[0]);
-            sampling_limits.e2.center = (uint32_t)std::get<long>(sl[1]);
-            sampling_limits.e2.maximum = (uint32_t)std::get<long>(sl[2]);
+            sampling_limits.kspace_encoding_step_2.minimum = (uint32_t)std::get<long>(sl[0]);
+            sampling_limits.kspace_encoding_step_2.center = (uint32_t)std::get<long>(sl[1]);
+            sampling_limits.kspace_encoding_step_2.maximum = (uint32_t)std::get<long>(sl[2]);
         }
 
-        if (!((sampling_limits.e2.minimum >= 0) && (sampling_limits.e2.maximum < E2) && (sampling_limits.e2.minimum <= sampling_limits.e2.maximum)))
+        if (!((sampling_limits.kspace_encoding_step_2.minimum >= 0) && (sampling_limits.kspace_encoding_step_2.maximum < E2) && (sampling_limits.kspace_encoding_step_2.minimum <= sampling_limits.kspace_encoding_step_2.maximum)))
         {
-            sampling_limits.e2.minimum    = 0;
-            sampling_limits.e2.center = E2 / 2;
-            sampling_limits.e2.maximum    = E2 - 1;
+            sampling_limits.kspace_encoding_step_2.minimum    = 0;
+            sampling_limits.kspace_encoding_step_2.center = E2 / 2;
+            sampling_limits.kspace_encoding_step_2.maximum    = E2 - 1;
         }
 
         // ----------------------------------------------------------
@@ -171,7 +171,7 @@ namespace Gadgetron {
 
         if (filter_RO_[encoding].get_number_of_elements() != RO)
         {
-            if (sampling_limits.ro.minimum == 0 || sampling_limits.ro.maximum == RO - 1)
+            if (sampling_limits.kspace_encoding_step_0.minimum == 0 || sampling_limits.kspace_encoding_step_0.maximum == RO - 1)
             {
                 if (filterRO.value() != "None")
                 {
@@ -184,7 +184,7 @@ namespace Gadgetron {
                 if (filterRO.value() != "None")
                 {
                     size_t len;
-                    this->find_kspace_sampled_range(sampling_limits.ro.minimum, sampling_limits.ro.maximum, RO, len);
+                    this->find_kspace_sampled_range(sampling_limits.kspace_encoding_step_0.minimum, sampling_limits.kspace_encoding_step_0.maximum, RO, len);
 
                     hoNDArray< std::complex<float> > f;
                     Gadgetron::generate_symmetric_filter(len, f, Gadgetron::get_kspace_filter_type(filterRO.value()), filterRO_sigma.value(), (size_t)std::ceil(filterRO_width.value()*len));
@@ -194,16 +194,16 @@ namespace Gadgetron {
 
             if (filter_RO_[encoding].get_number_of_elements() == RO)
             {
-                if (sampling_limits.ro.minimum != 0 || sampling_limits.ro.maximum != RO - 1)
+                if (sampling_limits.kspace_encoding_step_0.minimum != 0 || sampling_limits.kspace_encoding_step_0.maximum != RO - 1)
                 {
                     // compensate the sacling from min_ to max_
                     std::complex<float> sos = 0.0f;
-                    for (ii = sampling_limits.ro.minimum; ii <= sampling_limits.ro.maximum; ii++)
+                    for (ii = sampling_limits.kspace_encoding_step_0.minimum; ii <= sampling_limits.kspace_encoding_step_0.maximum; ii++)
                     {
                         sos += filter_RO_[encoding](ii)* std::conj(filter_RO_[encoding](ii));
                     }
 
-                    Gadgetron::scal((float)(1.0 / std::sqrt(std::abs(sos) / (sampling_limits.ro.maximum - sampling_limits.ro.minimum + 1))), filter_RO_[encoding]);
+                    Gadgetron::scal((float)(1.0 / std::sqrt(std::abs(sos) / (sampling_limits.kspace_encoding_step_0.maximum - sampling_limits.kspace_encoding_step_0.minimum + 1))), filter_RO_[encoding]);
                 }
             }
 
@@ -216,7 +216,7 @@ namespace Gadgetron {
 
         if (filter_E1_[encoding].get_number_of_elements() != E1)
         {
-            if (sampling_limits.e1.minimum == 0 || sampling_limits.e1.maximum == E1 - 1)
+            if (sampling_limits.kspace_encoding_step_1.minimum == 0 || sampling_limits.kspace_encoding_step_1.maximum == E1 - 1)
             {
                 if (filterE1.value() != "None")
                 {
@@ -229,7 +229,7 @@ namespace Gadgetron {
                 if (filterE1.value() != "None")
                 {
                     size_t len;
-                    this->find_kspace_sampled_range(sampling_limits.e1.minimum, sampling_limits.e1.maximum, E1, len);
+                    this->find_kspace_sampled_range(sampling_limits.kspace_encoding_step_1.minimum, sampling_limits.kspace_encoding_step_1.maximum, E1, len);
 
                     hoNDArray< std::complex<float> > f;
                     Gadgetron::generate_symmetric_filter(len, f, Gadgetron::get_kspace_filter_type(filterE1.value()), filterE1_sigma.value(), (size_t)std::ceil(filterE1_width.value()*len));
@@ -239,16 +239,16 @@ namespace Gadgetron {
 
             if (filter_E1_[encoding].get_number_of_elements() == E1)
             {
-                if (sampling_limits.e1.minimum != 0 || sampling_limits.e1.maximum != E1 - 1)
+                if (sampling_limits.kspace_encoding_step_1.minimum != 0 || sampling_limits.kspace_encoding_step_1.maximum != E1 - 1)
                 {
                     // compensate the sacling from min_ to max_
                     std::complex<float> sos = 0.0f;
-                    for (ii = sampling_limits.e1.minimum; ii <= sampling_limits.e1.maximum; ii++)
+                    for (ii = sampling_limits.kspace_encoding_step_1.minimum; ii <= sampling_limits.kspace_encoding_step_1.maximum; ii++)
                     {
                         sos += filter_E1_[encoding](ii)* std::conj(filter_E1_[encoding](ii));
                     }
 
-                    Gadgetron::scal((float)(1.0 / std::sqrt(std::abs(sos) / (sampling_limits.e1.maximum - sampling_limits.e1.minimum + 1))), filter_E1_[encoding]);
+                    Gadgetron::scal((float)(1.0 / std::sqrt(std::abs(sos) / (sampling_limits.kspace_encoding_step_1.maximum - sampling_limits.kspace_encoding_step_1.minimum + 1))), filter_E1_[encoding]);
                 }
             }
 
@@ -261,7 +261,7 @@ namespace Gadgetron {
 
         if (E2>1 && filter_E2_[encoding].get_number_of_elements() != E2)
         {
-            if (sampling_limits.e2.minimum == 0 || sampling_limits.e2.maximum == E1 - 1)
+            if (sampling_limits.kspace_encoding_step_2.minimum == 0 || sampling_limits.kspace_encoding_step_2.maximum == E1 - 1)
             {
                 if (filterE2.value() != "None")
                 {
@@ -274,7 +274,7 @@ namespace Gadgetron {
                 if (filterE2.value() != "None")
                 {
                     size_t len;
-                    this->find_kspace_sampled_range(sampling_limits.e2.minimum, sampling_limits.e2.maximum, E2, len);
+                    this->find_kspace_sampled_range(sampling_limits.kspace_encoding_step_2.minimum, sampling_limits.kspace_encoding_step_2.maximum, E2, len);
 
                     hoNDArray< std::complex<float> > f;
                     Gadgetron::generate_symmetric_filter(len, f, Gadgetron::get_kspace_filter_type(filterE2.value()), filterE2_sigma.value(), (size_t)std::ceil(filterE2_width.value()*len));
@@ -284,16 +284,16 @@ namespace Gadgetron {
 
             if (filter_E2_[encoding].get_number_of_elements() == E2)
             {
-                if (sampling_limits.e2.minimum != 0 || sampling_limits.e2.maximum != E1 - 1)
+                if (sampling_limits.kspace_encoding_step_2.minimum != 0 || sampling_limits.kspace_encoding_step_2.maximum != E1 - 1)
                 {
                     // compensate the sacling from min_ to max_
                     std::complex<float> sos = 0.0f;
-                    for (ii = sampling_limits.e2.minimum; ii <= sampling_limits.e2.maximum; ii++)
+                    for (ii = sampling_limits.kspace_encoding_step_2.minimum; ii <= sampling_limits.kspace_encoding_step_2.maximum; ii++)
                     {
                         sos += filter_E2_[encoding](ii)* std::conj(filter_E2_[encoding](ii));
                     }
 
-                    Gadgetron::scal((float)(1.0 / std::sqrt(std::abs(sos) / (sampling_limits.e2.maximum - sampling_limits.e2.minimum + 1))), filter_E2_[encoding]);
+                    Gadgetron::scal((float)(1.0 / std::sqrt(std::abs(sos) / (sampling_limits.kspace_encoding_step_2.maximum - sampling_limits.kspace_encoding_step_2.minimum + 1))), filter_E2_[encoding]);
                 }
             }
 

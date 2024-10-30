@@ -49,19 +49,19 @@ namespace Gadgetron {
         BufferKey getKey(const mrd::EncodingCounters& idx) const;
 
 
-        mrd::BufferedData makeDataBuffer(const mrd::Acquisition& acq, mrd::EncodingType encoding,
-            const mrd::AcquisitionBucketStats& stats, bool forref) const;
+        mrd::ReconBuffer makeDataBuffer(const mrd::Acquisition& acq, mrd::EncodingType encoding,
+            const mrd::EncodingLimitsType& stats, bool forref) const;
 
         mrd::SamplingDescription createSamplingDescription(const mrd::EncodingType& encoding,
-            const mrd::AcquisitionBucketStats& stats, const mrd::Acquisition& acq, bool forref) const;
+            const mrd::EncodingLimitsType& stats, const mrd::Acquisition& acq, bool forref) const;
 
-        void add_acquisition(mrd::BufferedData& dataBuffer, const mrd::Acquisition& acq, mrd::EncodingType encoding,
-            const mrd::AcquisitionBucketStats& stats, bool forref);
+        void add_acquisition(mrd::ReconBuffer& dataBuffer, const mrd::Acquisition& acq, mrd::EncodingType encoding,
+            const mrd::EncodingLimitsType& stats, bool forref);
 
         uint32_t getNE0(const mrd::Acquisition& acq, const mrd::EncodingType& encoding) const;
-        uint32_t getNE1(const mrd::EncodingType& encoding, const mrd::AcquisitionBucketStats& stats, bool forref) const;
-        uint32_t getNE2(const mrd::EncodingType& encoding, const mrd::AcquisitionBucketStats& stats, bool forref) const;
-        uint32_t getNLOC(const mrd::EncodingType& encoding, const mrd::AcquisitionBucketStats& stats) const;
+        uint32_t getNE1(const mrd::EncodingType& encoding, const mrd::EncodingLimitsType& stats, bool forref) const;
+        uint32_t getNE2(const mrd::EncodingType& encoding, const mrd::EncodingLimitsType& stats, bool forref) const;
+        uint32_t getNLOC(const mrd::EncodingType& encoding, const mrd::EncodingLimitsType& stats) const;
     };
 
     void from_string(const std::string&, BucketToBufferGadget::Dimension&);

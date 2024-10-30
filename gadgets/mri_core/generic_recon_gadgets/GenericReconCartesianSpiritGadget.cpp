@@ -89,9 +89,9 @@ namespace Gadgetron {
         process_called_times_++;
 
         mrd::ReconData* recon_bit_ = m1->getObjectPtr();
-        if (recon_bit_->rbits.size() > num_encoding_spaces_)
+        if (recon_bit_->buffers.size() > num_encoding_spaces_)
         {
-            GWARN_STREAM("Incoming recon_bit has more encoding spaces than the protocol : " << recon_bit_->rbits.size() << " instead of " << num_encoding_spaces_);
+            GWARN_STREAM("Incoming recon_bit has more encoding spaces than the protocol : " << recon_bit_->buffers.size() << " instead of " << num_encoding_spaces_);
         }
 
         GadgetContainerMessage<std::vector<mrd::WaveformUint32>>* wav = AsContainerMessage<std::vector<mrd::WaveformUint32>>(m1->cont());
@@ -104,7 +104,7 @@ namespace Gadgetron {
         }
 
         // for every encoding space
-        for (size_t e = 0; e < recon_bit_->rbits.size(); e++)
+        for (size_t e = 0; e < recon_bit_->buffers.size(); e++)
         {
             std::stringstream os;
             os << "_encoding_" << e;
@@ -114,14 +114,14 @@ namespace Gadgetron {
 
             // if (!debug_folder_full_path_.empty()) { gt_exporter_.export_array_complex(recon_bit_->rbit_[e].data_.data_, debug_folder_full_path_ + "data" + os.str()); }
 
-            if (recon_bit_->rbits[e].ref)
+            if (recon_bit_->buffers[e].ref)
             {
                 // if (!debug_folder_full_path_.empty()) { gt_exporter_.export_array_complex(recon_bit_->rbit_[e].ref_->data_, debug_folder_full_path_ + "ref" + os.str()); }
 
                 // after this step, the recon_obj_[e].ref_calib_ and recon_obj_[e].ref_coil_map_ are set
 
                 if (perform_timing.value()) { gt_timer_.start("GenericReconCartesianSpiritGadget::make_ref_coil_map"); }
-                this->make_ref_coil_map(*recon_bit_->rbits[e].ref, recon_bit_->rbits[e].data.data.get_dimensions(), recon_obj_[e].ref_calib_, recon_obj_[e].ref_coil_map_, e);
+                this->make_ref_coil_map(*recon_bit_->buffers[e].ref, recon_bit_->buffers[e].data.data.get_dimensions(), recon_obj_[e].ref_calib_, recon_obj_[e].ref_coil_map_, e);
                 if (perform_timing.value()) { gt_timer_.stop(); }
 
                 // if (!debug_folder_full_path_.empty()) { this->gt_exporter_.export_array_complex(recon_obj_[e].ref_calib_, debug_folder_full_path_ + "ref_calib" + os.str()); }
@@ -140,7 +140,7 @@ namespace Gadgetron {
 
                 // after this step, recon_obj_[e].kernel_, recon_obj_[e].kernelIm_ or recon_obj_[e].kernelIm3D_ are filled
                 if (perform_timing.value()) { gt_timer_.start("GenericReconCartesianSpiritGadget::perform_calib"); }
-                this->perform_calib(recon_bit_->rbits[e], recon_obj_[e], e);
+                this->perform_calib(recon_bit_->buffers[e], recon_obj_[e], e);
                 if (perform_timing.value()) { gt_timer_.stop(); }
 
                 // ---------------------------------------------------------------
@@ -148,18 +148,18 @@ namespace Gadgetron {
                 // recon_bit_->rbit_[e].ref_ = std::nullopt;
             }
 
-            if (recon_bit_->rbits[e].data.data.get_number_of_elements() > 0)
+            if (recon_bit_->buffers[e].data.data.get_number_of_elements() > 0)
             {
                 // if (!debug_folder_full_path_.empty()) { gt_exporter_.export_array_complex(recon_bit_->rbit_[e].data_.data_, debug_folder_full_path_ + "data_before_unwrapping" + os.str()); }
 
                 if (perform_timing.value()) { gt_timer_.start("GenericReconCartesianSpiritGadget::perform_unwrapping"); }
-                this->perform_unwrapping(recon_bit_->rbits[e], recon_obj_[e], e);
+                this->perform_unwrapping(recon_bit_->buffers[e], recon_obj_[e], e);
                 if (perform_timing.value()) { gt_timer_.stop(); }
 
                 // ---------------------------------------------------------------
 
                 if (perform_timing.value()) { gt_timer_.start("GenericReconCartesianSpiritGadget::compute_image_header"); }
-                this->compute_image_header(recon_bit_->rbits[e], recon_obj_[e].recon_res_, e);
+                this->compute_image_header(recon_bit_->buffers[e], recon_obj_[e].recon_res_, e);
                 if (perform_timing.value()) { gt_timer_.stop(); }
 
                 if (wav) recon_obj_[e].recon_res_.waveforms = *wav->getObjectPtr();
@@ -173,7 +173,7 @@ namespace Gadgetron {
                 if (perform_timing.value()) { gt_timer_.stop(); }
             }
 
-            recon_bit_->rbits[e].ref = std::nullopt;
+            recon_bit_->buffers[e].ref = std::nullopt;
             recon_obj_[e].recon_res_.data.clear();
             recon_obj_[e].recon_res_.headers.clear();
             recon_obj_[e].recon_res_.meta.clear();
@@ -186,7 +186,7 @@ namespace Gadgetron {
         return GADGET_OK;
     }
 
-    void GenericReconCartesianSpiritGadget::perform_calib(mrd::ReconBit& recon_bit, ReconObjType& recon_obj, size_t e)
+    void GenericReconCartesianSpiritGadget::perform_calib(mrd::ReconAssembly& recon_bit, ReconObjType& recon_obj, size_t e)
     {
         try
         {
@@ -308,7 +308,7 @@ namespace Gadgetron {
         }
     }
 
-    void GenericReconCartesianSpiritGadget::perform_unwrapping(mrd::ReconBit& recon_bit, ReconObjType& recon_obj, size_t e)
+    void GenericReconCartesianSpiritGadget::perform_unwrapping(mrd::ReconAssembly& recon_bit, ReconObjType& recon_obj, size_t e)
     {
         try
         {

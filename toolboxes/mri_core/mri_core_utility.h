@@ -92,6 +92,5 @@ namespace Gadgetron
 
     mrd::ImageHeader image_header_from_acquisition(const mrd::AcquisitionHeader& acq_header, const mrd::Header& header);
 
-    void add_stats_to_bucket(mrd::AcquisitionBucketStats& stats, const mrd::AcquisitionHeader& header);
     void add_acquisition_to_bucket(mrd::AcquisitionBucket& bucket, mrd::Acquisition acq);
 }

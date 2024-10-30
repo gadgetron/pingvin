@@ -39,10 +39,10 @@ namespace Gadgetron {
         virtual int process(Gadgetron::GadgetContainerMessage< mrd::ReconData >* m1);
 
         // calibration, if only one dst channel is prescribed, the GrappaOne is used
-        virtual void perform_calib(mrd::ReconBit& recon_bit, ReconObjType& recon_obj, size_t encoding);
+        virtual void perform_calib(mrd::ReconAssembly& recon_bit, ReconObjType& recon_obj, size_t encoding);
 
         // unwrapping or coil combination
-        virtual void perform_unwrapping(mrd::ReconBit& recon_bit, ReconObjType& recon_obj, size_t encoding);
+        virtual void perform_unwrapping(mrd::ReconAssembly& recon_bit, ReconObjType& recon_obj, size_t encoding);
 
         virtual int close(unsigned long flags);
     };

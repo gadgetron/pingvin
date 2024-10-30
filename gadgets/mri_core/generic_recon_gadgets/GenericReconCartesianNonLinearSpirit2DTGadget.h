@@ -64,7 +64,7 @@ namespace Gadgetron {
         // --------------------------------------------------
 
         // unwrapping
-        virtual void perform_unwrapping(mrd::ReconBit& recon_bit, ReconObjType& recon_obj, size_t encoding);
+        virtual void perform_unwrapping(mrd::ReconAssembly& recon_bit, ReconObjType& recon_obj, size_t encoding);
 
         // perform non-linear spirit unwrapping
         // kspace, kerIm, full_kspace: [RO E1 CHA N S SLC]

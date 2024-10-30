@@ -19,7 +19,7 @@ void PseudoReplicatorGadget::process(Core::InputChannel<mrd::ReconData>& input, 
 
 		for (int i = 0; i < repetitions; i++) {
 
-			for (auto& rbit : reconData.rbits) {
+			for (auto& rbit : reconData.buffers) {
 				auto& data = rbit.data.data;
 				auto dataptr = data.data();
 				for (size_t k = 0; k < data.size(); k++) {

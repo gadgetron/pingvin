@@ -6,7 +6,7 @@ namespace Gadgetron{
         image_counter_ = 0;
     }
 
-    mrd::Image<std::complex<float>> CreateAndFFTImage(mrd::BufferedData dbuff, uint16_t n, uint16_t s, uint16_t loc, long long image_index){
+    mrd::Image<std::complex<float>> CreateAndFFTImage(mrd::ReconBuffer dbuff, uint16_t n, uint16_t s, uint16_t loc, long long image_index){
 
         //7D, fixed order [E0, E1, E2, CHA, N, S, LOC]
         uint16_t E0 = dbuff.data.get_size(0);
@@ -25,8 +25,8 @@ namespace Gadgetron{
         img_dims[3] = CHA;
 
         //Set some information into the image header, and use the middle header for some info [E1, E2, N, S, LOC]
-        mrd::AcquisitionHeader & acqhdr = dbuff.headers(dbuff.sampling.sampling_limits.e1.center,
-                                                             dbuff.sampling.sampling_limits.e2.center,
+        mrd::AcquisitionHeader & acqhdr = dbuff.headers(dbuff.sampling.sampling_limits.kspace_encoding_step_1.center,
+                                                             dbuff.sampling.sampling_limits.kspace_encoding_step_2.center,
                                                              n, s, loc);
 
         mrd::Image<std::complex<float>> image{};
@@ -69,10 +69,10 @@ namespace Gadgetron{
     void FFTGadget::process(Core::InputChannel<mrd::ReconData>& input, Core::OutputChannel& out) {
         for (auto reconData : input){
             //Iterate over all the recon bits
-            for(auto& rbit : reconData.rbits)
+            for(auto& rbit : reconData.buffers)
             {
                 //Grab a reference to the buffer containing the imaging data
-                mrd::BufferedData & dbuff = rbit.data;
+                mrd::ReconBuffer & dbuff = rbit.data;
 
                 uint16_t N = dbuff.data.get_size(4);
                 uint16_t S = dbuff.data.get_size(5);

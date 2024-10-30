@@ -1,11 +1,11 @@
 reconstruction:
   data: grappa_3d/gre_3D_Grappa2x2.mrd
-  checksum: 08edd25403a55c1e561fa85b072c8872
+  checksum: bb5cdd47277b73adc0ffb68ae3366423
   run:
   - args: --config Generic_Cartesian_Grappa.xml
 validation:
   reference: grappa_3d/grappa2x2_ref_20210917_Generic_Cartesian_Grappa.xml.mrd
-  checksum: 47d6680ec851b8f7034e1386b4ac5d3c
+  checksum: 9ef157c7ab4c78dd55fc3e4cefdd4307
   tests:
   - image_series: 1
 requirements:

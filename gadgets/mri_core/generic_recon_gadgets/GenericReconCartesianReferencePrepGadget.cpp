@@ -75,9 +75,9 @@ namespace Gadgetron {
         process_called_times_++;
 
         mrd::ReconData* recon_data = m1->getObjectPtr();
-        if (recon_data->rbits.size() > num_encoding_spaces_)
+        if (recon_data->buffers.size() > num_encoding_spaces_)
         {
-            GWARN_STREAM("Incoming recon_bit has more encoding spaces than the protocol : " << recon_data->rbits.size() << " instead of " << num_encoding_spaces_);
+            GWARN_STREAM("Incoming recon_bit has more encoding spaces than the protocol : " << recon_data->buffers.size() << " instead of " << num_encoding_spaces_);
         }
 
         GadgetContainerMessage<std::vector<mrd::WaveformUint32>>* wav =
@@ -95,9 +95,9 @@ namespace Gadgetron {
 
         // for every encoding space, prepare the recon_bit_->rbit_[e].ref_
         size_t e;
-        for (e = 0; e < recon_data->rbits.size(); e++)
+        for (e = 0; e < recon_data->buffers.size(); e++)
         {
-            auto & rbit = recon_data->rbits[e];
+            auto & rbit = recon_data->buffers[e];
             std::stringstream os;
             os << "_encoding_" << e;
 
@@ -249,12 +249,12 @@ namespace Gadgetron {
 
             // crop the ref_calib, along RO, E1 and E2 for separate or embedded mode
             vector_td<size_t, 3> crop_offset;
-            crop_offset[0] = sampling_limits.ro.minimum;
+            crop_offset[0] = sampling_limits.kspace_encoding_step_0.minimum;
             crop_offset[1] = start_E1;
             crop_offset[2] = start_E2;
 
             vector_td<size_t, 3> crop_size;
-            crop_size[0] = sampling_limits.ro.maximum - sampling_limits.ro.minimum + 1;
+            crop_size[0] = sampling_limits.kspace_encoding_step_0.maximum - sampling_limits.kspace_encoding_step_0.minimum + 1;
             crop_size[1] = end_E1 - start_E1 + 1;
             crop_size[2] = end_E2 - start_E2 + 1;
 
@@ -283,30 +283,30 @@ namespace Gadgetron {
             }
 
             // step 3, update the sampling limits
-            sampling_limits.ro.center = (uint16_t)(RO/2);
+            sampling_limits.kspace_encoding_step_0.center = (uint16_t)(RO/2);
 
-            sampling_limits.e1.minimum = 0;
-            sampling_limits.e1.maximum = (uint16_t)(end_E1 - start_E1);
+            sampling_limits.kspace_encoding_step_1.minimum = 0;
+            sampling_limits.kspace_encoding_step_1.maximum = (uint16_t)(end_E1 - start_E1);
 
-            sampling_limits.e2.minimum = 0;
-            sampling_limits.e2.maximum = (uint16_t)(end_E2 - start_E2);
+            sampling_limits.kspace_encoding_step_2.minimum = 0;
+            sampling_limits.kspace_encoding_step_2.maximum = (uint16_t)(end_E2 - start_E2);
 
             if ( (calib_mode_[e] == mrd::CalibrationMode::kInterleaved) || (calib_mode_[e] == mrd::CalibrationMode::kNoacceleration) )
             {
                 // need to keep the ref kspace center information
-                sampling_limits.e1.center = (uint16_t)(sampling_limits.e1.center - start_E1);
-                sampling_limits.e2.center = (uint16_t)(sampling_limits.e2.center - start_E2);
+                sampling_limits.kspace_encoding_step_1.center = (uint16_t)(sampling_limits.kspace_encoding_step_1.center - start_E1);
+                sampling_limits.kspace_encoding_step_2.center = (uint16_t)(sampling_limits.kspace_encoding_step_2.center - start_E2);
             }
             else
             {
                 // separate, embedded mode, the ref center is the kspace center
-                sampling_limits.e1.center = (sampling_limits.e1.maximum + 1) / 2;
-                sampling_limits.e2.center = (sampling_limits.e2.maximum + 1) / 2;
+                sampling_limits.kspace_encoding_step_1.center = (sampling_limits.kspace_encoding_step_1.maximum + 1) / 2;
+                sampling_limits.kspace_encoding_step_2.center = (sampling_limits.kspace_encoding_step_2.maximum + 1) / 2;
             }
 
-            if(sampling_limits.ro.maximum>=RO)
+            if(sampling_limits.kspace_encoding_step_0.maximum>=RO)
             {
-                sampling_limits.ro.maximum = RO - 1;
+                sampling_limits.kspace_encoding_step_0.maximum = RO - 1;
             }
 
             ref = ref_calib;

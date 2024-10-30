@@ -63,7 +63,7 @@ template<template<class> class ARRAY> 	int GriddingReconGadgetBase<ARRAY>::proce
 		for (size_t e = 0; e < recon_bit_->rbit_.size(); e++)
 		{
 
-			mrd::BufferedData* buffer = &(recon_bit_->rbit_[e].data_);
+			mrd::ReconBuffer* buffer = &(recon_bit_->rbit_[e].data_);
 
 			size_t RO = buffer->data_.get_size(0);
 			size_t E1 = buffer->data_.get_size(1);

@@ -137,7 +137,7 @@ namespace Gadgetron {
         // --------------------------------------------------
         // recon step functions
         // --------------------------------------------------
-        virtual void perform_binning(mrd::ReconBit& recon_bit, size_t encoding);
+        virtual void perform_binning(mrd::ReconAssembly& recon_bit, size_t encoding);
 
         // create binning image header
         void create_binning_image_headers_from_raw();

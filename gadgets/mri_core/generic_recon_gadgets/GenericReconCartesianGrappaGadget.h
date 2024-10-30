@@ -109,10 +109,10 @@ namespace Gadgetron {
         virtual void prepare_down_stream_coil_compression_ref_data(const hoNDArray< std::complex<float> >& ref_src, hoNDArray< std::complex<float> >& ref_coil_map, hoNDArray< std::complex<float> >& ref_dst, size_t encoding);
 
         // calibration, if only one dst channel is prescribed, the GrappaOne is used
-        virtual void perform_calib(mrd::ReconBit& recon_bit, ReconObjType& recon_obj, size_t encoding);
+        virtual void perform_calib(mrd::ReconAssembly& recon_bit, ReconObjType& recon_obj, size_t encoding);
 
         // unwrapping or coil combination
-        virtual void perform_unwrapping(mrd::ReconBit& recon_bit, ReconObjType& recon_obj, size_t encoding);
+        virtual void perform_unwrapping(mrd::ReconAssembly& recon_bit, ReconObjType& recon_obj, size_t encoding);
 
         // compute snr map
         virtual void compute_snr_map(ReconObjType& recon_obj, hoNDArray< std::complex<float> >& snr_map);

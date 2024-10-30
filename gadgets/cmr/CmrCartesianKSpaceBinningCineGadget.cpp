@@ -91,21 +91,21 @@ namespace Gadgetron {
         process_called_times_++;
 
         mrd::ReconData* recon_bit_ = m1->getObjectPtr();
-        if (recon_bit_->rbits.size() > num_encoding_spaces_)
+        if (recon_bit_->buffers.size() > num_encoding_spaces_)
         {
-            GWARN_STREAM("Incoming recon_bit has more encoding spaces than the protocol : " << recon_bit_->rbits.size() << " instead of " << num_encoding_spaces_);
+            GWARN_STREAM("Incoming recon_bit has more encoding spaces than the protocol : " << recon_bit_->buffers.size() << " instead of " << num_encoding_spaces_);
         }
 
         std::vector<unsigned int> processed_slices = kspace_binning_processed_slices.value();
         if(processed_slices.size()>0)
         {
             size_t ii;
-            for (ii=0; ii<recon_bit_->rbits[0].data.headers.get_number_of_elements(); ii++)
+            for (ii=0; ii<recon_bit_->buffers[0].data.headers.get_number_of_elements(); ii++)
             {
-                if( recon_bit_->rbits[0].data.headers(ii).acquisition_time_stamp>0 ) break;
+                if( recon_bit_->buffers[0].data.headers(ii).acquisition_time_stamp>0 ) break;
             }
 
-            size_t curr_slc = recon_bit_->rbits[0].data.headers(ii).idx.slice.value_or(0);
+            size_t curr_slc = recon_bit_->buffers[0].data.headers(ii).idx.slice.value_or(0);
 
             GDEBUG_STREAM("Incoming slice : " << curr_slc);
 
@@ -128,7 +128,7 @@ namespace Gadgetron {
         }
 
         // for every encoding space
-        for (size_t e = 0; e < recon_bit_->rbits.size(); e++)
+        for (size_t e = 0; e < recon_bit_->buffers.size(); e++)
         {
             std::stringstream os;
             os << "_encoding_" << e;
@@ -141,44 +141,44 @@ namespace Gadgetron {
 
             /*if (!debug_folder_full_path_.empty())
             {
-                gt_exporter_.export_array_complex(recon_bit_->rbits[e].data.data, debug_folder_full_path_ + "data" + os.str());
+                gt_exporter_.export_array_complex(recon_bit_->buffers[e].data.data, debug_folder_full_path_ + "data" + os.str());
             }
 
-            if (!debug_folder_full_path_.empty() && recon_bit_->rbits[e].data.trajectory_)
+            if (!debug_folder_full_path_.empty() && recon_bit_->buffers[e].data.trajectory_)
             {
-                if (recon_bit_->rbits[e].ref_->trajectory_->get_number_of_elements() > 0)
+                if (recon_bit_->buffers[e].ref_->trajectory_->get_number_of_elements() > 0)
                 {
-                    gt_exporter_.export_array(*(recon_bit_->rbits[e].data.trajectory_), debug_folder_full_path_ + "data_traj" + os.str());
+                    gt_exporter_.export_array(*(recon_bit_->buffers[e].data.trajectory_), debug_folder_full_path_ + "data_traj" + os.str());
                 }
             }*/
 
             // ---------------------------------------------------------------
 
-            if (recon_bit_->rbits[e].data.data.get_number_of_elements() > 0)
+            if (recon_bit_->buffers[e].data.data.get_number_of_elements() > 0)
             {
                 /*if (!debug_folder_full_path_.empty())
                 {
-                    gt_exporter_.export_array_complex(recon_bit_->rbits[e].data.data, debug_folder_full_path_ + "data_before_unwrapping" + os.str());
+                    gt_exporter_.export_array_complex(recon_bit_->buffers[e].data.data, debug_folder_full_path_ + "data_before_unwrapping" + os.str());
                 }
 
-                if (!debug_folder_full_path_.empty() && recon_bit_->rbits[e].data.trajectory_)
+                if (!debug_folder_full_path_.empty() && recon_bit_->buffers[e].data.trajectory_)
                 {
-                    if (recon_bit_->rbits[e].data.trajectory_->get_number_of_elements() > 0)
+                    if (recon_bit_->buffers[e].data.trajectory_->get_number_of_elements() > 0)
                     {
-                        gt_exporter_.export_array(*(recon_bit_->rbits[e].data.trajectory_), debug_folder_full_path_ + "data_before_unwrapping_traj" + os.str());
+                        gt_exporter_.export_array(*(recon_bit_->buffers[e].data.trajectory_), debug_folder_full_path_ + "data_before_unwrapping_traj" + os.str());
                     }
                 }*/
 
                 // ---------------------------------------------------------------
 
                 if (perform_timing.value()) { gt_timer_.start("CmrCartesianKSpaceBinningCineGadget::perform_binning"); }
-                this->perform_binning(recon_bit_->rbits[e], e);
+                this->perform_binning(recon_bit_->buffers[e], e);
                 if (perform_timing.value()) { gt_timer_.stop(); }
 
                 // ---------------------------------------------------------------
 
                 if (perform_timing.value()) { gt_timer_.start("CmrCartesianKSpaceBinningCineGadget::compute_image_header, raw images"); }
-                this->compute_image_header(recon_bit_->rbits[e], res_raw_, e);
+                this->compute_image_header(recon_bit_->buffers[e], res_raw_, e);
                 if (perform_timing.value()) { gt_timer_.stop(); }
 
                 this->set_time_stamps(res_raw_, acq_time_raw_, cpt_time_raw_);
@@ -219,7 +219,7 @@ namespace Gadgetron {
         return GADGET_OK;
     }
 
-    void CmrCartesianKSpaceBinningCineGadget::perform_binning(mrd::ReconBit& recon_bit, size_t encoding)
+    void CmrCartesianKSpaceBinningCineGadget::perform_binning(mrd::ReconAssembly& recon_bit, size_t encoding)
     {
         try
         {

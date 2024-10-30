@@ -30,11 +30,11 @@ namespace {
 
 mrd::ImageArray Gadgetron::PureCmrCartesianKSpaceBinningCineGadget::process_function(mrd::ReconData args) const
 {
-    if (args.rbits.size() > 1)
+    if (args.buffers.size() > 1)
         throw std::runtime_error("Only single encoding space supported");
     size_t encoding = 0;
-    auto result     = perform_binning(args.rbits[encoding], encoding);
-    set_image_header(args.rbits[encoding], result.image, encoding);
+    auto result     = perform_binning(args.buffers[encoding], encoding);
+    set_image_header(args.buffers[encoding], result.image, encoding);
     set_time_stamps(result.image, result.acquisition_time, result.capture_time, time_tick);
     prepare_image_array(result.image, 0, 2, GADGETRON_IMAGE_RETRO);
     return std::move(result.image);
@@ -88,7 +88,7 @@ CmrKSpaceBinning<float> PureCmrCartesianKSpaceBinningCineGadget::create_binner()
     return binner;
 }
 PureCmrCartesianKSpaceBinningCineGadget::BinningResult PureCmrCartesianKSpaceBinningCineGadget::perform_binning(
-    mrd::ReconBit recon_bit, size_t encoding) const {
+    mrd::ReconAssembly recon_bit, size_t encoding) const {
     size_t RO  = recon_bit.data.data.get_size(0);
     size_t E1  = recon_bit.data.data.get_size(1);
     size_t E2  = recon_bit.data.data.get_size(2);
@@ -186,7 +186,7 @@ PureCmrCartesianKSpaceBinningCineGadget::PureCmrCartesianKSpaceBinningCineGadget
 }
 
 void PureCmrCartesianKSpaceBinningCineGadget::set_image_header(
-    const mrd::ReconBit& recon_bit, mrd::ImageArray& res, size_t enc) const {
+    const mrd::ReconAssembly& recon_bit, mrd::ImageArray& res, size_t enc) const {
     size_t RO  = res.data.get_size(0);
     size_t E1  = res.data.get_size(1);
     size_t E2  = res.data.get_size(2);
@@ -292,11 +292,11 @@ void PureCmrCartesianKSpaceBinningCineGadget::set_image_header(
                 meta["recon_matrix"] = { (long)recon_matrix.x, (long)recon_matrix.y, (long)recon_matrix.z };
 
                 auto& sampling_limits = recon_bit.data.sampling.sampling_limits;
-                meta["sampling_limits_RO"] = { (long)sampling_limits.ro.minimum, (long)sampling_limits.ro.center, (long)sampling_limits.ro.maximum };
+                meta["sampling_limits_RO"] = { (long)sampling_limits.kspace_encoding_step_0.minimum, (long)sampling_limits.kspace_encoding_step_0.center, (long)sampling_limits.kspace_encoding_step_0.maximum };
 
-                meta["sampling_limits_E1"] = { (long)sampling_limits.e1.minimum, (long)sampling_limits.e1.center, (long)sampling_limits.e1.maximum };
+                meta["sampling_limits_E1"] = { (long)sampling_limits.kspace_encoding_step_1.minimum, (long)sampling_limits.kspace_encoding_step_1.center, (long)sampling_limits.kspace_encoding_step_1.maximum };
 
-                meta["sampling_limits_E2"] = { (long)sampling_limits.e2.minimum, (long)sampling_limits.e2.center, (long)sampling_limits.e2.maximum };
+                meta["sampling_limits_E2"] = { (long)sampling_limits.kspace_encoding_step_2.minimum, (long)sampling_limits.kspace_encoding_step_2.center, (long)sampling_limits.kspace_encoding_step_2.maximum };
 
                 auto &hdrsrc = res.headers(n, s, slc);
                 auto& position = hdrsrc.position;

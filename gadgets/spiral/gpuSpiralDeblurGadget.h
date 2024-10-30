@@ -103,8 +103,8 @@ namespace Gadgetron{
 
   mrd::ImageHeader get_image_header(mrd::AcquisitionHeader& curr_header, int series_index);
   void Calc_B0Map(hoNDArray<std::complex<float>>& B0_data, hoNDArray<float>* B0_map);
-  void Prepare_Plan(mrd::BufferedData& data);
-  void Prepare_B0_Plan(mrd::BufferedData& data);
+  void Prepare_Plan(mrd::ReconBuffer& data);
+  void Prepare_B0_Plan(mrd::ReconBuffer& data);
   };
 }
 #endif //gpuSpiralDeblurGadget_H

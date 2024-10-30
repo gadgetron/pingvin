@@ -51,8 +51,8 @@ namespace Gadgetron {
         process_called_times_++;
 
         mrd::ReconData *recon_data = m1->getObjectPtr();
-        if (recon_data->rbits.size() > num_encoding_spaces_) {
-            GWARN_STREAM("Incoming recon_bit has more encoding spaces than the protocol : " << recon_data->rbits.size()
+        if (recon_data->buffers.size() > num_encoding_spaces_) {
+            GWARN_STREAM("Incoming recon_bit has more encoding spaces than the protocol : " << recon_data->buffers.size()
                                                                                             << " instead of "
                                                                                             << num_encoding_spaces_);
         }
@@ -67,7 +67,7 @@ namespace Gadgetron {
         }
 
         // for every encoding space
-        for (size_t e = 0; e < recon_data->rbits.size(); e++) {
+        for (size_t e = 0; e < recon_data->buffers.size(); e++) {
             std::stringstream os;
             os << "_encoding_" << e << "_" << process_called_times_;
 
@@ -76,32 +76,32 @@ namespace Gadgetron {
             GDEBUG_CONDITION_STREAM(verbose.value(),
                                     "======================================================================");
 
-            if (recon_data->rbits[e].data.data.size()==0) continue;
+            if (recon_data->buffers[e].data.data.size()==0) continue;
 
             // ---------------------------------------------------------------
             // export incoming data
             if (!debug_folder_full_path_.empty())
             {
-                gt_exporter_.export_array_complex(recon_data->rbits[e].data.data, debug_folder_full_path_ + "data" + os.str());
+                gt_exporter_.export_array_complex(recon_data->buffers[e].data.data, debug_folder_full_path_ + "data" + os.str());
             }
 
-            if (!debug_folder_full_path_.empty() && recon_data->rbits[e].data.trajectory.size() > 0)
+            if (!debug_folder_full_path_.empty() && recon_data->buffers[e].data.trajectory.size() > 0)
             {
-                gt_exporter_.export_array(recon_data->rbits[e].data.trajectory, debug_folder_full_path_ + "data_traj" + os.str());
+                gt_exporter_.export_array(recon_data->buffers[e].data.trajectory, debug_folder_full_path_ + "data_traj" + os.str());
             }
 
             // ---------------------------------------------------------------
 
-            if (recon_data->rbits[e].ref) {
-                this->gt_streamer_.stream_to_array_buffer(GENERIC_RECON_STREAM_REF_KSPACE, recon_data->rbits[e].ref->data);
+            if (recon_data->buffers[e].ref) {
+                this->gt_streamer_.stream_to_array_buffer(GENERIC_RECON_STREAM_REF_KSPACE, recon_data->buffers[e].ref->data);
 
                 if (!debug_folder_full_path_.empty()) {
-                    gt_exporter_.export_array_complex(recon_data->rbits[e].ref->data,
+                    gt_exporter_.export_array_complex(recon_data->buffers[e].ref->data,
                                                       debug_folder_full_path_ + "ref" + os.str());
                 }
 
-                if (!debug_folder_full_path_.empty() && recon_data->rbits[e].ref->trajectory.size() > 0) {
-                    gt_exporter_.export_array(recon_data->rbits[e].ref->trajectory,
+                if (!debug_folder_full_path_.empty() && recon_data->buffers[e].ref->trajectory.size() > 0) {
+                    gt_exporter_.export_array(recon_data->buffers[e].ref->trajectory,
                                                 debug_folder_full_path_ + "ref_traj" + os.str());
                 }
 
@@ -110,7 +110,7 @@ namespace Gadgetron {
                 // after this step, the recon_obj_[e].ref_calib_ and recon_obj_[e].ref_coil_map_ are set
 
                 if (perform_timing.value()) { gt_timer_.start("GenericReconCartesianGrappaGadget::make_ref_coil_map"); }
-                this->make_ref_coil_map(*recon_data->rbits[e].ref, recon_data->rbits[e].data.data.dimensions(),
+                this->make_ref_coil_map(*recon_data->buffers[e].ref, recon_data->buffers[e].data.data.dimensions(),
                                         recon_obj_[e].ref_calib_, recon_obj_[e].ref_coil_map_, e);
                 if (perform_timing.value()) { gt_timer_.stop(); }
 
@@ -162,25 +162,25 @@ namespace Gadgetron {
                 // after this step, recon_obj_[e].kernel_, recon_obj_[e].kernelIm_, recon_obj_[e].unmixing_coeff_ are filled
                 // gfactor is computed too
                 if (perform_timing.value()) { gt_timer_.start("GenericReconCartesianGrappaGadget::perform_calib"); }
-                this->perform_calib(recon_data->rbits[e], recon_obj_[e], e);
+                this->perform_calib(recon_data->buffers[e], recon_obj_[e], e);
                 if (perform_timing.value()) { gt_timer_.stop(); }
 
                 // ---------------------------------------------------------------
 
-                recon_data->rbits[e].ref = std::nullopt;
+                recon_data->buffers[e].ref = std::nullopt;
             }
 
-            if (recon_data->rbits[e].data.data.size() > 0) {
+            if (recon_data->buffers[e].data.data.size() > 0) {
 
-                this->gt_streamer_.stream_to_array_buffer(GENERIC_RECON_STREAM_UNDERSAMPLED_KSPACE, recon_data->rbits[e].data.data);
+                this->gt_streamer_.stream_to_array_buffer(GENERIC_RECON_STREAM_UNDERSAMPLED_KSPACE, recon_data->buffers[e].data.data);
 
                 if (!debug_folder_full_path_.empty()) {
-                    gt_exporter_.export_array_complex(recon_data->rbits[e].data.data,
+                    gt_exporter_.export_array_complex(recon_data->buffers[e].data.data,
                                                       debug_folder_full_path_ + "data_before_unwrapping" + os.str());
                 }
 
-                if (!debug_folder_full_path_.empty() && recon_data->rbits[e].data.trajectory.size() > 0) {
-                    gt_exporter_.export_array(recon_data->rbits[e].data.trajectory,
+                if (!debug_folder_full_path_.empty() && recon_data->buffers[e].data.trajectory.size() > 0) {
+                    gt_exporter_.export_array(recon_data->buffers[e].data.trajectory,
                                                 debug_folder_full_path_ + "data_before_unwrapping_traj" + os.str());
                 }
 
@@ -189,7 +189,7 @@ namespace Gadgetron {
                 if (perform_timing.value()) {
                     gt_timer_.start("GenericReconCartesianGrappaGadget::perform_unwrapping");
                 }
-                this->perform_unwrapping(recon_data->rbits[e], recon_obj_[e], e);
+                this->perform_unwrapping(recon_data->buffers[e], recon_obj_[e], e);
                 if (perform_timing.value()) { gt_timer_.stop(); }
 
                 // ---------------------------------------------------------------
@@ -197,7 +197,7 @@ namespace Gadgetron {
                 if (perform_timing.value()) {
                     gt_timer_.start("GenericReconCartesianGrappaGadget::compute_image_header");
                 }
-                this->compute_image_header(recon_data->rbits[e], recon_obj_[e].recon_res_, e);
+                this->compute_image_header(recon_data->buffers[e], recon_obj_[e].recon_res_, e);
                 if (perform_timing.value()) { gt_timer_.stop(); }
 
 
@@ -384,7 +384,7 @@ namespace Gadgetron {
         }
     }
 
-    void GenericReconCartesianGrappaGadget::perform_calib(mrd::ReconBit &recon_bit, ReconObjType &recon_obj, size_t e)
+    void GenericReconCartesianGrappaGadget::perform_calib(mrd::ReconAssembly &recon_bit, ReconObjType &recon_obj, size_t e)
     {
         size_t RO = recon_bit.data.data.get_size(0);
         size_t E1 = recon_bit.data.data.get_size(1);
@@ -562,7 +562,7 @@ namespace Gadgetron {
 
     }
 
-    void GenericReconCartesianGrappaGadget::perform_unwrapping(mrd::ReconBit &recon_bit, ReconObjType &recon_obj, size_t e)
+    void GenericReconCartesianGrappaGadget::perform_unwrapping(mrd::ReconAssembly &recon_bit, ReconObjType &recon_obj, size_t e)
     {
         hoNDArray<std::complex<float>>& data_in = recon_bit.data.data;
 

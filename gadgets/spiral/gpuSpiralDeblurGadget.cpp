@@ -195,25 +195,25 @@ typedef cuNFFT_impl<_real,2> plan_type;
 		}
 
 		//Get data from ReconDataBuffer if exists
-		hoNDArray<std::complex<float>> host_data = recon_bit_->rbits[0].data.data;
+		hoNDArray<std::complex<float>> host_data = recon_bit_->buffers[0].data.data;
 		hoNDArray<std::complex<float>> B0_data;
-		if(recon_bit_->rbits[0].ref){
-					B0_data = recon_bit_->rbits[0].ref->data;
+		if(recon_bit_->buffers[0].ref){
+					B0_data = recon_bit_->buffers[0].ref->data;
 		}
 
 		//Set up image containers, trajectory, and NFFT_plan - if not already prepared
-		mrd::AcquisitionHeader& curr_header = recon_bit_->rbits[0].data.headers(0,0,0,0,0);
+		mrd::AcquisitionHeader& curr_header = recon_bit_->buffers[0].data.headers(0,0,0,0,0);
 		if(!prepared_ && host_data.get_size(0) > 0){ //TODO: move to process_config?
-		    Prepare_Plan(recon_bit_->rbits[0].data);
+		    Prepare_Plan(recon_bit_->buffers[0].data);
 		}
 
 		//Set up B0 map containers, trajectory, and NFFT_plan - if not already prepared
-		if(!prepared_B0_ && recon_bit_->rbits[0].ref){
-				Prepare_B0_Plan(*recon_bit_->rbits[0].ref);
+		if(!prepared_B0_ && recon_bit_->buffers[0].ref){
+				Prepare_B0_Plan(*recon_bit_->buffers[0].ref);
 		}
 
 		//If there is reference data then we need to re-compute the B0 map
-		if(recon_bit_->rbits[0].ref){
+		if(recon_bit_->buffers[0].ref){
 				Calc_B0Map(B0_data, &B0_map);
 		}
 
@@ -350,7 +350,7 @@ typedef cuNFFT_impl<_real,2> plan_type;
 
 	}
 
-	void gpuSpiralDeblurGadget::Prepare_Plan(mrd::BufferedData& data){
+	void gpuSpiralDeblurGadget::Prepare_Plan(mrd::ReconBuffer& data){
 			size_t R0 = data.data.get_size(0);
 			size_t E1 = data.data.get_size(1);
 			size_t E2 = data.data.get_size(2);
@@ -412,7 +412,7 @@ typedef cuNFFT_impl<_real,2> plan_type;
 		prepared_ = true;
 	}
 
-	void gpuSpiralDeblurGadget::Prepare_B0_Plan(mrd::BufferedData& data){
+	void gpuSpiralDeblurGadget::Prepare_B0_Plan(mrd::ReconBuffer& data){
 		mrd::AcquisitionHeader& B0_header = data.headers(0,0,0,0,0);
 		size_t R0 = data.data.get_size(0);
 		size_t E1 = data.data.get_size(1);

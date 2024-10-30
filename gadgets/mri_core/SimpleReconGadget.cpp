@@ -12,12 +12,12 @@ namespace Gadgetron {
     void SimpleReconGadget::process(Core::InputChannel<mrd::ReconData>& input, Core::OutputChannel& out)
     {
         for (mrd::ReconData reconData : input) {
-            GDEBUG_STREAM("Processing reconData containing " << reconData.rbits.size() << " recon bits");
+            GDEBUG_STREAM("Processing reconData containing " << reconData.buffers.size() << " recon bits");
             // Iterate over all the recon bits
-            for (mrd::ReconBit& rbit : reconData.rbits) {
+            for (mrd::ReconAssembly& rbit : reconData.buffers) {
                 // Grab a reference to the buffer containing the imaging data
                 // We are ignoring the reference data
-                mrd::BufferedData& dbuff = rbit.data;
+                mrd::ReconBuffer& dbuff = rbit.data;
 
                 // Data 7D, fixed order [E0, E1, E2, CHA, N, S, LOC]
                 auto E0 = dbuff.data.get_size(0);
@@ -57,8 +57,8 @@ namespace Gadgetron {
                             // Use the middle acquisition header for some info
                             //[E1, E2, N, S, LOC]
                             mrd::AcquisitionHeader& acqhdr =
-                                dbuff.headers(dbuff.sampling.sampling_limits.e1.center,
-                                            dbuff.sampling.sampling_limits.e2.center, n, s, loc);
+                                dbuff.headers(dbuff.sampling.sampling_limits.kspace_encoding_step_1.center,
+                                            dbuff.sampling.sampling_limits.kspace_encoding_step_2.center, n, s, loc);
                             mrd::ImageHeader& imghdr = imarray.headers(n, s, loc);
 
                             imghdr.measurement_uid = acqhdr.measurement_uid;

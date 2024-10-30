@@ -1,11 +1,11 @@
 reconstruction:
   data: radial_phantom/meas_MID00135_FID20082_CV_Radial_Golden_Angle_128_512_views_meas1.mrd
-  checksum: b5c19d888043453c8c0172248bf16c77
+  checksum: 8a444796a83cf400e2ec4f759f05c043
   run:
   - args: --config golden_radial_mode2_gpusense_cg.xml
 validation:
   reference: radial_phantom/golden_radial_mode2_20210923_klk_cg.mrd
-  checksum: 5d00c9abc94ebd79708c40b4d79e7f37
+  checksum: 3589d7e4d0f849832c9423bab1b229e9
   tests:
   - image_series: 0
 requirements:

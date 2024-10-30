@@ -101,33 +101,8 @@ target_link_libraries(
     ISMRMRD::ISMRMRD
 )
 
-
-# find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
-# find_package(fmt REQUIRED)
-# include_directories(${ImageMagick_INCLUDE_DIRS})
-
-# add_executable(
-#   mrd_image_stream_to_png
-#   mrd/cpp/mrd-tools/mrd_image_stream_to_png.cc
-#     mrd/cpp/mrd/protocols.cc
-#     mrd/cpp/mrd/types.cc
-#     mrd/cpp/mrd/binary/protocols.cc
-# )
-
-# target_include_directories(mrd_image_stream_to_png
-#     PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/mrd/cpp/>"
-# )
-
-# target_compile_options(mrd_image_stream_to_png PRIVATE "-DMAGICKCORE_QUANTUM_DEPTH=8" "-DMAGICKCORE_HDRI_ENABLE=0")
-# target_link_libraries(
-#   mrd_image_stream_to_png
-#   ${ImageMagick_LIBRARIES}
-#   fmt::fmt
-# )
-
 install(TARGETS
     ismrmrd_to_mrd
     mrd_to_ismrmrd
-    # mrd_image_stream_to_png
     DESTINATION bin)
 
