@@ -39,24 +39,18 @@ namespace Gadgetron
 
         void stream_mrd_header(const mrd::Header& hdr);
 
+        void stream_mrd_waveforms(const std::vector<mrd::WaveformUint32>& wavs);
+
         // stream of ND array buffer
         template <typename DataType>
         void stream_to_array_buffer(const std::string& name, const hoNDArray<DataType>& data)
         {
-            if (this->buffer_names_.find(name)!=this->buffer_names_.end())
+            std::string buf_name;
+            auto writer = this->find_and_open_stream(name, buf_name);
+            if (writer)
             {
-                std::string buf_name = this->buffer_names_[name].first;
-
-                if (!this->buffer_names_[name].second)
-                {
-                    GDEBUG_STREAM("Generic recon, create the stream for the first time - " << buf_name);
-                    this->buffer_names_[name].second = std::make_shared<mrd::binary::MrdWriter>(buf_name);
-                    this->buffer_names_[name].second->WriteHeader(std::nullopt);
-                }
-
-                auto& writer = *this->buffer_names_[name].second;
-                GDEBUG_STREAM("Generic recon, continue streaming the data to the buffer " << buf_name);
-                writer.WriteData(mrd::ArrayComplexFloat(data));
+                GDEBUG_STREAM("Generic recon, continue streaming the array data to the buffer " << buf_name);
+                writer->WriteData(mrd::ArrayComplexFloat(data));
             }
             else
             {
@@ -68,10 +62,10 @@ namespace Gadgetron
         template <typename DataType>
         void stream_to_mrd_image_buffer(const std::string& name, const hoNDArray<DataType>& img, const hoNDArray< mrd::ImageHeader >& headers, const hoNDArray< mrd::ImageMeta >& meta)
         {
-            if (this->buffer_names_.find(name) != this->buffer_names_.end())
-            {
-                std::string buf_name = this->buffer_names_[name].first;
+            std::string buf_name;
+            auto writer = find_and_open_stream(name, buf_name);
 
+            if (writer) {
                 // convert images to one or more mrd Images
                 std::vector< mrd::Image<DataType> > mrd_images;
 
@@ -107,13 +101,6 @@ namespace Gadgetron
                     }
                 }
 
-                if (!this->buffer_names_[name].second)
-                {
-                    GDEBUG_STREAM("Generic recon, create the mrd image stream for the first time - " << buf_name);
-                    this->buffer_names_[name].second = std::make_shared<mrd::binary::MrdWriter>(buf_name);
-                    this->buffer_names_[name].second->WriteHeader(std::nullopt);
-                }
-
                 GDEBUG_STREAM("Generic recon, continue streaming the data to the mrd image buffer " << buf_name << " for " << mrd_images.size() << " images ...");
                 for (auto im : mrd_images)
                 {
@@ -128,5 +115,6 @@ namespace Gadgetron
 
     protected:
         std::map<std::string, std::pair<std::string, std::shared_ptr<mrd::binary::MrdWriter> > > buffer_names_;
+        std::shared_ptr<mrd::binary::MrdWriter> find_and_open_stream(const std::string& name, std::string& buf_name, std::optional<mrd::Header> header = std::nullopt);
     };
 }

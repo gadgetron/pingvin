@@ -35,6 +35,7 @@ namespace Gadgetron {
             , segment{idx.segment.value_or(0)}
         { }
     };
+
     protected:
         NODE_PROPERTY(N_dimension, Dimension, "N-Dimensions", Dimension::none);
         NODE_PROPERTY(S_dimension, Dimension, "S-Dimensions", Dimension::none);
@@ -47,7 +48,6 @@ namespace Gadgetron {
 
         void process(Core::InputChannel<mrd::AcquisitionBucket>& in, Core::OutputChannel& out) override;
         BufferKey getKey(const mrd::EncodingCounters& idx) const;
-
 
         mrd::ReconBuffer makeDataBuffer(const mrd::Acquisition& acq, mrd::EncodingType encoding,
             const mrd::EncodingLimitsType& stats, bool forref) const;

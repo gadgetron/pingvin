@@ -203,8 +203,11 @@ namespace Gadgetron {
 
                 // ---------------------------------------------------------------
                 // pass down waveform
-                if (wav) recon_obj_[e].recon_res_.waveforms = *wav->getObjectPtr();
-
+                if (wav)
+                {
+                    recon_obj_[e].recon_res_.waveforms = *wav->getObjectPtr();
+                    this->gt_streamer_.stream_mrd_waveforms(recon_obj_[e].recon_res_.waveforms);
+                }
 
                 // ---------------------------------------------------------------
                 if (send_out_gfactor.value() && recon_obj_[e].gfactor_.get_number_of_elements() > 0 &&

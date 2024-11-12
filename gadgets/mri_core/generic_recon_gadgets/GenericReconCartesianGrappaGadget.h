@@ -99,7 +99,7 @@ namespace Gadgetron {
         // default interface function
         virtual int process_config(const mrd::Header& header) override;
         virtual int process(Gadgetron::GadgetContainerMessage< mrd::ReconData >* m1) override;
-        virtual int close(unsigned long flags);
+        virtual int close(unsigned long flags) override;
 
         // --------------------------------------------------
         // recon step functions

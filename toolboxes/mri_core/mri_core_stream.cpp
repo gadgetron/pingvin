@@ -27,6 +27,7 @@ namespace Gadgetron
         this->initialize_stream_name_buffer(parameters, GENERIC_RECON_STREAM_RECONED_KSPACE);
         this->initialize_stream_name_buffer(parameters, GENERIC_RECON_STREAM_RECONED_COMPLEX_IMAGE);
         this->initialize_stream_name_buffer(parameters, GENERIC_RECON_STREAM_RECONED_COMPLEX_IMAGE_AFTER_POSTPROCESSING);
+        this->initialize_stream_name_buffer(parameters, GENERIC_RECON_STREAM_WAVEFORM);
     }
 
     void GenericReconMrdStreamer::initialize_stream_name_buffer(const std::map<std::string, std::string>& parameters, const std::string& name)
@@ -56,21 +57,51 @@ namespace Gadgetron
 
     void GenericReconMrdStreamer::stream_mrd_header(const mrd::Header& hdr)
     {
-        if (this->buffer_names_.find(GENERIC_RECON_STREAM_MRD_HEADER) != this->buffer_names_.end())
-        {
-            std::string buf_name = this->buffer_names_[GENERIC_RECON_STREAM_MRD_HEADER].first;
-            if (!this->buffer_names_[GENERIC_RECON_STREAM_MRD_HEADER].second)
-            {
-                this->buffer_names_[GENERIC_RECON_STREAM_MRD_HEADER].second = std::make_shared<mrd::binary::MrdWriter>(buf_name);
-            }
-
-            auto& writer = *this->buffer_names_[GENERIC_RECON_STREAM_MRD_HEADER].second;
+        std::string buf_name;
+        auto writer = this->find_and_open_stream(GENERIC_RECON_STREAM_MRD_HEADER, buf_name, hdr);
+        if (writer) {
             GDEBUG_STREAM("GenericReconMrdStreamer, stream the mrd header to the array buffer " << buf_name);
-            writer.WriteHeader(hdr);
         }
         else
         {
             GWARN_CONDITION_STREAM(this->verbose_, "GenericReconMrdStreamer, the pre-set buffer names do not include " << GENERIC_RECON_STREAM_MRD_HEADER << "; the header will not be saved into the buffer ...");
         }
     }
-}
+
+    void GenericReconMrdStreamer::stream_mrd_waveforms(const std::vector<mrd::WaveformUint32>& wavs)
+    {
+        std::string buf_name;
+        auto writer = find_and_open_stream(GENERIC_RECON_STREAM_WAVEFORM, buf_name);
+        if (writer)
+        {
+            GDEBUG_STREAM("GenericReconMrdStreamer, stream the waveform to buffer " << buf_name);
+            for (auto w : wavs)
+            {
+                writer->WriteData(w);
+            }
+        }
+    }
+
+    std::shared_ptr<mrd::binary::MrdWriter> GenericReconMrdStreamer::find_and_open_stream(const std::string& name, std::string& buf_name, std::optional<mrd::Header> header)
+    {
+        if (this->buffer_names_.find(name)!=this->buffer_names_.end())
+        {
+            buf_name = this->buffer_names_[name].first;
+
+            if (!this->buffer_names_[name].second)
+            {
+                GDEBUG_STREAM("Create the stream for the first time - " << buf_name);
+                this->buffer_names_[name].second = std::make_shared<mrd::binary::MrdWriter>(buf_name);
+                this->buffer_names_[name].second->WriteHeader(header);
+            }
+
+            return this->buffer_names_[name].second;
+        }
+        else
+        {
+            GWARN_CONDITION_STREAM(this->verbose_, "The pre-set buffer names do not include " << name << " ...");
+            return std::shared_ptr<mrd::binary::MrdWriter>();
+        }
+    }
+
+} // namespace Gadgetron
