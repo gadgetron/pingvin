@@ -52,7 +52,8 @@ dependencies:
   - matplotlib=3.8.4                        # dev
   - mkl>=2024.1.0
   - mkl-include>=2024.1.0                   # dev
-  - mrd-storage-server=0.0.12
+  - mrd=2.1.0
+  - mrd-python=2.1.0
   - ninja=1.12.1                            # dev
   - nlohmann_json=3.11.3                    # dev
   - numpy=1.26.4

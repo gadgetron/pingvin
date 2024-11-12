@@ -64,55 +64,7 @@ install(TARGETS gadgetron_mrd
 )
 
 install(DIRECTORY ${mrd_generated_dir}
-    TYPE INCLUDE
+    DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH}
     COMPONENT Devel
     FILES_MATCHING PATTERN "*.h"
 )
-
-#### TODO: Everything below will be removed when mrd is published with intermediate types (e.g. MRD v2.1)
-#### TODO: Also need to `just localinstall-python-package`
-#### TODO: Once published, add `mrd=2.1` and `mrd-python=2.1` to `environment.yml`
-
-find_package(ISMRMRD CONFIG REQUIRED)
-
-add_executable(
-    ismrmrd_to_mrd
-    ${mrd2_SOURCE_DIR}/cpp/mrd-tools/ismrmrd_to_mrd.cc
-    ${mrd2_SOURCE_DIR}/cpp/mrd-tools/converters.cc
-    ${mrd2_SOURCE_DIR}/cpp/mrd/protocols.cc
-    ${mrd2_SOURCE_DIR}/cpp/mrd/types.cc
-    ${mrd2_SOURCE_DIR}/cpp/mrd/binary/protocols.cc
-)
-
-target_include_directories(ismrmrd_to_mrd
-    PUBLIC "$<BUILD_INTERFACE:${mrd2_SOURCE_DIR}/cpp/>"
-)
-
-target_link_libraries(
-    ismrmrd_to_mrd
-    ISMRMRD::ISMRMRD
-)
-
-add_executable(
-    mrd_to_ismrmrd
-    ${mrd2_SOURCE_DIR}/cpp/mrd-tools/mrd_to_ismrmrd.cc
-    ${mrd2_SOURCE_DIR}/cpp/mrd-tools/converters.cc
-    ${mrd2_SOURCE_DIR}/cpp/mrd/protocols.cc
-    ${mrd2_SOURCE_DIR}/cpp/mrd/types.cc
-    ${mrd2_SOURCE_DIR}/cpp/mrd/binary/protocols.cc
-)
-
-target_include_directories(mrd_to_ismrmrd
-    PUBLIC "$<BUILD_INTERFACE:${mrd2_SOURCE_DIR}/cpp/>"
-)
-
-target_link_libraries(
-    mrd_to_ismrmrd
-    ISMRMRD::ISMRMRD
-)
-
-install(TARGETS
-    ismrmrd_to_mrd
-    mrd_to_ismrmrd
-    DESTINATION bin)
-
