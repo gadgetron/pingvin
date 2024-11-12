@@ -29,9 +29,7 @@ def pytest_runtest_teardown(item, nextitem):
 
 def pytest_addoption(parser):
     parser.addoption(
-        # '--data-host', action='store', default='https://gadgetronmrd2testdata.blob.core.windows.net/gadgetronmrd2testdata/',
-        # TODO JOE: Fix this once MRD 2 intermediate types are merged and the test data is uploaded and stable
-        '--data-host', action='store', default='NOT-A-VALID-URL---WILL-FIX-WHEN-MRD-INTERMEDIATE-TYPES-ARE-MERGED-AND-MODEL-STABLE/',
+        '--data-host', action='store', default='https://gadgetronmrd2testdata.blob.core.windows.net/gadgetronmrd2testdata/',
         help='Host from which to download test data.'
     )
     parser.addoption(

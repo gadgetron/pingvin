@@ -63,6 +63,13 @@ ENV TINI_VERSION v0.19.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
 RUN chmod +x /tini
 
+# Install the yardl tool
+ARG YARDL_VERSION=0.6.2
+RUN wget --quiet "https://github.com/microsoft/yardl/releases/download/v${YARDL_VERSION}/yardl_${YARDL_VERSION}_linux_x86_64.tar.gz" \
+    && tar -xzf "yardl_${YARDL_VERSION}_linux_x86_64.tar.gz" \
+    && mv yardl "/usr/local/bin/" \
+    && rm "yardl_${YARDL_VERSION}_linux_x86_64.tar.gz"
+
 FROM gadgetron_baseimage AS gadgetron_dev_cuda
 ARG USER_UID
 ARG HOME

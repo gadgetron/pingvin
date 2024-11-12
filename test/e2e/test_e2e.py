@@ -65,7 +65,7 @@ def check_requirements(spec: Spec, ignore_requirements: Set[str], run_tags: Set[
             def is_satisfied(self, capabilities):
                 value = capabilities.get(self.capability)
                 return self.validator(value)
-    
+
         def parse_memory(string):
             pattern = re.compile(r"(?P<value>\d+)(?: MB)?")
             match = pattern.search(string)
@@ -114,7 +114,7 @@ def fetch_test_data(cache_path: Path, data_host_url: str, tmp_path: Path) -> Cal
         if os.path.exists(destination):
             if not os.path.isfile(destination):
                 pytest.fail(f"Destination '{destination}' exists but is not a file")
-            
+
             if not is_valid(destination, checksum):
                 print(f"Destination '{destination}' exists file but checksum does not match... Forcing download")
             else:
@@ -245,13 +245,13 @@ def checksum(file: Path) -> str:
 def is_valid(file: Path, digest: str) -> bool:
     if not os.path.isfile(file):
         return False
-    return digest == checksum(file) 
+    return digest == checksum(file)
 
 def urlretrieve(url: str, filename: str, retries: int = 5) -> str:
     if retries <= 0:
         pytest.fail("Download from {} failed".format(url))
     try:
-        with urllib.request.urlopen(url, timeout=60) as connection:                        
+        with urllib.request.urlopen(url, timeout=60) as connection:
             with open(filename,'wb') as f:
                 for chunk in iter(lambda : connection.read(1024*1024), b''):
                     f.write(chunk)
@@ -299,7 +299,7 @@ def validate_image_data(output_data: npt.ArrayLike, reference_data: npt.ArrayLik
 
 def validate_image_header(output_header: mrd.ImageHeader, reference_header: mrd.ImageHeader) -> None:
     def equals():
-        # Account for *converted* reference data having value 0 instead of None
+        # Account for *converted* reference header field having value 0 instead of None
         return lambda out, ref: out == ref or (out is None and ref == 0)
 
     def approx(threshold=1e-6):

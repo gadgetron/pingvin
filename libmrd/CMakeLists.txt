@@ -1,3 +1,11 @@
+include(FetchContent)
+FetchContent_Declare(mrd2
+    GIT_REPOSITORY https://github.com/ismrmrd/mrd.git
+    GIT_TAG 00667f1f3b9f3c877e67bb5fadc011e9cdc845bb
+    EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(mrd2)
+
 set(HOWARD_HINNANT_DATE_MINIMUM_VERSION "3.0.0")
 find_package(date ${HOWARD_HINNANT_DATE_MINIMUM_VERSION} REQUIRED)
 
@@ -14,7 +22,7 @@ set(mrd_generated_files
     binary/protocols.cc
 )
 
-set(mrd_model_dir ${CMAKE_CURRENT_SOURCE_DIR}/mrd/model)
+set(mrd_model_dir ${mrd2_SOURCE_DIR}/model)
 set(mrd_include_dir ${CMAKE_CURRENT_BINARY_DIR}/generated)
 set(mrd_generated_dir ${mrd_include_dir}/mrd)
 
@@ -62,20 +70,22 @@ install(DIRECTORY ${mrd_generated_dir}
 )
 
 #### TODO: Everything below will be removed when mrd is published with intermediate types (e.g. MRD v2.1)
+#### TODO: Also need to `just localinstall-python-package`
+#### TODO: Once published, add `mrd=2.1` and `mrd-python=2.1` to `environment.yml`
 
 find_package(ISMRMRD CONFIG REQUIRED)
 
 add_executable(
     ismrmrd_to_mrd
-    mrd/cpp/mrd-tools/ismrmrd_to_mrd.cc
-    mrd/cpp/mrd-tools/converters.cc
-    mrd/cpp/mrd/protocols.cc
-    mrd/cpp/mrd/types.cc
-    mrd/cpp/mrd/binary/protocols.cc
+    ${mrd2_SOURCE_DIR}/cpp/mrd-tools/ismrmrd_to_mrd.cc
+    ${mrd2_SOURCE_DIR}/cpp/mrd-tools/converters.cc
+    ${mrd2_SOURCE_DIR}/cpp/mrd/protocols.cc
+    ${mrd2_SOURCE_DIR}/cpp/mrd/types.cc
+    ${mrd2_SOURCE_DIR}/cpp/mrd/binary/protocols.cc
 )
 
 target_include_directories(ismrmrd_to_mrd
-    PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/mrd/cpp/>"
+    PUBLIC "$<BUILD_INTERFACE:${mrd2_SOURCE_DIR}/cpp/>"
 )
 
 target_link_libraries(
@@ -85,15 +95,15 @@ target_link_libraries(
 
 add_executable(
     mrd_to_ismrmrd
-    mrd/cpp/mrd-tools/mrd_to_ismrmrd.cc
-    mrd/cpp/mrd-tools/converters.cc
-    mrd/cpp/mrd/protocols.cc
-    mrd/cpp/mrd/types.cc
-    mrd/cpp/mrd/binary/protocols.cc
+    ${mrd2_SOURCE_DIR}/cpp/mrd-tools/mrd_to_ismrmrd.cc
+    ${mrd2_SOURCE_DIR}/cpp/mrd-tools/converters.cc
+    ${mrd2_SOURCE_DIR}/cpp/mrd/protocols.cc
+    ${mrd2_SOURCE_DIR}/cpp/mrd/types.cc
+    ${mrd2_SOURCE_DIR}/cpp/mrd/binary/protocols.cc
 )
 
 target_include_directories(mrd_to_ismrmrd
-    PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/mrd/cpp/>"
+    PUBLIC "$<BUILD_INTERFACE:${mrd2_SOURCE_DIR}/cpp/>"
 )
 
 target_link_libraries(
