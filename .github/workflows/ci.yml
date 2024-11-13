@@ -1,0 +1,56 @@
+name: Pingvin Build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*.*.*"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  CONDA_CACHE_NUMBER: 1
+
+jobs:
+  build-and-test:
+    runs-on: ["self-hosted", "1ES.Pool=biomedsigproc-github-NC6s_v3"]
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          # Do not specify environment file - see Cache step below
+          activate-environment: gadgetron
+
+      - name: Get Date
+        id: get-date
+        shell: bash
+        run: echo "DATE=$(date -u +'%Y%m%d')" >> $GITHUB_ENV
+
+      - name: Cache Conda Env
+        id: cache-conda
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.CONDA }}/envs
+          key:
+              conda-${{ runner.os }}--${{ runner.arch }}--${{
+              hashFiles('environment.yml') }}-${{
+              env.DATE }}-${{
+              env.CONDA_CACHE_NUMBER }}
+
+      - name: Update Environment
+        shell: bash -el {0}
+        run: conda env update -n gadgetron -f environment.yml
+        if: steps.cache-conda.outputs.cache-hit != 'true'
+
+      - name: GPU Check
+        shell: bash
+        run: nvidia-smi
