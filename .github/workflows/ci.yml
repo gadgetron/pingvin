@@ -53,4 +53,10 @@ jobs:
 
       - name: GPU Check
         shell: bash
-        run: nvidia-smi
+        run: |
+          python3 -V
+          apt update
+          apt install ubuntu-drivers-common
+          ubuntu-drivers list --gpgpu
+          ubuntu-drivers install --gpgpu
+          nvidia-smi
