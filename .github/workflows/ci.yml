@@ -21,7 +21,7 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Miniconda
         uses: conda-incubator/setup-miniconda@v3
@@ -33,7 +33,7 @@ jobs:
       - name: Get Date
         id: get-date
         shell: bash
-        run: echo "DATE=$(date -u +'%Y%m%d')" >> $GITHUB_ENV
+        run: echo "YEARMONTH=$(date -u +'%Y%m')" >> $GITHUB_ENV
 
       - name: Cache Conda Env
         id: cache-conda
@@ -41,9 +41,9 @@ jobs:
         with:
           path: ${{ env.CONDA }}/envs
           key:
-              conda-${{ runner.os }}--${{ runner.arch }}--${{
+              conda-${{ runner.os }}-${{ runner.arch }}-${{
               hashFiles('environment.yml') }}-${{
-              env.DATE }}-${{
+              env.YEARMONTH }}-${{
               env.CONDA_CACHE_NUMBER }}
 
       - name: Update Environment
@@ -51,10 +51,16 @@ jobs:
         run: conda env update -n gadgetron -f environment.yml
         if: steps.cache-conda.outputs.cache-hit != 'true'
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: GPU Check
         shell: bash
         run: |
           sudo apt update
+          sudo apt list --installed | grep nvidia
+          sudo apt --purge remove -y '*nvidia*'
+          audo apt autoremove -y
           sudo apt install -y ubuntu-drivers-common
           #sudo ubuntu-drivers list --gpgpu
           #sudo ubuntu-drivers install --gpgpu
