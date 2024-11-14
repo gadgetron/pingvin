@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           sudo apt update
-          sudo apt install ubuntu-drivers-common
-          sudo ubuntu-drivers list --gpgpu
+          sudo apt install -y ubuntu-drivers-common
+          #sudo ubuntu-drivers list --gpgpu
           sudo ubuntu-drivers install --gpgpu
           nvidia-smi
