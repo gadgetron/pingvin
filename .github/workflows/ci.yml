@@ -57,5 +57,8 @@ jobs:
           sudo apt update
           sudo apt install -y ubuntu-drivers-common
           #sudo ubuntu-drivers list --gpgpu
-          sudo ubuntu-drivers install --gpgpu
+          #sudo ubuntu-drivers install --gpgpu
+          sudo ubuntu-drivers install --gpgpu nvidia:535-server
+          sudo apt install -y nvidia-utils-535-server
+          which nvidia-smi
           nvidia-smi
