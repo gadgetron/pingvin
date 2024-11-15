@@ -23,33 +23,33 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Miniconda
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          miniforge-version: latest
-          # Do not specify environment file - see Cache step below
-          activate-environment: gadgetron
+          #- name: Setup Miniconda
+          #uses: conda-incubator/setup-miniconda@v3
+          #with:
+          #miniforge-version: latest
+          ## Do not specify environment file - see Cache step below
+          #activate-environment: gadgetron
 
-      - name: Get Date
-        id: get-date
-        shell: bash
-        run: echo "YEARMONTH=$(date -u +'%Y%m')" >> $GITHUB_ENV
+          #- name: Get Date
+          #id: get-date
+          #shell: bash
+          #run: echo "YEARMONTH=$(date -u +'%Y%m')" >> $GITHUB_ENV
 
-      - name: Cache Conda Env
-        id: cache-conda
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.CONDA }}/envs
-          key:
-              conda-${{ runner.os }}-${{ runner.arch }}-${{
-              hashFiles('environment.yml') }}-${{
-              env.YEARMONTH }}-${{
-              env.CONDA_CACHE_NUMBER }}
+          #- name: Cache Conda Env
+          #id: cache-conda
+          #uses: actions/cache@v3
+          #with:
+          #path: ${{ env.CONDA }}/envs
+          #key:
+          #conda-${{ runner.os }}-${{ runner.arch }}-${{
+          #hashFiles('environment.yml') }}-${{
+          #env.YEARMONTH }}-${{
+          #env.CONDA_CACHE_NUMBER }}
 
-      - name: Update Environment
-        shell: bash -el {0}
-        run: conda env update -n gadgetron -f environment.yml
-        if: steps.cache-conda.outputs.cache-hit != 'true'
+          #- name: Update Environment
+          #shell: bash -el {0}
+          #run: conda env update -n gadgetron -f environment.yml
+          #if: steps.cache-conda.outputs.cache-hit != 'true'
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
