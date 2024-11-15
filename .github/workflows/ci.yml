@@ -55,7 +55,7 @@ jobs:
       #- name: Setup tmate session
         #uses: mxschmitt/action-tmate@v3
 
-      - name: GPU Check
+      - name: Install GPU driver
         shell: bash
         run: |
           sudo apt update
@@ -67,9 +67,13 @@ jobs:
           ##sudo ubuntu-drivers install --gpgpu
           #sudo ubuntu-drivers install --gpgpu nvidia:535-server
           #sudo apt install -y nvidia-utils-535-server
-          sudo DEBIAN_FRONTEND=noninteractive apt install linux-headers-generic
-          sudo DEBIAN_FRONTEND=noninteractive apt install nvidia-dkms-535-server
-          sudo DEBIAN_FRONTEND=noninteractive apt install nvidia-driver-535-server
+          sudo DEBIAN_FRONTEND=noninteractive apt install -y linux-headers-generic
+          sudo DEBIAN_FRONTEND=noninteractive apt install -y nvidia-dkms-535-server
+          sudo DEBIAN_FRONTEND=noninteractive apt install -y nvidia-driver-535-server
           sudo modprobe nvidia
-          #which nvidia-smi
-          nvidia-smi
+          which nvidia-smi
+
+      - name: GPU check
+        shell: bash
+        run: nvidia-smi
+
