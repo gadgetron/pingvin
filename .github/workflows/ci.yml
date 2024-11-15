@@ -24,8 +24,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+      - name: Check GPU availability
+        shell: bash
+        run: nvidia-smi
 
       - name: Setup Miniconda
         uses: conda-incubator/setup-miniconda@v3
@@ -55,10 +56,25 @@ jobs:
         run: conda env update -n gadgetron -f environment.yml
         if: steps.cache-conda.outputs.cache-hit != 'true'
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+      #- name: Setup tmate session
+      #  uses: mxschmitt/action-tmate@v3
 
-      - name: GPU check
+      - name: Build
         shell: bash
-        run: nvidia-smi
+        run: |
+          mkdir -p build
+          cd build/
+          cmake -G Ninja \
+              -D CMAKE_BUILD_TYPE=Release \
+              -D USE_CUDA=ON \
+              -D USE_MKL=ON \
+              -D BUILD_DOCUMENTATION=OFF \
+              -D CMAKE_INSTALL_PREFIX=${CONDA_PREFIX} \
+              ../
+
+      - name: Unit Test
+        shell: bash
+        run: |
+          cd build/
+          ./test_all
 
