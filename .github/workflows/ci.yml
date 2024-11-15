@@ -74,6 +74,7 @@ jobs:
               -D BUILD_DOCUMENTATION=OFF \
               -D CMAKE_INSTALL_PREFIX=${CONDA_PREFIX} \
               ../
+          ninja
 
       - name: Unit Test
         run: |
