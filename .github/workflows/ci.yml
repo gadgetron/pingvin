@@ -15,6 +15,11 @@ permissions:
 env:
   CONDA_CACHE_NUMBER: 1
 
+defaults:
+  run:
+    # See https://github.com/marketplace/actions/setup-miniconda#important
+    shell: bash -el {0}
+
 jobs:
   build-and-test:
     #runs-on: ["self-hosted", "1ES.Pool=biomedsigproc-github-NC6s_v3"]
@@ -52,7 +57,6 @@ jobs:
               env.CONDA_CACHE_NUMBER }}
 
       - name: Update Environment
-        shell: bash -el {0}
         run: conda env update -n gadgetron -f environment.yml
         if: steps.cache-conda.outputs.cache-hit != 'true'
 
@@ -60,7 +64,6 @@ jobs:
       #  uses: mxschmitt/action-tmate@v3
 
       - name: Build
-        shell: bash
         run: |
           mkdir -p build
           cd build/
@@ -73,7 +76,6 @@ jobs:
               ../
 
       - name: Unit Test
-        shell: bash
         run: |
           cd build/
           ./test_all
