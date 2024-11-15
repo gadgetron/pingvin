@@ -52,9 +52,6 @@ jobs:
         run: conda env update -n gadgetron -f environment.yml
         if: steps.cache-conda.outputs.cache-hit != 'true'
 
-      #- name: Setup tmate session
-        #uses: mxschmitt/action-tmate@v3
-
       - name: Install GPU driver
         shell: bash
         run: |
@@ -72,6 +69,9 @@ jobs:
           sudo DEBIAN_FRONTEND=noninteractive apt install -y nvidia-driver-535-server
           sudo modprobe nvidia
           which nvidia-smi
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
 
       - name: GPU check
         shell: bash
