@@ -24,6 +24,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: Setup Miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
@@ -51,24 +54,6 @@ jobs:
         shell: bash -el {0}
         run: conda env update -n gadgetron -f environment.yml
         if: steps.cache-conda.outputs.cache-hit != 'true'
-
-      - name: Install GPU driver
-        shell: bash
-        run: |
-          sudo apt update
-          #sudo apt list --installed | grep nvidia
-          #sudo apt --purge remove -y '*nvidia*'
-          #sudo apt autoremove -y
-          #sudo apt install -y ubuntu-drivers-common
-          ##sudo ubuntu-drivers list --gpgpu
-          ##sudo ubuntu-drivers install --gpgpu
-          #sudo ubuntu-drivers install --gpgpu nvidia:535-server
-          #sudo apt install -y nvidia-utils-535-server
-          sudo DEBIAN_FRONTEND=noninteractive apt install -y linux-headers-generic
-          sudo DEBIAN_FRONTEND=noninteractive apt install -y nvidia-dkms-535-server
-          sudo DEBIAN_FRONTEND=noninteractive apt install -y nvidia-driver-535-server
-          sudo modprobe nvidia
-          which nvidia-smi
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
