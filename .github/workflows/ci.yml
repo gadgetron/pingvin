@@ -17,7 +17,8 @@ env:
 
 jobs:
   build-and-test:
-    runs-on: ["self-hosted", "1ES.Pool=biomedsigproc-github-NC6s_v3"]
+    #runs-on: ["self-hosted", "1ES.Pool=biomedsigproc-github-NC6s_v3"]
+    runs-on: ["self-hosted", "1ES.Pool=biomedsigproc-gadgetron-NC6s_v3"]
     steps:
 
       - name: Checkout
