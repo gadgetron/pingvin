@@ -79,5 +79,5 @@ jobs:
       - name: Unit Test
         run: |
           cd build/
-          ./test_all
+          ctest
 
