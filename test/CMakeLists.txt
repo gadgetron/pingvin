@@ -85,5 +85,3 @@ if (BUILD_PYTHON_SUPPORT)
 endif ()
 
 gtest_discover_tests(test_all DISCOVERY_MODE PRE_TEST)
-
-install(TARGETS test_all DESTINATION bin COMPONENT main)

@@ -2,9 +2,9 @@
 	"name": "Gadgetron",
 	"build": {
 		"dockerfile": "../Dockerfile",
-		"target": "gadgetron_dev_cuda",
+		"target": "pingvin_dev_cuda",
 		"context": "../",
-		"cacheFrom": "ghcr.io/gadgetron/gadgetron/gadgetron_ubuntu_dev_cuda:latest",
+		"cacheFrom": "ghcr.io/gadgetron/pingvin/ubuntu22.04_dev_cuda:latest",
 	},
 	"containerEnv": {
 		"DOCKER_BUILDKIT": "1",
@@ -49,8 +49,6 @@
 		}
 	},
 
-	// "runArgs": ["--init", "--network=host"],
-	
 	// To enable your local GPUs in container if they are on enabled by default devcontainer will fail to start on hosts without GPU
 	"runArgs": ["--init", "--network=host", "--gpus=all"],
 

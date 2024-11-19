@@ -63,9 +63,9 @@ dependencies:
   - plplot=5.15.0
   - pugixml=1.12.1
   - pyfftw=0.13.1
-  - pytest=8.3.3                            # dev
+  - pytest=8.3.3
   - python=3.10
-  - pyyaml=6.0.1                            # dev
+  - pyyaml=6.0.1
   - range-v3=0.12.0
   - recommonmark=0.7.1                      # dev
   - scipy=1.13.1
@@ -77,5 +77,4 @@ dependencies:
   - valgrind=3.23.0                         # dev
   - xsdata=24.5
   - xtensor=0.24.2
-  - xtensor-fftw=0.2.5
   - yq=3.4.3                                # dev
