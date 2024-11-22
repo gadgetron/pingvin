@@ -113,16 +113,6 @@ jobs:
           name: conda-packages
           path: conda/build_pkg/**/gadgetron*.tar.bz2
 
-      - name: Publish conda package
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-        env:
-          ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
-        run: |
-          for p in $(find conda/build_pkg -name gadgetron*.tar.bz2)
-          do
-            ./conda/publish_package.sh -u gadgetron -t "$ANACONDA_TOKEN" -p "$p"
-          done
-
   publish-conda-package:
     # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
     # Publishing a Pingvin conda package will overwrite Gadgetron packages.
