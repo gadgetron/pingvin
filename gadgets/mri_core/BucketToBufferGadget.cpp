@@ -329,6 +329,35 @@ namespace Gadgetron {
         sampling.recon_fov      = encoding.recon_space.field_of_view_mm;
         sampling.recon_matrix   = encoding.recon_space.matrix_size;
 
+        sampling.sampling_limits.kspace_encoding_step_0.minimum = 0;
+        sampling.sampling_limits.kspace_encoding_step_0.maximum = acq.Samples() - 1;
+        sampling.sampling_limits.kspace_encoding_step_0.center = acq.Samples() / 2;
+
+        sampling.sampling_limits.kspace_encoding_step_1.minimum = encoding.encoding_limits.kspace_encoding_step_1->minimum;
+        sampling.sampling_limits.kspace_encoding_step_1.maximum = encoding.encoding_limits.kspace_encoding_step_1->maximum;
+        sampling.sampling_limits.kspace_encoding_step_1.center = encoding.encoding_limits.kspace_encoding_step_1->center;
+
+        sampling.sampling_limits.kspace_encoding_step_2.minimum = encoding.encoding_limits.kspace_encoding_step_2->minimum;
+        sampling.sampling_limits.kspace_encoding_step_2.maximum = encoding.encoding_limits.kspace_encoding_step_2->maximum;
+        sampling.sampling_limits.kspace_encoding_step_2.center = encoding.encoding_limits.kspace_encoding_step_2->center;
+
+        if (verbose) {
+            GDEBUG_STREAM("Encoding space : " << acq.head.encoding_space_ref.value_or(0) << " - "
+                          << int(encoding.trajectory) << " - FOV : [ " << encoding.encoded_space.field_of_view_mm.x << " "
+                          << encoding.encoded_space.field_of_view_mm.y << " " << encoding.encoded_space.field_of_view_mm.z
+                          << " ] "
+                          << " - Matris size : [ " << encoding.encoded_space.matrix_size.x << " "
+                          << encoding.encoded_space.matrix_size.y << " " << encoding.encoded_space.matrix_size.z << " ] ");
+
+            GDEBUG_STREAM("Sampling limits : "
+                          << "- RO : [ " << sampling.sampling_limits.kspace_encoding_step_0.minimum << " "
+                          << sampling.sampling_limits.kspace_encoding_step_0.center << " " << sampling.sampling_limits.kspace_encoding_step_0.maximum
+                          << " ] - E1 : [ " << sampling.sampling_limits.kspace_encoding_step_1.minimum << " "
+                          << sampling.sampling_limits.kspace_encoding_step_1.center << " " << sampling.sampling_limits.kspace_encoding_step_1.maximum
+                          << " ] - E2 : [ " << sampling.sampling_limits.kspace_encoding_step_2.minimum << " "
+                          << sampling.sampling_limits.kspace_encoding_step_2.center << " " << sampling.sampling_limits.kspace_encoding_step_2.maximum << " ]");
+        }
+
         // For cartesian trajectories, assume that any oversampling has been removed.
         if (encoding.trajectory == mrd::Trajectory::kCartesian) {
             sampling.encoded_fov.x    = encoding.recon_space.field_of_view_mm.x;
