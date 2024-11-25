@@ -11,7 +11,7 @@ from typing import List, Set
 
 def pytest_exception_interact(node, call, report):
     if report.failed and node.config.getoption('--echo-log-on-failure'):
-        if 'tmp_path' in node.funcargs:
+        if hasattr(node, 'funcargs') and 'tmp_path' in node.funcargs:
             tmp_path = node.funcargs['tmp_path']
             for log in glob.glob(os.path.join(tmp_path, '*.log*')):
                 with open(log, 'r') as logfile:
@@ -22,7 +22,7 @@ def pytest_runtest_teardown(item, nextitem):
     if item.config.getoption('--save-results'):
         output_path = item.config.getoption('--save-results')
         output_path = os.path.join(os.path.abspath(output_path), item.callspec.id)
-        if 'tmp_path' in item.funcargs:
+        if hasattr(item, 'funcargs') and 'tmp_path' in item.funcargs:
             tmp_path = item.funcargs['tmp_path']
             shutil.copytree(tmp_path, output_path, dirs_exist_ok=True)
 
