@@ -85,10 +85,8 @@ set(gadgetron_mricore_src_files
 
 set(gadgetron_mricore_config_files
         config/default.xml
-        config/default_short.xml
         config/default_optimized.xml
         config/default_measurement_dependencies.xml
-        config/isalive.xml
         )
 set(gadgetron_mricore_generic_recon_gadgets_header_files
         generic_recon_gadgets/GenericReconBase.h

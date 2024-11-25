@@ -55,10 +55,5 @@ install(FILES
         io/primitives.h
         io/primitives.hpp
         DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH}/io COMPONENT main)
-install(FILES
-        config/distributed_default.xml
-        config/distributed_generic_default.xml
-        config/distributed_image_default.xml
-        DESTINATION ${GADGETRON_INSTALL_CONFIG_PATH} COMPONENT main)
 
 set(GADGETRON_BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR};${GADGETRON_BUILD_RPATH}" PARENT_SCOPE)

@@ -1,5 +1,5 @@
 
-set(gadgetron_t1_config_files config/MOLLI_T1_Moco.xml config/MOLLI_T1_Moco_istore.xml)
+set(gadgetron_t1_config_files config/MOLLI_T1_Moco.xml)
 
 source_group(config FILES ${gadgetron_t1_config_files})
 
