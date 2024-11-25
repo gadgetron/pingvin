@@ -39,7 +39,7 @@ dependencies:
   - hdf5=1.10.6
   - howardhinnant_date=3.0.1                # dev
   - imagemagick=7.0.11_13                   # dev
-  - ismrmrd=1.14.1
+  - ismrmrd=1.14.2
   - ismrmrd-python=1.14.0
   - junitparser=3.1.2
   - jupyter=1.0.0                           # dev
@@ -52,8 +52,8 @@ dependencies:
   - matplotlib=3.8.4                        # dev
   - mkl>=2024.1.0
   - mkl-include>=2024.1.0                   # dev
-  - mrd=2.1.0
-  - mrd-python=2.1.0
+  - mrd=2.1.1
+  - mrd-python=2.1.1
   - ninja=1.12.1                            # dev
   - nlohmann_json=3.11.3                    # dev
   - numpy=1.26.4
@@ -70,7 +70,7 @@ dependencies:
   - recommonmark=0.7.1                      # dev
   - scipy=1.13.1
   - shellcheck=0.10.0                       # dev
-  - siemens_to_ismrmrd=1.2.12
+  - siemens_to_ismrmrd=1.2.13
   - sphinx=4.4.0                            # dev
   - sphinx_rtd_theme=1.3.0                  # dev
   - sysroot_linux-64=2.12

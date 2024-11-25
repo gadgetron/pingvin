@@ -97,6 +97,15 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4.1.0
 
+      - name: Install Yardl
+        run: |-
+          YARDL_VERSION=$(grep -Po '(?<=YARDL_VERSION=)(.+)' Dockerfile)
+          mkdir -p "/tmp/yardl_${YARDL_VERSION}_linux_x86_64"
+          cd "/tmp/yardl_${YARDL_VERSION}_linux_x86_64"
+          wget --quiet "https://github.com/microsoft/yardl/releases/download/v${YARDL_VERSION}/yardl_${YARDL_VERSION}_linux_x86_64.tar.gz"
+          tar -xzf "yardl_${YARDL_VERSION}_linux_x86_64.tar.gz"
+          pwd >> $GITHUB_PATH
+
       - name: Setup Miniforge
         uses: conda-incubator/setup-miniconda@v3
         with:

@@ -28,7 +28,7 @@ requirements:
     - hdf5=1.10.6
     - howardhinnant_date=3.0.1
     - imagemagick=7.0.11_13                   # dev
-    - ismrmrd=1.14.1
+    - ismrmrd=1.14.2
     - ismrmrd-python=1.14.0
     - just=1.31.0                             # dev
     - libblas=*=*mkl
@@ -57,14 +57,14 @@ requirements:
     - fftw=3.3.9
     - h5py=3.7.0
     - hdf5=1.10.6
-    - ismrmrd=1.14.1
+    - ismrmrd=1.14.2
     - ismrmrd-python=1.14.0
     - jq=1.7.1
     - libblas=*=*mkl
     - libcurl=7.86.0
     - libxml2=2.9.14
     - mkl>=2024.1.0
-    - mrd-python=2.1.0
+    - mrd-python=2.1.1
     - numpy=1.26.4
     - onnxruntime=1.18.1
     - pugixml=1.12.1
