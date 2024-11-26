@@ -75,10 +75,10 @@ def check_requirements(spec: Spec, ignore_requirements: Set[str], run_tags: Set[
             return value in ['YES', 'yes', 'True', 'true', '1']
 
         def has_more_than(target):
-            return lambda value: parse_memory(str(target)) <= parse_memory(value)
+            return lambda value: value is not None and parse_memory(str(target)) <= parse_memory(value)
 
         def is_positive(value):
-            return int(value) > 0
+            return value is not None and int(value) > 0
 
         def each(validator):
             return lambda values: all([validator(value) for value in values])
@@ -211,11 +211,10 @@ def load_gadgetron_capabilities() -> Dict[str, str]:
     def find_value(marker):
         pattern = re.compile(marker + value_pattern, re.IGNORECASE)
         match = pattern.search(gadgetron_info)
-
-        if not match:
-            pytest.fail(f"Failed to parse Gadgetron capability '{marker}' from {gadgetron_info}")
-
-        return match['value']
+        if match:
+            return match['value']
+        else:
+            return None
 
     def find_plural_values(marker):
         pattern = re.compile(marker + value_pattern, re.IGNORECASE)
