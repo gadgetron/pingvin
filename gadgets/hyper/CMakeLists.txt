@@ -1,10 +1,10 @@
-add_library(gadgetron_hyper SHARED 
+add_library(gadgetron_hyper SHARED
   NFFT2DGadget.h NFFT2DGadget.cpp
   CMRT3DGadget.h CMRT3DGadget.cpp
   CMRTGadget.h CMRTGadget.cpp
   CSIGadget.h CSIGadget.cpp
   gpuCSICoilEstimationGadget.cpp
-  
+
   )
 
 set_target_properties(gadgetron_hyper PROPERTIES VERSION ${GADGETRON_VERSION_STRING} SOVERSION ${GADGETRON_SOVERSION})
@@ -19,7 +19,7 @@ target_link_libraries(gadgetron_hyper
   gadgetron_toolbox_cpucore_math)
 
 
-install(FILES 
+install(FILES
   NFFT2DGadget.h
   CMRTGadget.h
   CMRT3DGadget.h
@@ -35,5 +35,3 @@ install(TARGETS gadgetron_hyper
 	RUNTIME DESTINATION bin
 	COMPONENT main
 )
-
-set(GADGETRON_BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR};${GADGETRON_BUILD_RPATH}" PARENT_SCOPE)

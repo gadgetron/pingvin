@@ -6,14 +6,9 @@ In the simplest case, this is simply a list of types. For instance
 
 .. code-block:: cpp
 
-    ChannelGadget<ISMRMRD::AcquisitionHeader, hoNDArray<std::complex<float>>>
+    ChannelGadget<mrd::Acquisition>
 
-will match any message starting with a :cpp:class:`AcquisitionHeader` followed by a :cpp:class:`hoNDArray<std::complex<float>>`.
-If the message has more parts, these will simply be discarded. Also note that this is equivalent to
-
-.. code-block:: cpp
-
-    ChannelGadget<tuple<ISMRMRD::AcquisitionHeader, hoNDArray<std::complex<float>>>>
+will match any message containing an :cpp:class:`Acquisition`.
 
 Optional
 --------
@@ -22,33 +17,24 @@ If we want to include an element that will only appear some times, we can define
 
 .. code-block:: cpp
 
-    ChannelGadget<ISMRMRD::AcquisitionHeader, hoNDArray<std::complex<float>>, optional<hoNDArray<float>>>
-
-and in fact Types.h defines :cpp:class:`Acquisition<mrd::Acquisition>` as
-
-.. code-block:: cpp
-
-    using Acquisition = tuple<ISMRMRD::AcquisitionHeader,  hoNDArray<std::complex<float>>,optional<hoNDArray<float>>>;
-
-
-
+    ChannelGadget<mrd::Acquisition, std::optional<hoNDArray<float>>>
 
 Variant
 -------
 
 What if you need to create a ChannelGadget that accepts multiple types? For instance, one which receives both Acquisition and Waveform. In this case we can use a variant.
 
-.. code_block:: cpp
+.. code-block:: cpp
 
-   ChannelGadget<variant<Acquisition,Waveform>>
+   ChannelGadget<std::variant<mrd::Acquisition, mrd::Waveform>>
 
 In order to work with the data, you call :cpp:func:`std::visit <https://en.cppreference.com/w/cpp/utility/variant/visit>`_.
 
 For instance, a toy example which counts the number of data points in all waveforms and acquisitions could look like
 
-.. code_block:: cpp
+.. code-block:: cpp
 
-   void process(ChannelGadget<Acquisition,Waveform>& in, OutputChannel& out>){
+   void process(ChannelGadget<Acquisition, Waveform>& in, OutputChannel& out){
 
        for (auto acquisition_or_waveform : in){
 
@@ -60,8 +46,3 @@ For instance, a toy example which counts the number of data points in all wavefo
            acquisition_or_waveform);
        }
    }
-
-
-
-
-

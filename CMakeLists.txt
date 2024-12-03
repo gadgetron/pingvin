@@ -5,7 +5,7 @@ if (${CMAKE_VERSION} VERSION_LESS 3.17)
 else ()
     cmake_policy(VERSION 3.17)
 endif()
-project(GADGETRON LANGUAGES CXX C)
+project(PINGVIN LANGUAGES CXX C)
 
 find_program(CCACHE_FOUND ccache)
 if (CCACHE_FOUND)
@@ -71,7 +71,6 @@ set(GADGETRON_INSTALL_CONFIG_PATH share/gadgetron/config)
 set(GADGETRON_INSTALL_PYTHON_MODULE_PATH share/gadgetron/python)
 set(GADGETRON_INSTALL_SCHEMA_PATH share/gadgetron/schema)
 set(GADGETRON_INSTALL_INCLUDE_PATH include/gadgetron)
-set(GADGETRON_VAR_DIR /var/lib/gadgetron/ CACHE PATH "Path where Gadgetron will store calibration data, etc" FORCE)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # create the Gadgetron version header
@@ -96,17 +95,7 @@ else ()
     set(HAS_64_BIT Off CACHE BOOL "64bit build")
 endif ()
 
-
-#set(CMAKE_MACOSX_RPATH 1)
-set(CMAKE_INSTALL_RPATH ".:${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-# whether to install dependencies
-option(GADGETRON_INSTALL_DEPENDENCIES "Install gadgetron dependencies" Off)
-option(DISABLE_FORK "Disables forking in release mode, causing Gadgetron to always run in a single process" Off)
-
-if (DISABLE_FORK)
-    add_definitions(-DGADGETRON_DISABLE_FORK)
-endif()
 
 # build options for OpenMP support
 find_package(OpenMP)
@@ -163,7 +152,6 @@ endif ()
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
-# necessary for Windows and RHEL <=6 systems
 
 # We actually only use system and thread explicitly, but they require linking in date_time and chrono
 find_package(Boost 1.80.0 COMPONENTS coroutine system date_time program_options filesystem timer REQUIRED )
@@ -193,9 +181,6 @@ if (CUDA_FOUND AND USE_CUDA)
     set(CUDA_HOST_COMPILER ${CMAKE_CXX_COMPILER})
     set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} --std=c++17")
     set(CMAKE_CUDA_STANDARD 17)
-    #  endif ()
-    #set(CUDA_VERBOSE_BUILD ON)
-
 
     # Compile kernels for compute models 1.0 and 2.0 as default for Cuda 4.1
     # Support compute model 3.0 from Cuda 4.2 and up
@@ -249,19 +234,15 @@ target_link_libraries(FFTW INTERFACE ${FFTW3_LIBRARIES})
 set_property(TARGET FFTW PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${FFTW3_INCLUDE_DIR})
 install(TARGETS FFTW EXPORT gadgetron-export)
 
-set(GADGETRON_BUILD_RPATH "")
-
 option(USE_MKL Off)
 if (USE_MKL)
     if (LINUX)
         list(APPEND CMAKE_PREFIX_PATH "/opt/intel/oneapi/mkl/latest")
     endif()
     find_package(MKL REQUIRED)
-    link_directories(GTBLAS BEFORE INTERFACE "${MKL_ROOT}/lib/intel64/")
     add_library(GTBLAS INTERFACE)
     set_property(TARGET GTBLAS PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${MKL_INCLUDE_DIR})
     set_property(TARGET GTBLAS PROPERTY INTERFACE_LINK_LIBRARIES ${MKL_LIBRARIES})
-    message(STATUS "MKL LIB DIR ${MKL_ROOT}/lib/intel64")
 
     add_definitions(-DUSE_MKL -DARMA_BLAS_LONG_LONG -DARMA_USE_BLAS -DARMA_USE_LAPACK)
 else ()
@@ -366,13 +347,6 @@ if(BUILD_DOCUMENTATION)
     add_subdirectory(doc)
 endif()
 
-if (UNIX)
-    if (NOT APPLE)
-        if (GADGETRON_INSTALL_DEPENDENCIES)
-            include(${CMAKE_SOURCE_DIR}/cmake/InstallLinuxDependencies.cmake)
-        endif ()
-    endif ()
-endif ()
 
 #  ---   Main Library  (end) ----
 include(GNUInstallDirs)

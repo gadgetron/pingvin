@@ -1,4 +1,4 @@
-name: gadgetron
+name: pingvin
 channels:
   - ismrmrd
   - nvidia/label/cuda-12.3.0

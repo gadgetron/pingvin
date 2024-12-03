@@ -34,8 +34,6 @@ if (ARMADILLO_FOUND AND Boost_FOUND AND PLPLOT_FOUND)
     add_subdirectory(plplot)
 endif ()
 
-set(GADGETRON_BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR};${GADGETRON_BUILD_RPATH}" PARENT_SCOPE)
-
 if(CUDA_FOUND)
     # We compile all GPU code into one library to workaround Thrust and Cub using statics in templates
     # (e.g. https://github.com/NVIDIA/cub/blob/48768e86a40c25d231a6ff1e04107a60016314a7/cub/util_device.cuh#L208)

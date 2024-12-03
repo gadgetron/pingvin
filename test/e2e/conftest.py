@@ -42,7 +42,7 @@ def pytest_addoption(parser):
     )
     parser.addoption(
         '--ignore-requirements', action='store', nargs='+',
-        help="Run tests regardless of whether Gadgetron has the specified capabilities."
+        help="Run tests regardless of whether Pingvin has the specified capabilities."
     )
     parser.addoption(
         '--tags', action='store', nargs='+',
@@ -50,11 +50,11 @@ def pytest_addoption(parser):
     )
     parser.addoption(
         '--echo-log-on-failure', action='store_true', default=False,
-        help='Capture and print Gadgetron logs on test failure.'
+        help='Capture and print Pingvin logs on test failure.'
     )
     parser.addoption(
         '--save-results', action='store', default="",
-        help='Save Gadgetron output and logs in the specified directory.'
+        help='Save Pingvin output and logs in the specified directory.'
     )
 
 

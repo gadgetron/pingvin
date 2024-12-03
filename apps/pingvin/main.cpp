@@ -40,10 +40,10 @@ int main(int argc, char *argv[]) {
     options_description gadgetron_options("Allowed options:");
     gadgetron_options.add_options()
             ("help,h", "Prints this help message.")
-            ("info", "Prints build info about the Gadgetron.")
+            ("info", "Prints build info about Pingvin.")
             ("home,G",
                 value<path>()->default_value(Info::default_gadgetron_home()),
-                "Set the Gadgetron home directory.")
+                "Set the Pingvin home directory.")
             ("input,i",
                 value<std::string>(),
                 "Input file for binary data to perform a local reconstruction with")
@@ -52,10 +52,10 @@ int main(int argc, char *argv[]) {
                 "Output file for binary data as a result of a local reconstruction")
             ("config,c",
                 value<std::string>(),
-                "Filename of the desired gadgetron reconstruction config.")
+                "Filename of the desired Pingvin reconstruction config.")
             ("parameter",
                 value<std::vector<gadget_parameter>>(),
-                "Parameter to be passed to the gadgetron reconstruction config. Multiple parameters can be passed."
+                "Parameter to be passed to the Pingvin reconstruction config. Multiple parameters can be passed."
                 "Format: --parameter <name>=<value> --parameter <name>=<value> ...");
 
     options_description desc;
@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
             return 0;
         }
 
-        GINFO("Gadgetron %s [%s]\n", GADGETRON_VERSION_STRING, GADGETRON_GIT_SHA1_HASH);
+        GINFO("Pingvin %s [%s]\n", GADGETRON_VERSION_STRING, GADGETRON_GIT_SHA1_HASH);
 
         if (!args.count("config"))
         {

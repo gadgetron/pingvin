@@ -1,4 +1,4 @@
-add_library(gadgetron_toolbox_cpuklt SHARED 
+add_library(gadgetron_toolbox_cpuklt SHARED
   hoNDKLT.h
   hoNDKLT.cpp
   )
@@ -33,5 +33,3 @@ install(TARGETS gadgetron_toolbox_cpuklt
 install(FILES
   hoNDKLT.h
   DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
-
-set(GADGETRON_BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR};${GADGETRON_BUILD_RPATH}" PARENT_SCOPE)

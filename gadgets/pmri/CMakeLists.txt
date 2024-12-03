@@ -5,11 +5,11 @@ add_library(gadgetron_gpuparallelmri SHARED
     gpuCgSpiritGadget.h
     gpuGenericSensePrepGadget.h
     gpuSbSenseGadget.h
-    gpuCgSenseGadget.cpp 
-    gpuCgKtSenseGadget.cpp 
-    gpuSbSenseGadget.cpp 
+    gpuCgSenseGadget.cpp
+    gpuCgKtSenseGadget.cpp
+    gpuSbSenseGadget.cpp
     gpuGenericSensePrepGadget.cpp
-    gpuCgSpiritGadget.cpp 
+    gpuCgSpiritGadget.cpp
     gpuSenseGadget.cpp
     gpuBufferSensePrepGadget.cpp
     gpuOsSenseGadget.cpp
@@ -55,5 +55,3 @@ install (FILES  GenericReconJob.h
                 DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
 
 add_subdirectory(config)
-
-set(GADGETRON_BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR};${GADGETRON_BUILD_RPATH}" PARENT_SCOPE)

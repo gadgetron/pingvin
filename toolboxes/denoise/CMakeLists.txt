@@ -1,4 +1,4 @@
-add_library(gadgetron_toolbox_denoise SHARED 
+add_library(gadgetron_toolbox_denoise SHARED
         non_local_means.cpp
         non_local_means.h
         non_local_bayes.cpp non_local_bayes.h)
@@ -24,10 +24,7 @@ install(TARGETS gadgetron_toolbox_denoise
 	COMPONENT main
 )
 
-
 install(FILES
         non_local_means.h
         non_local_bayes.h
         DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
-
-set(GADGETRON_BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR};${GADGETRON_BUILD_RPATH}" PARENT_SCOPE)

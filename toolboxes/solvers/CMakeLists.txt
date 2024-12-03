@@ -27,5 +27,3 @@ target_include_directories(gadgetron_toolbox_solvers
 install(TARGETS gadgetron_toolbox_solvers EXPORT gadgetron-export)
 
 add_subdirectory(cpu)
-
-set(GADGETRON_BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR};${GADGETRON_BUILD_RPATH}" PARENT_SCOPE)

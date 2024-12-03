@@ -1,9 +1,9 @@
-add_library(gadgetron_interventional_mri SHARED 
+add_library(gadgetron_interventional_mri SHARED
     DeviceChannelSplitterGadget.h
     DeviceChannelSplitterGadget.cpp
 )
 
-set_target_properties(gadgetron_interventional_mri PROPERTIES VERSION ${GADGETRON_VERSION_STRING} SOVERSION ${GADGETRON_SOVERSION})                                                                                                                                                                                                      
+set_target_properties(gadgetron_interventional_mri PROPERTIES VERSION ${GADGETRON_VERSION_STRING} SOVERSION ${GADGETRON_SOVERSION})
 
 target_link_libraries(gadgetron_interventional_mri
     gadgetron_core
@@ -24,5 +24,3 @@ install(TARGETS gadgetron_interventional_mri
 	RUNTIME DESTINATION bin
 	COMPONENT main
 )
-
-set(GADGETRON_BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR};${GADGETRON_BUILD_RPATH}" PARENT_SCOPE)

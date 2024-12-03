@@ -55,5 +55,3 @@ install(FILES
         io/primitives.h
         io/primitives.hpp
         DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH}/io COMPONENT main)
-
-set(GADGETRON_BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR};${GADGETRON_BUILD_RPATH}" PARENT_SCOPE)

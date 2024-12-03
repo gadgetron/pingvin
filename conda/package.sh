@@ -5,7 +5,7 @@ usage()
 {
   cat << EOF
 
-Builds the gadgetron conda package.
+Builds the pingvin conda package.
 
 Usage: $0
 EOF

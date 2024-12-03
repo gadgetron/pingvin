@@ -31,11 +31,8 @@ install(TARGETS gadgetron_toolbox_cpunfft
 		COMPONENT main
 		)
 
-
 install(FILES
     hoNFFT.h
     ConvolutionMatrix.h
     hoGriddingConvolution.h
     DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
-
-set(GADGETRON_BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR};${GADGETRON_BUILD_RPATH}" PARENT_SCOPE)

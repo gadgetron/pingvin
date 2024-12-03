@@ -23,14 +23,14 @@ from typing import Dict, List, Callable, Set, Any
 
 
 all_test_specs = []
-gadgetron_capabilities = None
+pingvin_capabilities = None
 
 
 def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
     """Dynamically generates a test for each test case file"""
-    global gadgetron_capabilities
-    gadgetron_capabilities = load_gadgetron_capabilities()
-    print(f"Gadgetron capabilities: {gadgetron_capabilities}")
+    global pingvin_capabilities
+    pingvin_capabilities = load_pingvin_capabilities()
+    print(f"Pingvin capabilities: {pingvin_capabilities}")
     for spec in load_test_cases():
         all_test_specs.append(spec)
 
@@ -46,7 +46,7 @@ def test_e2e(spec, check_requirements, process_data, validate_output):
 
 @pytest.fixture
 def check_requirements(spec: Spec, ignore_requirements: Set[str], run_tags: Set[str]):
-    """Checks whether each test case should be run based on Gadgetron capabilities and test tags"""
+    """Checks whether each test case should be run based on Pingvin capabilities and test tags"""
 
     # Check tags first
     if len(run_tags) > 0 and spec.tags != run_tags:
@@ -96,7 +96,7 @@ def check_requirements(spec: Spec, ignore_requirements: Set[str], run_tags: Set[
     for _, rule in rules:
         if rule.capability in ignore_requirements:
             continue
-        if not rule.is_satisfied(gadgetron_capabilities):
+        if not rule.is_satisfied(pingvin_capabilities):
             pytest.skip(rule.message)
 
 @pytest.fixture
@@ -136,14 +136,14 @@ def fetch_test_data(cache_path: Path, data_host_url: str, tmp_path: Path) -> Cal
 
 @pytest.fixture
 def process_data(fetch_test_data, tmp_path):
-    """Runs the Gadgetron on the input test data, producing an output file."""
+    """Runs the Pingvin on the input test data, producing an output file."""
     def _process_data(job):
         input_file = fetch_test_data(job.datafile, job.checksum)
         output_file = os.path.join(tmp_path, job.name + ".output.mrd")
 
         invocations = []
         for args in job.args:
-            invocations.append(f"gadgetron {args}")
+            invocations.append(f"pingvin {args}")
         invocations[0] += f" --input {input_file}"
         invocations[-1] += f" --output {output_file}"
 
@@ -152,13 +152,13 @@ def process_data(fetch_test_data, tmp_path):
 
         print(f"Run: {command}")
 
-        log_stdout_filename = os.path.join(tmp_path, f"gadgetron_{job.name}.log.out")
-        log_stderr_filename = os.path.join(tmp_path, f"gadgetron_{job.name}.log.err")
+        log_stdout_filename = os.path.join(tmp_path, f"pingvin_{job.name}.log.out")
+        log_stderr_filename = os.path.join(tmp_path, f"pingvin_{job.name}.log.err")
         with open(log_stdout_filename, 'w') as log_stdout:
             with open(log_stderr_filename, 'w') as log_stderr:
                 result = subprocess.run(command, stdout=log_stdout, stderr=log_stderr, cwd=tmp_path)
                 if result.returncode != 0:
-                    pytest.fail(f"Gadgetron failed with return code {result.returncode}. See {log_stderr_filename} for details.")
+                    pytest.fail(f"Pingvin failed with return code {result.returncode}. See {log_stderr_filename} for details.")
 
         return output_file
 
@@ -186,13 +186,13 @@ def validate_output(fetch_test_data):
     return _validate_output
 
 
-def load_gadgetron_capabilities() -> Dict[str, str]:
-    command = ["gadgetron", "--info"]
+def load_pingvin_capabilities() -> Dict[str, str]:
+    command = ["pingvin", "--info"]
     res = subprocess.run(command, capture_output=True, text=True)
     if res.returncode != 0:
-        pytest.fail(f"Failed to query Gadgetron capabilities... {res.args} return {res.returncode}")
+        pytest.fail(f"Failed to query Pingvin capabilities... {res.args} return {res.returncode}")
 
-    gadgetron_info = res.stderr
+    pingvin_info = res.stderr
 
     value_pattern = r"(?:\s*):(?:\s+)(?P<value>.*)?"
 
@@ -210,7 +210,7 @@ def load_gadgetron_capabilities() -> Dict[str, str]:
 
     def find_value(marker):
         pattern = re.compile(marker + value_pattern, re.IGNORECASE)
-        match = pattern.search(gadgetron_info)
+        match = pattern.search(pingvin_info)
         if match:
             return match['value']
         else:
@@ -218,7 +218,7 @@ def load_gadgetron_capabilities() -> Dict[str, str]:
 
     def find_plural_values(marker):
         pattern = re.compile(marker + value_pattern, re.IGNORECASE)
-        return [match['value'] for match in pattern.finditer(gadgetron_info)]
+        return [match['value'] for match in pattern.finditer(pingvin_info)]
 
     capabilities = {key: find_value(marker) for key, marker in capability_markers.items()}
     capabilities.update({key: find_plural_values(marker) for key, marker in plural_capability_markers.items()})
@@ -348,7 +348,7 @@ class Spec():
 
     @dataclass
     class Job():
-        """Defines a job to be run by Gadgetron"""
+        """Defines a job to be run by Pingvin"""
         name: str
         datafile: str
         checksum: str

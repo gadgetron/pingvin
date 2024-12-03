@@ -1,15 +1,15 @@
-add_library(gadgetron_cartesian SHARED 
+add_library(gadgetron_cartesian SHARED
   CartesianToGenericGadget.h
   CartesianToGenericGadget.cpp
 )
 
 set_target_properties(gadgetron_cartesian PROPERTIES VERSION ${GADGETRON_VERSION_STRING} SOVERSION ${GADGETRON_SOVERSION})
 
-target_link_libraries(gadgetron_cartesian gadgetron_toolbox_cpucore 
+target_link_libraries(gadgetron_cartesian gadgetron_toolbox_cpucore
   gadgetron_core
   gadgetron_toolbox_log
   gadgetron_mricore
-  gadgetron_toolbox_cpucore_math 
+  gadgetron_toolbox_cpucore_math
   )
 
 
@@ -22,5 +22,3 @@ install(TARGETS gadgetron_cartesian
 	RUNTIME DESTINATION bin
 	COMPONENT main
 )
-
-set(GADGETRON_BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR};${GADGETRON_BUILD_RPATH}" PARENT_SCOPE)

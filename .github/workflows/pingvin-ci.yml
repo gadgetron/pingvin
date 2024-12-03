@@ -25,11 +25,7 @@ jobs:
     runs-on: ["self-hosted", "1ES.Pool=biomedsigproc-pingvin-NC6s_v3"]
     strategy:
       matrix:
-        include:
-          - flavor: cuda
-            requirements: python,cuda
-          - flavor: nocuda
-            requirements: python
+        flavor: [cuda, nocuda]
     steps:
       - name: checkout
         uses: actions/checkout@v4.1.0
@@ -44,20 +40,20 @@ jobs:
         run: |-
           image_name="${{env.imageBaseName}}_build_${{matrix.flavor}}"
           test_command=". /opt/conda/etc/profile.d/conda.sh \
-              && conda activate gadgetron \
-              && /opt/code/gadgetron/build/test/test_all"
+              && conda activate pingvin \
+              && /opt/code/pingvin/build/test/test_all"
           docker run --rm --gpus=all "${image_name}" /bin/bash -c "$test_command"
 
       - name: End-to-End Test
         run: |-
           image_name="${{env.imageBaseName}}_rt_${{matrix.flavor}}"
-          # Check Gadgetron entrypoint
+          # Check Pingvin entrypoint
           docker run --rm -i --gpus=all "${image_name}" --info
-          # Test Gadgetron end-to-end
+          # Test Pingvin end-to-end
           test_command=". /opt/conda/etc/profile.d/conda.sh \
-              && conda activate gadgetron \
+              && conda activate pingvin \
               && cd /opt/e2e-test/ \
-              && pytest --ignore-requirements ${{matrix.requirements}} --echo-log-on-failure"
+              && pytest --echo-log-on-failure"
           docker run --rm --gpus=all --entrypoint /bin/bash "${image_name}" -c "$test_command"
 
   publish-docker-images:
@@ -82,12 +78,12 @@ jobs:
 
       - name: Publish Docker images
         run: |-
-          GADGETRON_VERSION_MAJOR=$(grep -Po '(?<=set\(GADGETRON_VERSION_MAJOR )([^\)]+)' CMakeLists.txt)
-          GADGETRON_VERSION_MINOR=$(grep -Po '(?<=set\(GADGETRON_VERSION_MINOR )([^\)]+)' CMakeLists.txt)
-          GADGETRON_VERSION_PATCH=$(grep -Po '(?<=set\(GADGETRON_VERSION_PATCH )([^\)]+)' CMakeLists.txt)
-          GADGETRON_VERSION="${GADGETRON_VERSION_MAJOR}.${GADGETRON_VERSION_MINOR}.${GADGETRON_VERSION_PATCH}"
+          PINGVIN_VERSION_MAJOR=$(grep -Po '(?<=set\(GADGETRON_VERSION_MAJOR )([^\)]+)' CMakeLists.txt)
+          PINGVIN_VERSION_MINOR=$(grep -Po '(?<=set\(GADGETRON_VERSION_MINOR )([^\)]+)' CMakeLists.txt)
+          PINGVIN_VERSION_PATCH=$(grep -Po '(?<=set\(GADGETRON_VERSION_PATCH )([^\)]+)' CMakeLists.txt)
+          PINGVIN_VERSION="${PINGVIN_VERSION_MAJOR}.${PINGVIN_VERSION_MINOR}.${PINGVIN_VERSION_PATCH}"
 
-          ./docker/build-images.sh --type dev --type rt --flavor ${{matrix.flavor}} --base-name "${{env.imageBaseName}}" --tag "${GADGETRON_VERSION}" --push
+          ./docker/build-images.sh --type dev --type rt --flavor ${{matrix.flavor}} --base-name "${{env.imageBaseName}}" --tag "${PINGVIN_VERSION}" --push
           ./docker/build-images.sh --type dev --type rt --flavor ${{matrix.flavor}} --base-name "${{env.imageBaseName}}" --tag latest --push
 
 
@@ -111,7 +107,7 @@ jobs:
         with:
           miniforge-version: latest
           environment-file: conda/environment.yml
-          activate-environment: gadgetron-build
+          activate-environment: pingvin-build
 
       - name: Build conda package
         run: ./conda/package.sh
@@ -120,13 +116,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: conda-packages
-          path: conda/build_pkg/**/gadgetron*.tar.bz2
+          path: conda/build_pkg/**/pingvin*.tar.bz2
 
   publish-conda-package:
     # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-    # Publishing a Pingvin conda package will overwrite Gadgetron packages.
-    # Enable this job once Pingvin is ready for release.
-    if: false
     needs: [build-conda-package]
     runs-on: ["self-hosted", "1ES.Pool=biomedsigproc-pingvin-NC6s_v3"]
     steps:
@@ -138,7 +131,7 @@ jobs:
         with:
           miniforge-version: latest
           environment-file: conda/environment.yml
-          activate-environment: gadgetron-build
+          activate-environment: pingvin-build
 
       - name: Download Conda package
         uses: actions/download-artifact@v4
@@ -150,7 +143,7 @@ jobs:
         env:
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
         run: |
-          for p in $(find conda/build_pkg -name gadgetron*.tar.bz2)
+          for p in $(find conda/build_pkg -name pingvin*.tar.bz2)
           do
             ./conda/publish_package.sh -u gadgetron -t "$ANACONDA_TOKEN" -p "$p"
           done

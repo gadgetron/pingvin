@@ -92,11 +92,11 @@ FROM pingvin_dev_cuda AS pingvin_build_cuda
 ARG USER_UID
 USER ${USER_UID}
 WORKDIR /opt
-RUN sudo chown $USER_UID:$USER_GID /opt && mkdir -p /opt/code/gadgetron && mkdir -p /opt/package
-COPY --chown=$USER_UID:conda . /opt/code/gadgetron/
+RUN sudo chown $USER_UID:$USER_GID /opt && mkdir -p /opt/code/pingvin && mkdir -p /opt/package
+COPY --chown=$USER_UID:conda . /opt/code/pingvin/
 SHELL ["/bin/bash", "-c"]
-RUN . /opt/conda/etc/profile.d/conda.sh && umask 0002 && conda activate gadgetron && sh -x && \
-    cd /opt/code/gadgetron && \
+RUN . /opt/conda/etc/profile.d/conda.sh && umask 0002 && conda activate pingvin && sh -x && \
+    cd /opt/code/pingvin && \
     mkdir build && \
     cd build && \
     cmake ../ -GNinja -DUSE_MKL=ON -DCMAKE_INSTALL_PREFIX=/opt/package && \
@@ -107,11 +107,11 @@ FROM pingvin_dev_nocuda AS pingvin_build_nocuda
 ARG USER_UID
 USER ${USER_UID}
 WORKDIR /opt
-RUN sudo chown $USER_UID:$USER_GID /opt && mkdir -p /opt/code/gadgetron && mkdir -p /opt/package
-COPY --chown=$USER_UID:conda . /opt/code/gadgetron/
+RUN sudo chown $USER_UID:$USER_GID /opt && mkdir -p /opt/code/pingvin && mkdir -p /opt/package
+COPY --chown=$USER_UID:conda . /opt/code/pingvin/
 SHELL ["/bin/bash", "-c"]
-RUN . /opt/conda/etc/profile.d/conda.sh && umask 0002 && conda activate gadgetron && sh -x && \
-    cd /opt/code/gadgetron && \
+RUN . /opt/conda/etc/profile.d/conda.sh && umask 0002 && conda activate pingvin && sh -x && \
+    cd /opt/code/pingvin && \
     mkdir build && \
     cd build && \
     cmake ../ -GNinja -DUSE_MKL=ON -DCMAKE_INSTALL_PREFIX=/opt/package && \
@@ -125,11 +125,11 @@ USER ${USER_UID}
 RUN mkdir -p ${HOME}/.cache/conda/notices && sudo chown -R ${USER_UID}:conda ${HOME}/.cache/conda/notices
 RUN grep -v "#.*\<dev\>" /tmp/build/environment.yml > /tmp/build/filtered_environment.yml
 RUN umask 0002 && /opt/conda/bin/conda env create -f /tmp/build/filtered_environment.yml && /opt/conda/bin/conda clean -afy && sudo chown -R :conda /opt/conda
-COPY --from=pingvin_build_cuda --chown=$USER_UID:conda /opt/package /opt/conda/envs/gadgetron/
-COPY --from=pingvin_build_cuda --chown=$USER_UID:conda /opt/code/gadgetron/docker/entrypoint.sh /opt/
+COPY --from=pingvin_build_cuda --chown=$USER_UID:conda /opt/package /opt/conda/envs/pingvin/
+COPY --from=pingvin_build_cuda --chown=$USER_UID:conda /opt/code/pingvin/docker/entrypoint.sh /opt/
 RUN chmod +x /opt/entrypoint.sh
 RUN sudo mkdir -p /opt/e2e-test && sudo chown ${USER_GID}:${USER_UID} /opt/e2e-test
-COPY --from=pingvin_build_cuda --chown=$USER_UID:conda /opt/code/gadgetron/test/e2e /opt/e2e-test/
+COPY --from=pingvin_build_cuda --chown=$USER_UID:conda /opt/code/pingvin/test/e2e /opt/e2e-test/
 ENTRYPOINT [ "/tini", "--", "/opt/entrypoint.sh" ]
 
 FROM pingvin_baseimage AS pingvin_rt_nocuda
@@ -139,9 +139,9 @@ USER ${USER_UID}
 RUN mkdir -p ${HOME}/.cache/conda/notices && sudo chown -R ${USER_UID}:conda ${HOME}/.cache/conda/notices
 RUN grep -v "#.*\<cuda\|dev\>" /tmp/build/environment.yml > /tmp/build/filtered_environment.yml
 RUN umask 0002 && /opt/conda/bin/conda env create -f /tmp/build/filtered_environment.yml && /opt/conda/bin/conda clean -afy && sudo chown -R :conda /opt/conda
-COPY --from=pingvin_build_nocuda --chown=$USER_UID:conda /opt/package /opt/conda/envs/gadgetron/
-COPY --from=pingvin_build_nocuda --chown=$USER_UID:conda /opt/code/gadgetron/docker/entrypoint.sh /opt/
+COPY --from=pingvin_build_nocuda --chown=$USER_UID:conda /opt/package /opt/conda/envs/pingvin/
+COPY --from=pingvin_build_nocuda --chown=$USER_UID:conda /opt/code/pingvin/docker/entrypoint.sh /opt/
 RUN chmod +x /opt/entrypoint.sh
 RUN sudo mkdir -p /opt/e2e-test && sudo chown ${USER_GID}:${USER_UID} /opt/e2e-test
-COPY --from=pingvin_build_nocuda --chown=$USER_UID:conda /opt/code/gadgetron/test/e2e /opt/e2e-test/
+COPY --from=pingvin_build_nocuda --chown=$USER_UID:conda /opt/code/pingvin/test/e2e /opt/e2e-test/
 ENTRYPOINT [ "/tini", "--", "/opt/entrypoint.sh" ]

@@ -7,8 +7,6 @@ if (MKL_FOUND)
     link_directories( ${MKL_LIB_DIR} ${MKL_COMPILER_LIB_DIR} )
 endif ()
 
-
-
 set( gadgetron_cmr_header_files
     CmrCartesianKSpaceBinningCineGadget.h
     CmrParametricMappingGadget.h
@@ -106,5 +104,3 @@ install(TARGETS gadgetron_cmr
 	RUNTIME DESTINATION bin
 	COMPONENT main
 )
-
-set(GADGETRON_BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR};${GADGETRON_BUILD_RPATH}" PARENT_SCOPE)

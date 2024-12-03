@@ -23,7 +23,5 @@ target_include_directories(gadgetron_toolbox_cpu_solver
 
 install(TARGETS gadgetron_toolbox_cpu_solver EXPORT gadgetron-export DESTINATION lib COMPONENT main)
 
-install(FILES ${cpu_solver_header_files} 
+install(FILES ${cpu_solver_header_files}
     DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
-
-set(GADGETRON_BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR};${GADGETRON_BUILD_RPATH}" PARENT_SCOPE)

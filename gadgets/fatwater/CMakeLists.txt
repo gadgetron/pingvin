@@ -1,4 +1,4 @@
-add_library(gadgetron_fatwater SHARED 
+add_library(gadgetron_fatwater SHARED
   FatWaterGadget.h FatWaterGadget.cpp
 )
 
@@ -15,7 +15,7 @@ target_link_libraries(
   gadgetron_toolbox_fatwater
 )
 
-install(FILES 
+install(FILES
   FatWaterGadget.h
   DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
 
@@ -30,5 +30,3 @@ install(FILES
 install(FILES
         config/Generic_Cartesian_Grappa_FatWater.xml
   DESTINATION ${GADGETRON_INSTALL_CONFIG_PATH} COMPONENT main)
-
-set(GADGETRON_BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR};${GADGETRON_BUILD_RPATH}" PARENT_SCOPE)

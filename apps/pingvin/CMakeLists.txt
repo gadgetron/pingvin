@@ -2,7 +2,7 @@ find_package(PugiXML REQUIRED)
 
 configure_file(gadgetron_config.in gadgetron_config.h)
 
-add_executable(gadgetron
+add_executable(pingvin
         main.cpp
         initialization.cpp
         initialization.h
@@ -29,7 +29,7 @@ add_executable(gadgetron
         nodes/PureStream.h
         )
 
-target_link_libraries(gadgetron
+target_link_libraries(pingvin
         gadgetron_core
         gadgetron_toolbox_log
         gadgetron_toolbox_mri_core
@@ -40,27 +40,23 @@ target_link_libraries(gadgetron
         GTBLAS
         ${CMAKE_DL_LIBS})
 
-target_include_directories(gadgetron
+target_include_directories(pingvin
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR})
 
 
 if (REQUIRE_SIGNED_CONFIG)
-    target_link_libraries(gadgetron GTBabylon)
+    target_link_libraries(pingvin GTBabylon)
 endif()
 
-if (BUILD_PYTHON_SUPPORT)
-    add_definitions("-DCOMPILING_WITH_PYTHON_SUPPORT")
-endif ()
-
 if (CUDA_FOUND)
-    target_link_libraries(gadgetron ${CUDA_LIBRARIES})
+    target_link_libraries(pingvin ${CUDA_LIBRARIES})
 endif ()
 
 if (GPERFTOOLS_PROFILER)
     message("Adding gperftools cpu profiler to gadgetron link assemblage.")
-    target_link_libraries(gadgetron ${GPERFTOOLS_PROFILER} ${GPERFTOOLS_TCMALLOC})
+    target_link_libraries(pingvin ${GPERFTOOLS_PROFILER} ${GPERFTOOLS_TCMALLOC})
 endif ()
 
-install(TARGETS gadgetron DESTINATION bin COMPONENT main)
+install(TARGETS pingvin DESTINATION bin COMPONENT main)

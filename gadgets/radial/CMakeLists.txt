@@ -32,5 +32,3 @@ install(TARGETS gadgetron_gpuradial
 )
 
 add_subdirectory(config)
-
-set(GADGETRON_BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR};${GADGETRON_BUILD_RPATH}" PARENT_SCOPE)

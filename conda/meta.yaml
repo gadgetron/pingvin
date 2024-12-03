@@ -3,7 +3,7 @@
 {% set patch = load_file_regex(load_file='CMakeLists.txt', regex_pattern='(?<=set\(GADGETRON_VERSION_PATCH )([^\)]+)') %}
 
 package:
-  name: gadgetron
+  name: pingvin
   version: {{ major.group(1) }}.{{ minor.group(1) }}.{{ patch.group(1) }}
 
 source:

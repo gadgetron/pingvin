@@ -7,7 +7,7 @@ set_target_properties(gadgetron_toolbox_fatwater PROPERTIES VERSION ${GADGETRON_
 
 target_link_libraries(gadgetron_toolbox_fatwater
   gadgetron_toolbox_log
-  gadgetron_toolbox_cpucore 
+  gadgetron_toolbox_cpucore
   gadgetron_toolbox_cpucore_math
   gadgetron_toolbox_cpufft
   armadillo
@@ -27,8 +27,6 @@ install(TARGETS gadgetron_toolbox_fatwater
 )
 
 install(FILES
-  fatwater.h 
-  correct_frequency_shift.h 
+  fatwater.h
+  correct_frequency_shift.h
   DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
-
-set(GADGETRON_BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR};${GADGETRON_BUILD_RPATH}" PARENT_SCOPE)

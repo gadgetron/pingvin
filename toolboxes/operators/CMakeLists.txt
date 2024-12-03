@@ -1,6 +1,6 @@
 
 
-set(operator_header_files 
+set(operator_header_files
     ${CMAKE_SOURCE_DIR}/toolboxes/operators/generalOperator.h
     ${CMAKE_SOURCE_DIR}/toolboxes/operators/linearOperator.h
     ${CMAKE_SOURCE_DIR}/toolboxes/operators/identityOperator.h
@@ -19,7 +19,7 @@ set(operator_header_files
     ${CMAKE_SOURCE_DIR}/toolboxes/operators/tvPicsOperator.h
     ${CMAKE_SOURCE_DIR}/toolboxes/operators/subsetOperator.h
     )
-  
+
 install(FILES ${operator_header_files}
   DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
 
@@ -33,5 +33,3 @@ install(TARGETS gadgetron_toolbox_operator
         EXPORT gadgetron-export)
 
 add_subdirectory(cpu)
-
-set(GADGETRON_BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR};${GADGETRON_BUILD_RPATH}" PARENT_SCOPE)
