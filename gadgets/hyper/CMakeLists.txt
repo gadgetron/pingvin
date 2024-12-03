@@ -1,4 +1,4 @@
-add_library(gadgetron_hyper SHARED
+add_library(pingvin_hyper SHARED
   NFFT2DGadget.h NFFT2DGadget.cpp
   CMRT3DGadget.h CMRT3DGadget.cpp
   CMRTGadget.h CMRTGadget.cpp
@@ -7,16 +7,16 @@ add_library(gadgetron_hyper SHARED
 
   )
 
-set_target_properties(gadgetron_hyper PROPERTIES VERSION ${GADGETRON_VERSION_STRING} SOVERSION ${GADGETRON_SOVERSION})
+set_target_properties(pingvin_hyper PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
 
-target_link_libraries(gadgetron_hyper
-  gadgetron_core
-  gadgetron_mricore
-  gadgetron_gpuparallelmri
-  gadgetron_toolbox_gpu
-  gadgetron_toolbox_cpucore
-  gadgetron_toolbox_cpufft
-  gadgetron_toolbox_cpucore_math)
+target_link_libraries(pingvin_hyper
+  pingvin_core
+  pingvin_mricore
+  pingvin_gpuparallelmri
+  pingvin_toolbox_gpu
+  pingvin_toolbox_cpucore
+  pingvin_toolbox_cpufft
+  pingvin_toolbox_cpucore_math)
 
 
 install(FILES
@@ -24,12 +24,12 @@ install(FILES
   CMRTGadget.h
   CMRT3DGadget.h
   CSIGadget.h
-  DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH})
+  DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH})
 
-install(FILES NFFT2D.xml CMRT3D.xml CMRT.xml FS-CSI.xml DESTINATION ${GADGETRON_INSTALL_CONFIG_PATH})
+install(FILES NFFT2D.xml CMRT3D.xml CMRT.xml FS-CSI.xml DESTINATION ${PINGVIN_INSTALL_CONFIG_PATH})
 
 
-install(TARGETS gadgetron_hyper
+install(TARGETS pingvin_hyper
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 	RUNTIME DESTINATION bin

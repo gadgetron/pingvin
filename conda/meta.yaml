@@ -1,6 +1,6 @@
-{% set major = load_file_regex(load_file='CMakeLists.txt', regex_pattern='(?<=set\(GADGETRON_VERSION_MAJOR )([^\)]+)') %}
-{% set minor = load_file_regex(load_file='CMakeLists.txt', regex_pattern='(?<=set\(GADGETRON_VERSION_MINOR )([^\)]+)') %}
-{% set patch = load_file_regex(load_file='CMakeLists.txt', regex_pattern='(?<=set\(GADGETRON_VERSION_PATCH )([^\)]+)') %}
+{% set major = load_file_regex(load_file='CMakeLists.txt', regex_pattern='(?<=set\(PINGVIN_VERSION_MAJOR )([^\)]+)') %}
+{% set minor = load_file_regex(load_file='CMakeLists.txt', regex_pattern='(?<=set\(PINGVIN_VERSION_MINOR )([^\)]+)') %}
+{% set patch = load_file_regex(load_file='CMakeLists.txt', regex_pattern='(?<=set\(PINGVIN_VERSION_PATCH )([^\)]+)') %}
 
 package:
   name: pingvin

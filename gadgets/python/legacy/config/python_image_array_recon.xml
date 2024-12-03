@@ -5,13 +5,13 @@
 
     <gadget>
         <name>RemoveROOversampling</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>RemoveROOversamplingGadget</classname>
     </gadget>
 
     <gadget>
         <name>AccTrig</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>AcquisitionAccumulateTriggerGadget</classname>
         <property>
             <name>trigger_dimension</name>
@@ -25,7 +25,7 @@
 
     <gadget>
         <name>Buff</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>BucketToBufferGadget</classname>
         <property>
             <name>N_dimension</name>
@@ -43,13 +43,13 @@
 
      <gadget>
       <name>SimpleRecon</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>SimpleReconGadget</classname>
      </gadget>
 
     <gadget>
         <name>PythonImageArray</name>
-        <dll>gadgetron_python</dll>
+        <dll>pingvin_python</dll>
         <classname>PythonGadget</classname>
         <property><name>python_module</name><value>image_array_recon</value></property>
         <property><name>python_class</name><value>ImageArrayRecon</value></property>
@@ -57,7 +57,7 @@
 
     <gadget>
       <name>Extract</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>ExtractGadget</classname>
     </gadget>
 

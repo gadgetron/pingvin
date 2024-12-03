@@ -7,14 +7,14 @@ namespace Gadgetron::Main::Info {
 
     void print_system_information(std::ostream &);
 
-    std::string gadgetron_version();
-    std::string gadgetron_build();
+    std::string pingvin_version();
+    std::string pingvin_build();
 
     size_t system_memory();
     bool python_support();
     bool matlab_support();
 
-    const boost::filesystem::path default_gadgetron_home();
+    const boost::filesystem::path default_pingvin_home();
 
     namespace CUDA {
         bool cuda_support();

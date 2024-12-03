@@ -5,7 +5,7 @@
 
     <gadget>
       <name>CMRT</name>
-      <dll>gadgetron_hyper</dll>
+      <dll>pingvin_hyper</dll>
       <classname>CMRTGadget</classname>
       <property><name>projections_per_recon</name><value>128</value></property>
       <property><name>golden_ratio</name><value>true</value></property>
@@ -13,7 +13,7 @@
 
     <gadget>
       <name>Extract</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>ExtractGadget</classname>
     </gadget>
 

@@ -10,6 +10,4 @@ install(FILES
     FindLAPACKE.cmake
     FindPugiXML.cmake
     FindSphinx.cmake
-    DESTINATION ${GADGETRON_INSTALL_CMAKE_PATH} COMPONENT main)
-
-
+    DESTINATION ${PINGVIN_INSTALL_CMAKE_PATH} COMPONENT main)

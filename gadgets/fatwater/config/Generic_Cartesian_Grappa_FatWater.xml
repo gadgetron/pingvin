@@ -18,18 +18,18 @@
     -->
 
     <!-- Noise prewhitening -->
-    <gadget><name>NoiseAdjust</name><dll>gadgetron_mricore</dll><classname>NoiseAdjustGadget</classname></gadget>
+    <gadget><name>NoiseAdjust</name><dll>pingvin_mricore</dll><classname>NoiseAdjustGadget</classname></gadget>
 
     <!-- RO asymmetric echo handling -->
-    <!--<gadget><name>AsymmetricEcho</name><dll>gadgetron_mricore</dll><classname>AsymmetricEchoAdjustROGadget</classname></gadget>-->
+    <!--<gadget><name>AsymmetricEcho</name><dll>pingvin_mricore</dll><classname>AsymmetricEchoAdjustROGadget</classname></gadget>-->
 
     <!-- RO oversampling removal -->
-    <gadget><name>RemoveROOversampling</name><dll>gadgetron_mricore</dll><classname>RemoveROOversamplingGadget</classname></gadget>
+    <gadget><name>RemoveROOversampling</name><dll>pingvin_mricore</dll><classname>RemoveROOversamplingGadget</classname></gadget>
 
     <!-- Data accumulation and trigger gadget -->
     <gadget>
         <name>AccTrig</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>AcquisitionAccumulateTriggerGadget</classname>
         <property><name>trigger_dimension</name><value>slice</value></property>
         <property><name>sorting_dimension</name><value>contrast</value></property>
@@ -37,7 +37,7 @@
 
     <gadget>
         <name>BucketToBuffer</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>BucketToBufferGadget</classname>
         <property><name>N_dimension</name><value>repetition</value></property>
         <property><name>S_dimension</name><value>contrast</value></property>
@@ -48,7 +48,7 @@
     <!-- Prep ref -->
     <gadget>
         <name>PrepRef</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>GenericReconCartesianReferencePrepGadget</classname>
 
         <!-- parameters for debug and timing -->
@@ -69,7 +69,7 @@
      <!--Coil compression-->
     <gadget>
         <name>CoilCompression</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>GenericReconEigenChannelGadget</classname>
 
         <!-- parameters for debug and timing -->
@@ -90,7 +90,7 @@
 
     <!--<gadget>-->
     <!--<name>Recon</name>-->
-    <!--<dll>gadgetron_mricore</dll>-->
+    <!--<dll>pingvin_mricore</dll>-->
     <!--<classname>GenericReconCartesianSpiritGadget</classname>-->
 
     <!--&lt;!&ndash; image series &ndash;&gt;-->
@@ -103,7 +103,7 @@
 
     <gadget>
         <name>Recon</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>GenericReconCartesianGrappaGadget</classname>
 
         <!-- image series -->
@@ -132,7 +132,7 @@
      <!--Partial fourier handling-->
     <gadget>
         <name>PartialFourierHandling</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>GenericReconPartialFourierHandlingFilterGadget</classname>
 
         <!-- parameters for debug and timing -->
@@ -153,7 +153,7 @@
     <!-- Kspace filtering -->
     <gadget>
         <name>KSpaceFilter</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>GenericReconKSpaceFilteringGadget</classname>
 
         <!-- parameters for debug and timing -->
@@ -179,7 +179,7 @@
     </gadget>
     <gadget>
         <name>Combiner</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>ImageAccumulatorGadget</classname>
         <property>
             <name>accumulate_dimension</name>
@@ -193,7 +193,7 @@
     <!-- FOV Adjustment -->
     <gadget>
         <name>FOVAdjustment</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>GenericReconFieldOfViewAdjustmentGadget</classname>
 
         <!-- parameters for debug and timing -->
@@ -206,7 +206,7 @@
 
     <gadget>
         <name>FatWater</name>
-        <dll>gadgetron_fatwater</dll>
+        <dll>pingvin_fatwater</dll>
         <classname>FatWaterGadget</classname>
         <property><name>number_of_frequency_offsets</name><value>200</value></property>
         <property><name>range_r2star</name><value>[5,144]</value></property>
@@ -225,7 +225,7 @@
          <!--Image Array Scaling -->
     <gadget>
         <name>Scaling</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>GenericReconImageArrayScalingGadget</classname>
 
         <!-- parameters for debug and timing -->
@@ -243,13 +243,13 @@
     <!-- ImageArray to images -->
     <gadget>
         <name>ImageArraySplit</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>ImageArraySplitGadget</classname>
     </gadget>
 
     <gadget>
         <name>Extract</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>ExtractGadget</classname>
 
     </gadget>
@@ -257,13 +257,13 @@
     <!-- after recon processing -->
     <!--<gadget>-->
         <!--<name>ComplexToFloatAttrib</name>-->
-        <!--<dll>gadgetron_mricore</dll>-->
+        <!--<dll>pingvin_mricore</dll>-->
         <!--<classname>ComplexToFloatGadget</classname>-->
     <!--</gadget>-->
 
     <!--<gadget>-->
         <!--<name>FloatToShortAttrib</name>-->
-        <!--<dll>gadgetron_mricore</dll>-->
+        <!--<dll>pingvin_mricore</dll>-->
         <!--<classname>FloatToUShortGadget</classname>-->
     <!--</gadget>-->
 

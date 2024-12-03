@@ -24,18 +24,18 @@ set(cpucore_math_src_files
     )
 
 set_source_files_properties(cpp_blas.cpp PROPERTIES COMPILE_FLAGS -fpermissive)
-add_library(gadgetron_toolbox_cpucore_math SHARED  ${cpucore_math_src_files} ${cpucore_math_header_files})
-set_target_properties(gadgetron_toolbox_cpucore_math PROPERTIES VERSION ${GADGETRON_VERSION_STRING} SOVERSION ${GADGETRON_SOVERSION})
-target_link_libraries(gadgetron_toolbox_cpucore_math
-    gadgetron_toolbox_cpucore
-    gadgetron_toolbox_log
+add_library(pingvin_toolbox_cpucore_math SHARED  ${cpucore_math_src_files} ${cpucore_math_header_files})
+set_target_properties(pingvin_toolbox_cpucore_math PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
+target_link_libraries(pingvin_toolbox_cpucore_math
+    pingvin_toolbox_cpucore
+    pingvin_toolbox_log
     armadillo
     GTBLAS
     ${LAPACK_LIBRARIES}
         )
 
-install(TARGETS gadgetron_toolbox_cpucore_math
-        EXPORT gadgetron-export
+install(TARGETS pingvin_toolbox_cpucore_math
+        EXPORT pingvin-export
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 	RUNTIME DESTINATION bin
@@ -45,4 +45,4 @@ install(TARGETS gadgetron_toolbox_cpucore_math
 
 install(FILES
     ${cpucore_math_header_files}
-    DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
+    DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)

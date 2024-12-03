@@ -9,7 +9,7 @@
     -->
     <gadget>
         <name>NoiseAdjust</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>NoiseAdjustGadget</classname>
 
         <!-- Whether to pass the nonconformant data without applying the prewhitening -->

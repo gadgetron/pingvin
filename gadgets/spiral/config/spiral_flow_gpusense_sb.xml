@@ -5,26 +5,26 @@
 
   <gadget>
     <name>NoiseAdjust</name>
-    <dll>gadgetron_mricore</dll>
+    <dll>pingvin_mricore</dll>
     <classname>NoiseAdjustGadget</classname>
   </gadget>
 
   <gadget>
     <name>PCA</name>
-    <dll>gadgetron_mricore</dll>
+    <dll>pingvin_mricore</dll>
     <classname>PCACoilGadget</classname>
   </gadget>
 
   <gadget>
     <name>CoilReduction</name>
-    <dll>gadgetron_mricore</dll>
+    <dll>pingvin_mricore</dll>
     <classname>CoilReductionGadget</classname>
     <property><name>coils_out</name><value>16</value></property>
   </gadget>
 
   <gadget>
     <name>gpuSpiralSensePrepGadget</name>
-    <dll>gadgetron_spiral</dll>
+    <dll>pingvin_spiral</dll>
     <classname>gpuSpiralSensePrepGadget</classname>
     <property><name>deviceno</name><value>0</value></property>
     <property><name>use_multiframe_grouping</name><value>true</value></property>
@@ -38,7 +38,7 @@
 
   <gadget>
     <name>gpuSbSenseGadget</name>
-    <dll>gadgetron_gpuparallelmri</dll>
+    <dll>pingvin_gpuparallelmri</dll>
     <classname>gpuSbSenseGadget</classname>
     <property><name>deviceno</name>                <value>0</value></property>
     <property><name>setno</name>                   <value>0</value></property>
@@ -55,7 +55,7 @@
 
   <gadget>
     <name>gpuSbSenseGadget</name>
-    <dll>gadgetron_gpuparallelmri</dll>
+    <dll>pingvin_gpuparallelmri</dll>
     <classname>gpuSbSenseGadget</classname>
     <property><name>deviceno</name>                <value>0</value></property>
     <property><name>setno</name>                   <value>1</value></property>
@@ -71,33 +71,33 @@
 
   <gadget>
     <name>PhaseSubtraction</name>
-    <dll>gadgetron_mricore</dll>
+    <dll>pingvin_mricore</dll>
     <classname>FlowPhaseSubtractionGadget</classname>
   </gadget>
 
   <gadget>
     <name>MaxwellCorrection</name>
-    <dll>gadgetron_mricore</dll>
+    <dll>pingvin_mricore</dll>
     <classname>MaxwellCorrectionGadget</classname>
   </gadget>
 
 
   <gadget>
     <name>Extract</name>
-    <dll>gadgetron_mricore</dll>
+    <dll>pingvin_mricore</dll>
     <classname>ExtractGadget</classname>
     <property><name>extract_mask</name><value>9</value></property>
   </gadget>
 
   <gadget>
     <name>AutoScaleGadget</name>
-    <dll>gadgetron_mricore</dll>
+    <dll>pingvin_mricore</dll>
     <classname>AutoScaleGadget</classname>
   </gadget>
 
   <gadget>
     <name>FloatToShort</name>
-    <dll>gadgetron_mricore</dll>
+    <dll>pingvin_mricore</dll>
     <classname>FloatToUShortGadget</classname>
   </gadget>
 

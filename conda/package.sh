@@ -18,7 +18,6 @@ output_path="${conda_path}/build_pkg"
 channels=(
   nvidia/label/cuda-12.3.0
   ismrmrd
-  gadgetron
   conda-forge
   bioconda
   defaults

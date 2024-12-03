@@ -5,7 +5,7 @@
 
     <gadget>
         <name>LAXAI</name>
-        <dll>gadgetron_cmr</dll>
+        <dll>pingvin_cmr</dll>
         <classname>CmrRealTimeLAXCineAIAnalysisGadget</classname>
 
         <property><name>perform_AI</name><value>true</value></property>

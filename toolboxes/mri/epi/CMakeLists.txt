@@ -1,8 +1,8 @@
-    add_library(gadgetron_toolbox_epi  INTERFACE)
+    add_library(pingvin_toolbox_epi  INTERFACE)
 
-    target_link_libraries(gadgetron_toolbox_epi INTERFACE gadgetron_toolbox_cpucore gadgetron_toolbox_cpucore_math gadgetron_toolbox_log )
+    target_link_libraries(pingvin_toolbox_epi INTERFACE pingvin_toolbox_cpucore pingvin_toolbox_cpucore_math pingvin_toolbox_log )
 
-    target_include_directories(gadgetron_toolbox_epi
+    target_include_directories(pingvin_toolbox_epi
             INTERFACE
             ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -10,7 +10,7 @@
             EPIReconXObject.h
             EPIReconXObjectFlat.h
             EPIReconXObjectTrapezoid.h
-            DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
+            DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)
 
     # install(TARGETS epi DESTINATION lib)
 

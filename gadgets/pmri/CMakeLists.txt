@@ -1,4 +1,4 @@
-add_library(gadgetron_gpuparallelmri SHARED
+add_library(pingvin_gpuparallelmri SHARED
     GenericReconJob.h
     gpuCgKtSenseGadget.h
     gpuCgSenseGadget.h
@@ -17,24 +17,24 @@ add_library(gadgetron_gpuparallelmri SHARED
     gpuLALMSenseGadget.cpp
   )
 
-set_target_properties(gadgetron_gpuparallelmri PROPERTIES VERSION ${GADGETRON_VERSION_STRING} SOVERSION ${GADGETRON_SOVERSION})
+set_target_properties(pingvin_gpuparallelmri PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
 
-target_link_libraries(gadgetron_gpuparallelmri
-  gadgetron_core
-  gadgetron_mricore
-  gadgetron_toolbox_log
-  gadgetron_toolbox_cpucore
-  gadgetron_toolbox_gpu)
+target_link_libraries(pingvin_gpuparallelmri
+  pingvin_core
+  pingvin_mricore
+  pingvin_toolbox_log
+  pingvin_toolbox_cpucore
+  pingvin_toolbox_gpu)
 
-target_link_libraries(gadgetron_gpuparallelmri gadgetron_toolbox_gpu)
+target_link_libraries(pingvin_gpuparallelmri pingvin_toolbox_gpu)
 
-target_include_directories(gadgetron_gpuparallelmri
+target_include_directories(pingvin_gpuparallelmri
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 
-install(TARGETS gadgetron_gpuparallelmri
+install(TARGETS pingvin_gpuparallelmri
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 	RUNTIME DESTINATION bin
@@ -52,6 +52,6 @@ install (FILES  GenericReconJob.h
                 gpuOsSenseGadget.h
                 gpuLALMSenseGadget.h
                 gpuNlcgSenseGadget.h
-                DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
+                DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)
 
 add_subdirectory(config)

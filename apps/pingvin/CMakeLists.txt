@@ -1,6 +1,6 @@
 find_package(PugiXML REQUIRED)
 
-configure_file(gadgetron_config.in gadgetron_config.h)
+configure_file(pingvin_config.in pingvin_config.h)
 
 add_executable(pingvin
         main.cpp
@@ -30,9 +30,9 @@ add_executable(pingvin
         )
 
 target_link_libraries(pingvin
-        gadgetron_core
-        gadgetron_toolbox_log
-        gadgetron_toolbox_mri_core
+        pingvin_core
+        pingvin_toolbox_log
+        pingvin_toolbox_mri_core
         Boost::system
         Boost::filesystem
         Boost::program_options
@@ -55,7 +55,7 @@ if (CUDA_FOUND)
 endif ()
 
 if (GPERFTOOLS_PROFILER)
-    message("Adding gperftools cpu profiler to gadgetron link assemblage.")
+    message("Adding gperftools cpu profiler to Pingvin link assemblage.")
     target_link_libraries(pingvin ${GPERFTOOLS_PROFILER} ${GPERFTOOLS_TCMALLOC})
 endif ()
 

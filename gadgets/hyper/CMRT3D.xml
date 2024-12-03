@@ -5,13 +5,13 @@
 
     <gadget>
       <name>NFFT</name>
-      <dll>gadgetron_hyper</dll>
+      <dll>pingvin_hyper</dll>
       <classname>NFFT2DGadget</classname>
     </gadget>
 
     <gadget>
       <name>CMRT3S</name>
-      <dll>gadgetron_hyper</dll>
+      <dll>pingvin_hyper</dll>
       <classname>CMRT3DGadget</classname>
       <property><name>projections_per_recon</name><value>128</value></property>
       <property><name>projections_percentage</name><value>100</value></property>
@@ -20,7 +20,7 @@
 
     <gadget>
       <name>Extract</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>ExtractGadget</classname>
     </gadget>
 

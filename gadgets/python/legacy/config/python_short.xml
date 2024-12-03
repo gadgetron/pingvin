@@ -5,7 +5,7 @@
 
     <gadget>
       <name>RemoveOversamplingPython</name>
-      <dll>gadgetron_python</dll>
+      <dll>pingvin_python</dll>
       <classname>PythonGadget</classname>
       <property><name>python_path</name>                  <value>/home/myuser/scripts/python</value></property>
       <property><name>python_module</name>                <value>remove_2x_oversampling</value></property>
@@ -14,7 +14,7 @@
 
     <gadget>
       <name>AccReconPython</name>
-      <dll>gadgetron_python</dll>
+      <dll>pingvin_python</dll>
       <classname>PythonGadget</classname>
       <property><name>python_path</name>                  <value>/home/myuser/scripts/python</value></property>
       <property><name>python_module</name>                <value>accumulate_and_recon</value></property>
@@ -23,7 +23,7 @@
 
     <gadget>
       <name>CoilCombinePython</name>
-      <dll>gadgetron_python</dll>
+      <dll>pingvin_python</dll>
       <classname>PythonGadget</classname>
       <property><name>python_path</name>                  <value>/home/myuser/scripts/python</value></property>
       <property><name>python_module</name>                <value>rms_coil_combine</value></property>
@@ -32,19 +32,19 @@
 
      <gadget>
       <name>Extract</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>ExtractGadget</classname>
      </gadget>
 
      <gadget>
       <name>Autoscale</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>AutoScaleGadget</classname>
      </gadget>
 
      <gadget>
       <name>FloatToShort</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>FloatToUShortGadget</classname>
     </gadget>
 

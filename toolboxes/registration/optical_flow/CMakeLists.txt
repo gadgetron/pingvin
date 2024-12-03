@@ -4,12 +4,12 @@ install(FILES
   opticalFlowSolver.h
   resampleOperator.h
   opticalFlowOperator.h
-  DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
+  DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)
 
-add_library(gadgetron_toolbox_registration_optical_flow INTERFACE)
-target_link_libraries(gadgetron_toolbox_registration_optical_flow INTERFACE
-        gadgetron_toolbox_cpu_solver)
-target_include_directories(gadgetron_toolbox_registration_optical_flow
+add_library(pingvin_toolbox_registration_optical_flow INTERFACE)
+target_link_libraries(pingvin_toolbox_registration_optical_flow INTERFACE
+        pingvin_toolbox_cpu_solver)
+target_include_directories(pingvin_toolbox_registration_optical_flow
         INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR})
 

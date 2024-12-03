@@ -25,38 +25,38 @@ if(BART_MEMONLY_CFL)
   add_definitions(-DMEMONLY_CFL)
 endif()
 
-add_library(gadgetron_bart SHARED ${GADGET_FILES})
-target_link_libraries(gadgetron_bart BART::BARTMAIN)
+add_library(pingvin_bart SHARED ${GADGET_FILES})
+target_link_libraries(pingvin_bart BART::BARTMAIN)
 
 
 
-set_target_properties(gadgetron_bart
+set_target_properties(pingvin_bart
   PROPERTIES
-  VERSION ${GADGETRON_VERSION_STRING}
-  SOVERSION ${GADGETRON_SOVERSION})
+  VERSION ${PINGVIN_VERSION_STRING}
+  SOVERSION ${PINGVIN_SOVERSION})
 
-target_link_libraries(gadgetron_bart gadgetron_core
-  gadgetron_mricore
-  gadgetron_toolbox_mri_core
-  gadgetron_toolbox_log
-  gadgetron_toolbox_cpucore
-  gadgetron_toolbox_cpufft
-  gadgetron_toolbox_cpuklt
+target_link_libraries(pingvin_bart pingvin_core
+  pingvin_mricore
+  pingvin_toolbox_mri_core
+  pingvin_toolbox_log
+  pingvin_toolbox_cpucore
+  pingvin_toolbox_cpufft
+  pingvin_toolbox_cpuklt
   )
 
-  target_link_libraries(gadgetron_bart gadgetron_toolbox_cpucore_math)
+  target_link_libraries(pingvin_bart pingvin_toolbox_cpucore_math)
 
 install(FILES  bartgadget.h
-  DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
+  DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)
 
-  install(TARGETS gadgetron_bart
+  install(TARGETS pingvin_bart
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 	RUNTIME DESTINATION bin
 	COMPONENT main
 )
 
-set(GADGETRON_INSTALL_BART_PATH share/gadgetron/bart)
-install(FILES Sample_Grappa_Recon.sh Sample_Grappa_Recon_Standard.sh DESTINATION ${GADGETRON_INSTALL_BART_PATH})
+set(PINGVIN_INSTALL_BART_PATH share/pingvin/bart)
+install(FILES Sample_Grappa_Recon.sh Sample_Grappa_Recon_Standard.sh DESTINATION ${PINGVIN_INSTALL_BART_PATH})
 
-install(FILES BART_Recon.xml BART_Recon_cloud.xml BART_Recon_cloud_Standard.xml DESTINATION ${GADGETRON_INSTALL_CONFIG_PATH} COMPONENT main)
+install(FILES BART_Recon.xml BART_Recon_cloud.xml BART_Recon_cloud_Standard.xml DESTINATION ${PINGVIN_INSTALL_CONFIG_PATH} COMPONENT main)

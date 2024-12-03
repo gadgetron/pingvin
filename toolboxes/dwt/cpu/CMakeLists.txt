@@ -1,4 +1,4 @@
-add_library(gadgetron_toolbox_cpudwt SHARED
+add_library(pingvin_toolbox_cpudwt SHARED
     hoNDWavelet.h
     hoNDWavelet.cpp
     hoNDHarrWavelet.h
@@ -6,22 +6,22 @@ add_library(gadgetron_toolbox_cpudwt SHARED
     hoNDRedundantWavelet.h
     hoNDRedundantWavelet.cpp
     )
-target_include_directories(gadgetron_toolbox_cpudwt
+target_include_directories(pingvin_toolbox_cpudwt
         PUBLIC
 
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
-set_target_properties(gadgetron_toolbox_cpudwt PROPERTIES VERSION ${GADGETRON_VERSION_STRING} SOVERSION ${GADGETRON_SOVERSION})
+set_target_properties(pingvin_toolbox_cpudwt PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
 
-target_link_libraries(gadgetron_toolbox_cpudwt
-                    gadgetron_toolbox_cpucore
-                    gadgetron_toolbox_log
-                    gadgetron_toolbox_cpucore_math
+target_link_libraries(pingvin_toolbox_cpudwt
+                    pingvin_toolbox_cpucore
+                    pingvin_toolbox_log
+                    pingvin_toolbox_cpucore_math
                     )
 
-install(TARGETS gadgetron_toolbox_cpudwt
-        EXPORT gadgetron-export
+install(TARGETS pingvin_toolbox_cpudwt
+        EXPORT pingvin-export
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 	RUNTIME DESTINATION bin
@@ -32,4 +32,4 @@ install(FILES
     hoNDWavelet.h
     hoNDHarrWavelet.h
     hoNDRedundantWavelet.h
-    DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
+    DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)

@@ -32,51 +32,51 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     endif ()
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0)
         message(STATUS "CXX COMPILER VERSION: ${CMAKE_CXX_COMPILER_ID} : ${CMAKE_CXX_COMPILER_VERSION}")
-        message(FATAL_ERROR "Gadgetron requires GCC version >= 6.0")
+        message(FATAL_ERROR "Pingvin requires GCC version >= 6.0")
     endif ()
 elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.5)
-        message(FATAL_ERROR "Gadgetron requires Clang version >= 3.5")
+        message(FATAL_ERROR "Pingvin requires Clang version >= 3.5")
     endif ()
     add_compile_definitions(BOOST_NO_CXX98_FUNCTION_BASE)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 18.0)
-        message(FATAL_ERROR "Gadgetron requires MSVC 2013 or above ")
+        message(FATAL_ERROR "Pingvin requires MSVC 2013 or above ")
     endif ()
 else ()
     message(WARNING "Unsupported compiler!")
 endif ()
 
 #VERSIONING AND INSTALL PATHS
-set(GADGETRON_VERSION_MAJOR 5)
-set(GADGETRON_VERSION_MINOR 0)
-set(GADGETRON_VERSION_PATCH 0.alpha.1)
-set(GADGETRON_VERSION_STRING ${GADGETRON_VERSION_MAJOR}.${GADGETRON_VERSION_MINOR}.${GADGETRON_VERSION_PATCH})
-set(GADGETRON_SOVERSION ${GADGETRON_VERSION_MAJOR}.${GADGETRON_VERSION_MINOR})
+set(PINGVIN_VERSION_MAJOR 5)
+set(PINGVIN_VERSION_MINOR 0)
+set(PINGVIN_VERSION_PATCH 0.alpha.1)
+set(PINGVIN_VERSION_STRING ${PINGVIN_VERSION_MAJOR}.${PINGVIN_VERSION_MINOR}.${PINGVIN_VERSION_PATCH})
+set(PINGVIN_SOVERSION ${PINGVIN_VERSION_MAJOR}.${PINGVIN_VERSION_MINOR})
 find_package(Git)
 if (GIT_FOUND)
     execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse HEAD WORKING_DIRECTORY
-            ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE GADGETRON_GIT_SHA1 ERROR_VARIABLE GADGETRON_GIT_STDERR)
-    string(STRIP "${GADGETRON_GIT_SHA1}" GADGETRON_GIT_SHA1)
-    string(LENGTH "${GADGETRON_GIT_SHA1}" GADGETRON_GIT_SHA1_LEN)
-    if (${GADGETRON_GIT_SHA1_LEN} LESS 40)
-        message(WARNING "Could not determine SHA-1 hash: ${GADGETRON_GIT_STDERR}")
-        set(GADGETRON_GIT_SHA1 "NA")
+            ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE PINGVIN_GIT_SHA1 ERROR_VARIABLE PINGVIN_GIT_STDERR)
+    string(STRIP "${PINGVIN_GIT_SHA1}" PINGVIN_GIT_SHA1)
+    string(LENGTH "${PINGVIN_GIT_SHA1}" PINGVIN_GIT_SHA1_LEN)
+    if (${PINGVIN_GIT_SHA1_LEN} LESS 40)
+        message(WARNING "Could not determine SHA-1 hash: ${PINGVIN_GIT_STDERR}")
+        set(PINGVIN_GIT_SHA1 "NA")
     endif ()
 else ()
-    set(GADGETRON_GIT_SHA1 "NA")
+    set(PINGVIN_GIT_SHA1 "NA")
 endif ()
-set(GADGETRON_INSTALL_CMAKE_PATH share/gadgetron/cmake)
-set(GADGETRON_INSTALL_CONFIG_PATH share/gadgetron/config)
-set(GADGETRON_INSTALL_PYTHON_MODULE_PATH share/gadgetron/python)
-set(GADGETRON_INSTALL_SCHEMA_PATH share/gadgetron/schema)
-set(GADGETRON_INSTALL_INCLUDE_PATH include/gadgetron)
+set(PINGVIN_INSTALL_CMAKE_PATH share/pingvin/cmake)
+set(PINGVIN_INSTALL_CONFIG_PATH share/pingvin/config)
+set(PINGVIN_INSTALL_PYTHON_MODULE_PATH share/pingvin/python)
+set(PINGVIN_INSTALL_SCHEMA_PATH share/pingvin/schema)
+set(PINGVIN_INSTALL_INCLUDE_PATH include/pingvin)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-# create the Gadgetron version header
-configure_file("${CMAKE_SOURCE_DIR}/cmake/gadgetron_sha1.h.in" ${PROJECT_BINARY_DIR}/include/gadgetron_sha1.h @ONLY)
+# create the Pingvin version header
+configure_file("${CMAKE_SOURCE_DIR}/cmake/pingvin_sha1.h.in" ${PROJECT_BINARY_DIR}/include/pingvin_sha1.h @ONLY)
 include_directories(${PROJECT_BINARY_DIR}/include)
-install(FILES ${PROJECT_BINARY_DIR}/include/gadgetron_sha1.h DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
+install(FILES ${PROJECT_BINARY_DIR}/include/pingvin_sha1.h DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)
 
 
 #Set the build type to Release if not specified
@@ -148,11 +148,9 @@ if (BUILD_SUPPRESS_WARNINGS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")
 endif ()
 
-
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
-
 # We actually only use system and thread explicitly, but they require linking in date_time and chrono
 find_package(Boost 1.80.0 COMPONENTS coroutine system date_time program_options filesystem timer REQUIRED )
 add_definitions("-DBOOST_BIND_GLOBAL_PLACEHOLDERS") # To suppress messages in later versions of boost, in version 1.76.0 there are internal conflicts in boost
@@ -161,21 +159,17 @@ if (NOT DEFINED Boost_VERSION_STRING)
     set(Boost_VERSION_STRING "${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}")
 endif()
 
-
 option(USE_CUDA "Build with CUDA support" On)
-
 if (USE_CUDA)
     find_package(CUDA_advanced)
 endif()
-
 if (CUDA_FOUND AND USE_CUDA)
-
     if (NOT CUDA_cublas_device_LIBRARY)
         list(REMOVE_ITEM CUDA_CUBLAS_LIBRARIES CUDA_cublas_device_LIBRARY-NOTFOUND)
     endif()
 
     add_definitions(-DUSE_CUDA)
-    set( GADGETRON_CUDA_FOUND_BOOL 1 )
+    set( PINGVIN_CUDA_FOUND_BOOL 1 )
     include_directories( ${CUDA_INCLUDE_DIRS} )
     set(CUDA_PROPAGATE_HOST_FLAGS ON)
     set(CUDA_HOST_COMPILER ${CMAKE_CXX_COMPILER})
@@ -186,8 +180,8 @@ if (CUDA_FOUND AND USE_CUDA)
     # Support compute model 3.0 from Cuda 4.2 and up
     # Support compute model 3.5 from Cuda 5 and up
 
-    option(GADGETRON_CUDA_ALL_COMPUTE_MODEL "Build CUDA components for all computing models" OFF)
-    if (GADGETRON_CUDA_ALL_COMPUTE_MODEL)
+    option(PINGVIN_CUDA_ALL_COMPUTE_MODEL "Build CUDA components for all computing models" OFF)
+    if (PINGVIN_CUDA_ALL_COMPUTE_MODEL)
         message(STATUS "Compiling CUDA components to support all compute model 3.5, 5.0, 5.2, 6.0, 6.1, 7.0")
         set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} "-gencode arch=compute_35,code=sm_35")
         set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} "-gencode arch=compute_50,code=sm_50")
@@ -204,11 +198,11 @@ if (CUDA_FOUND AND USE_CUDA)
     message(STATUS "CUDA libraries are ${CUDA_LIBRARIES}, ${CUDA_CUFFT_LIBRARIES}, ${CUDA_CUBLAS_LIBRARIES}, ${CUDA_CUSPARSE_LIBRARIES}")
 else ()
     message(STATUS "CUDA not found. CUDA components will not be compiled.")
-    set( GADGETRON_CUDA_FOUND_BOOL 0 )
+    set( PINGVIN_CUDA_FOUND_BOOL 0 )
     set( CUDA_NVCC_FLAGS "NA")
 endif ()
 
-option(REQUIRE_SIGNED_CONFIG "Force Gadgetron to accept only signed config files." Off)
+option(REQUIRE_SIGNED_CONFIG "Force Pingvin to accept only signed config files." Off)
 if (REQUIRE_SIGNED_CONFIG)
     message(STATUS "Compile with signed config; GTBabylon is needed")
     add_definitions(-DUSE_GTBABYLON)
@@ -219,7 +213,7 @@ find_package(Armadillo REQUIRED)
 add_library(armadillo INTERFACE)
 set_property(TARGET armadillo PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${ARMADILLO_INCLUDE_DIR})
 add_definitions(-DARMA_DONT_USE_WRAPPER -DARMA_USE_CXX11 -DARMA_64BIT_WORD)
-install(TARGETS armadillo EXPORT gadgetron-export)
+install(TARGETS armadillo EXPORT pingvin-export)
 
 add_subdirectory(libmrd)
 
@@ -232,7 +226,7 @@ find_package(FFTW3 REQUIRED COMPONENTS single double)
 add_library(FFTW INTERFACE)
 target_link_libraries(FFTW INTERFACE ${FFTW3_LIBRARIES})
 set_property(TARGET FFTW PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${FFTW3_INCLUDE_DIR})
-install(TARGETS FFTW EXPORT gadgetron-export)
+install(TARGETS FFTW EXPORT pingvin-export)
 
 option(USE_MKL Off)
 if (USE_MKL)
@@ -263,7 +257,7 @@ else ()
     endif()
 endif ()
 
-install(TARGETS GTBLAS EXPORT gadgetron-export)
+install(TARGETS GTBLAS EXPORT pingvin-export)
 
 if(EXISTS $ENV{TORCH_HOME})
     find_package(Torch)
@@ -278,7 +272,6 @@ else()
 endif()
 
 option(BUILD_PYTHON_SUPPORT "Build Python gadgets etc" On)
-
 if (BUILD_PYTHON_SUPPORT)
     find_package(Python3 COMPONENTS Development NumPy REQUIRED)
     find_package(Boost COMPONENTS python3${Python3_VERSION_MINOR} REQUIRED)
@@ -289,7 +282,7 @@ if (BUILD_PYTHON_SUPPORT)
     message(STATUS "Python3 libraries: ${Python3_LIBRARIES}")
 
     if (Python3_VERSION_MINOR LESS 7)
-        message(FATAL_ERROR "Gadgetron Python support requires Python 3.7 or newer. Found: ${Python3_VERSION}")
+        message(FATAL_ERROR "Pingvin Python support requires Python 3.7 or newer. Found: ${Python3_VERSION}")
     endif()
 
     message(STATUS "Boost Version: ${Boost_VERSION_STRING} (with Python ${Python3_VERSION})")
@@ -298,7 +291,7 @@ if (BUILD_PYTHON_SUPPORT)
     set_property(TARGET python PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${Python3_INCLUDE_DIRS} ${Python3_NumPy_INCLUDE_DIRS})
     target_link_libraries(python INTERFACE Python3::Python Python3::NumPy Boost::python3${Python3_VERSION_MINOR})
 
-    install(TARGETS python EXPORT gadgetron-export)
+    install(TARGETS python EXPORT pingvin-export)
 endif()
 
 find_package(PLplot)
@@ -311,7 +304,7 @@ if (BUILD_TESTING)
         find_path(GTEST_SRC_DIR src/gtest.cc HINTS /usr/src/gtest)
         find_path(GTEST_INCLUDE_DIRS gtest.h HINTS /usr/include/gtest)
         if (GTEST_SRC_DIR AND GTEST_INCLUDE_DIRS)
-            message(STATUS "GTest src package found. Compiling as part of Gadgetron.")
+            message(STATUS "GTest src package found. Compiling as part of Pingvin.")
             add_subdirectory(${GTEST_SRC_DIR} ${CMAKE_BINARY_DIR}/gtest )
             include_directories(${GTEST_INCLUDE_DIRS})
             set(GTEST_FOUND 1)
@@ -327,11 +320,11 @@ else()
     MESSAGE(STATUS "Testing not being built")
 endif()
 
-
-add_subdirectory(core)
-add_subdirectory(toolboxes)
-add_subdirectory(gadgets)
 add_subdirectory(apps)
+add_subdirectory(cmake)
+add_subdirectory(core)
+add_subdirectory(gadgets)
+add_subdirectory(toolboxes)
 
 option(BUILD_WITH_GPERFTOOLS_PROFILER "Build with the gperftools profiler." Off)
 if (BUILD_WITH_GPERFTOOLS_PROFILER)
@@ -339,10 +332,7 @@ if (BUILD_WITH_GPERFTOOLS_PROFILER)
     find_package(Gperftools REQUIRED)
 endif()
 
-
-add_subdirectory(cmake)
-
-option(BUILD_DOCUMENTATION "Build Gadgetron documentation." Off)
+option(BUILD_DOCUMENTATION "Build Pingvin documentation." Off)
 if(BUILD_DOCUMENTATION)
     add_subdirectory(doc)
 endif()
@@ -350,38 +340,38 @@ endif()
 
 #  ---   Main Library  (end) ----
 include(GNUInstallDirs)
-install(EXPORT gadgetron-export
-        FILE gadgetron-targets.cmake
+install(EXPORT pingvin-export
+        FILE pingvin-targets.cmake
         NAMESPACE
-        Gadgetron::
+        Pingvin::
         DESTINATION
-        ${CMAKE_INSTALL_LIBDIR}/cmake/gadgetron)
+        ${CMAKE_INSTALL_LIBDIR}/cmake/pingvin)
 
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(
-    ${CMAKE_SOURCE_DIR}/cmake/gadgetron-config.cmake.in
-    ${CMAKE_BINARY_DIR}/cmake/gadgetron-config.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/gadgetron
-    PATH_VARS GADGETRON_INSTALL_PYTHON_MODULE_PATH GADGETRON_INSTALL_CONFIG_PATH GADGETRON_INSTALL_SCHEMA_PATH)
+    ${CMAKE_SOURCE_DIR}/cmake/pingvin-config.cmake.in
+    ${CMAKE_BINARY_DIR}/cmake/pingvin-config.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/pingvin
+    PATH_VARS PINGVIN_INSTALL_PYTHON_MODULE_PATH PINGVIN_INSTALL_CONFIG_PATH PINGVIN_INSTALL_SCHEMA_PATH)
 
 write_basic_package_version_file(
-    ${CMAKE_BINARY_DIR}/cmake/gadgetron-config-version.cmake
-    VERSION ${GADGETRON_VERSION_STRING}
+    ${CMAKE_BINARY_DIR}/cmake/pingvin-config-version.cmake
+    VERSION ${PINGVIN_VERSION_STRING}
     COMPATIBILITY AnyNewerVersion)
 
 install(
     FILES
-    ${CMAKE_BINARY_DIR}/cmake/gadgetron-config.cmake
-    ${CMAKE_BINARY_DIR}/cmake/gadgetron-config-version.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/gadgetron)
+    ${CMAKE_BINARY_DIR}/cmake/pingvin-config.cmake
+    ${CMAKE_BINARY_DIR}/cmake/pingvin-config-version.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/pingvin)
 
 # Create package
 string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
-include(${CMAKE_SOURCE_DIR}/cmake/gadgetron_cpack.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/pingvin_cpack.cmake)
 if(CPACK_GENERATOR)
     message(STATUS "Found CPack generators: ${CPACK_GENERATOR}")
-    configure_file("${CMAKE_SOURCE_DIR}/cmake/cpack_options.cmake.in" ${GADGETRON_CPACK_CFG_FILE} @ONLY)
-    set(CPACK_PROJECT_CONFIG_FILE ${GADGETRON_CPACK_CFG_FILE})
+    configure_file("${CMAKE_SOURCE_DIR}/cmake/cpack_options.cmake.in" ${PINGVIN_CPACK_CFG_FILE} @ONLY)
+    set(CPACK_PROJECT_CONFIG_FILE ${PINGVIN_CPACK_CFG_FILE})
     include(CPack)
 endif()

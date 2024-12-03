@@ -5,13 +5,13 @@
 
     <gadget>
         <name>RemoveROOversampling</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>RemoveROOversamplingGadget</classname>
     </gadget>
 
     <gadget>
         <name>AccTrig</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>AcquisitionAccumulateTriggerGadget</classname>
         <property>
             <name>trigger_dimension</name>
@@ -21,7 +21,7 @@
 
     <gadget>
         <name>Buff</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>BucketToBufferGadget</classname>
         <property>
           <name>split_slices</name>
@@ -31,7 +31,7 @@
 
  <gadget>
       <name>PassthroughPython</name>
-      <dll>gadgetron_python</dll>
+      <dll>pingvin_python</dll>
       <classname>PythonGadget</classname>
       <property><name>python_path</name>                  <value>/home/myuser/scripts/python</value></property>
       <property><name>python_module</name>                <value>passthrough</value></property>
@@ -40,7 +40,7 @@
 
  <gadget>
       <name>AccReconPython</name>
-      <dll>gadgetron_python</dll>
+      <dll>pingvin_python</dll>
       <classname>PythonGadget</classname>
       <property><name>python_path</name>                  <value>/home/myuser/scripts/python</value></property>
       <property><name>python_module</name>                <value>bucket_recon</value></property>
@@ -49,7 +49,7 @@
 
     <gadget>
       <name>CoilCombinePython</name>
-      <dll>gadgetron_python</dll>
+      <dll>pingvin_python</dll>
       <classname>PythonGadget</classname>
       <property><name>python_path</name>                  <value>/home/myuser/scripts/python</value></property>
       <property><name>python_module</name>                <value>rms_coil_combine</value></property>
@@ -58,7 +58,7 @@
 
     <gadget>
       <name>Extract</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>ExtractGadget</classname>
     </gadget>
 

@@ -5,38 +5,38 @@
 
   <gadget>
     <name>NoiseAdjust</name>
-    <dll>gadgetron_mricore</dll>
+    <dll>pingvin_mricore</dll>
     <classname>NoiseAdjustGadget</classname>
   </gadget>
 
   <gadget>
     <name>PCA</name>
-    <dll>gadgetron_mricore</dll>
+    <dll>pingvin_mricore</dll>
     <classname>PCACoilGadget</classname>
   </gadget>
 
   <gadget>
     <name>CoilReduction</name>
-    <dll>gadgetron_mricore</dll>
+    <dll>pingvin_mricore</dll>
     <classname>CoilReductionGadget</classname>
     <property><name>coils_out</name><value>12</value></property>
   </gadget>
 
 <gadget>
 	<name>AccumulatorGadget</name>
-	<dll>gadgetron_mricore</dll>
+	<dll>pingvin_mricore</dll>
 	<classname>AcquisitionAccumulateTriggerGadget</classname>
 	<property><name>trigger_dimension</name><value>repetition</value></property>
 </gadget>
 
 <gadget>
 	<name>BucketToBufferGadget</name>
-	<dll>gadgetron_mricore</dll>
+	<dll>pingvin_mricore</dll>
 	<classname>BucketToBufferGadget</classname>
 </gadget>
   <gadget>
     <name>CoilEstimation</name>
-    <dll>gadgetron_hyper</dll>
+    <dll>pingvin_hyper</dll>
     <classname>gpuCSICoilEstimationGadget</classname>
       <property><name>kernel_width</name><value>5.5</value></property>
       <property><name>skip_lines</name><value>1</value></property>
@@ -44,7 +44,7 @@
 
   <gadget>
     <name>CSIGadget</name>
-    <dll>gadgetron_hyper</dll>
+    <dll>pingvin_hyper</dll>
     <classname>CSIGadget</classname>
     <!--property><name>frequency_min</name><value>-600</value></property>
     <property><name>frequency_max</name><value>160</value></property>
@@ -62,13 +62,13 @@
 
   <gadget>
     <name>Extract</name>
-    <dll>gadgetron_mricore</dll>
+    <dll>pingvin_mricore</dll>
     <classname>ExtractGadget</classname>
   </gadget>
 
  <gadget>
     <name>AutoScaleGadget</name>
-    <dll>gadgetron_mricore</dll>
+    <dll>pingvin_mricore</dll>
     <classname>AutoScaleGadget</classname>
      <property>
          <name>max_value</name>

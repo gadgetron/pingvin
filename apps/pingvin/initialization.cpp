@@ -36,7 +36,7 @@ namespace Gadgetron::Main {
 
         if ("passive" != get_policy()) {
             GWARN_STREAM("Environment variable 'OMP_WAIT_POLICY' not set to 'PASSIVE'.");
-            GWARN_STREAM("Gadgetron may experience serious performance issues under heavy load " <<
+            GWARN_STREAM("Pingvin may experience serious performance issues under heavy load " <<
                          "(multiple simultaneous reconstructions, etc.)")
         }
     }

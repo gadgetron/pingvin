@@ -5,26 +5,26 @@
 
   <gadget>
     <name>NoiseAdjust</name>
-    <dll>gadgetron_mricore</dll>
+    <dll>pingvin_mricore</dll>
     <classname>NoiseAdjustGadget</classname>
   </gadget>
 
   <gadget>
     <name>PCA</name>
-    <dll>gadgetron_mricore</dll>
+    <dll>pingvin_mricore</dll>
     <classname>PCACoilGadget</classname>
   </gadget>
 
   <gadget>
     <name>CoilReduction</name>
-    <dll>gadgetron_mricore</dll>
+    <dll>pingvin_mricore</dll>
     <classname>CoilReductionGadget</classname>
     <property><name>coils_out</name><value>16</value></property>
   </gadget>
 <!--
   <gadget>
     <name>gpuRadialSpiritPrepGadget</name>
-    <dll>gadgetron_gpuradial</dll>
+    <dll>pingvin_gpuradial</dll>
     <classname>gpuRadialSpiritPrepGadget</classname>
     <property><name>deviceno</name><value>0</value></property>
     <property><name>mode</name><value>3</value></property>
@@ -41,7 +41,7 @@
 
     <gadget>
       <name>gpuRadialSpiritPrepGadget</name>
-      <dll>gadgetron_gpuradial</dll>
+      <dll>pingvin_gpuradial</dll>
       <classname>gpuRadialSpiritPrepGadget</classname>
       <property><name>deviceno</name><value>0</value></property>
       <property><name>mode</name><value>3</value></property>
@@ -57,7 +57,7 @@
 
   <gadget>
     <name>gpuCgSpiritGadget</name>
-    <dll>gadgetron_gpuparallelmri</dll>
+    <dll>pingvin_gpuparallelmri</dll>
     <classname>gpuCgSpiritGadget</classname>
     <property><name>deviceno</name>                <value>0</value></property>
     <property><name>sliceno</name>                 <value>0</value></property>
@@ -71,7 +71,7 @@
 
   <gadget>
     <name>Extract</name>
-    <dll>gadgetron_mricore</dll>
+    <dll>pingvin_mricore</dll>
     <classname>ExtractGadget</classname>
   </gadget>
 

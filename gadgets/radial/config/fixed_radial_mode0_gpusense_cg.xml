@@ -5,26 +5,26 @@
 
     <gadget>
       <name>NoiseAdjust</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>NoiseAdjustGadget</classname>
     </gadget>
 
     <gadget>
       <name>PCA</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>PCACoilGadget</classname>
     </gadget>
 
     <gadget>
       <name>CoilReduction</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>CoilReductionGadget</classname>
       <property><name>coils_out</name><value>16</value></property>
     </gadget>
 
     <gadget>
       <name>gpuRadialSensePrepGadget</name>
-      <dll>gadgetron_gpuradial</dll>
+      <dll>pingvin_gpuradial</dll>
       <classname>gpuRadialSensePrepGadget</classname>
       <property><name>deviceno</name><value>0</value></property>
       <property><name>mode</name><value>0</value></property>
@@ -38,7 +38,7 @@
 
     <gadget>
       <name>gpuCgSenseGadget_slice0</name>
-      <dll>gadgetron_gpuparallelmri</dll>
+      <dll>pingvin_gpuparallelmri</dll>
       <classname>gpuCgSenseGadget</classname>
       <property><name>deviceno</name>                <value>0</value></property>
       <property><name>sliceno</name>                 <value>0</value></property>
@@ -52,7 +52,7 @@
 
     <gadget>
       <name>gpuCgSenseGadget_slice1</name>
-      <dll>gadgetron_gpuparallelmri</dll>
+      <dll>pingvin_gpuparallelmri</dll>
       <classname>gpuCgSenseGadget</classname>
       <property><name>deviceno</name>                <value>0</value></property>
       <property><name>sliceno</name>                 <value>1</value></property>
@@ -66,7 +66,7 @@
 
     <gadget>
       <name>gpuCgSenseGadget_slice2</name>
-      <dll>gadgetron_gpuparallelmri</dll>
+      <dll>pingvin_gpuparallelmri</dll>
       <classname>gpuCgSenseGadget</classname>
       <property><name>deviceno</name>                <value>0</value></property>
       <property><name>sliceno</name>                 <value>2</value></property>
@@ -80,19 +80,19 @@
 
      <gadget>
       <name>Extract</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>ExtractGadget</classname>
     </gadget>
 
     <gadget>
       <name>AutoScale</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>AutoScaleGadget</classname>
     </gadget>
 
     <gadget>
       <name>FloatToShort</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>FloatToUShortGadget</classname>
     </gadget>
 

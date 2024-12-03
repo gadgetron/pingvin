@@ -12,6 +12,6 @@ install(FILES
   vector_td_io.h
   real_utilities.h
   GadgetronTimer.h
-  DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
+  DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)
 
 add_subdirectory(cpu)

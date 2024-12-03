@@ -17,20 +17,20 @@
     <!-- perform FFT on incoming image -->
     <gadget>
         <name>ImageFFT</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>ImageFFTGadget</classname>
     </gadget>
 
     <!-- after recon processing -->
     <gadget>
         <name>ComplexToFloatAttrib</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>ComplexToFloatGadget</classname>
     </gadget>
 
     <gadget>
         <name>FloatToShortAttrib</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>FloatToUShortGadget</classname>
 
         <property><name>max_intensity</name><value>32767</value></property>

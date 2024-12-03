@@ -55,33 +55,33 @@ add_executable(test_all ${test_src_files})
 endif ()
 
 if (CUDA_FOUND)
-target_link_libraries(test_all gadgetron_toolbox_gpu)
+target_link_libraries(test_all pingvin_toolbox_gpu)
 endif ()
 target_link_libraries(test_all
-        gadgetron_core
-        gadgetron_mricore
-        gadgetron_toolbox_cpucore
-        gadgetron_toolbox_cpucore_math
-        gadgetron_toolbox_cpufft
-        gadgetron_toolbox_cpunfft
-        gadgetron_toolbox_cpudwt
-        gadgetron_toolbox_cpu_image
-        gadgetron_toolbox_cpucore
-        gadgetron_toolbox_log
-        gadgetron_toolbox_cpuklt
-        gadgetron_toolbox_image_analyze_io
-        gadgetron_toolbox_mri_core
-        gadgetron_toolbox_cpuoperator
-        gadgetron_toolbox_cpu_image
-        gadgetron_toolbox_cmr
-        gadgetron_toolbox_pr
-        gadgetron_toolbox_cpusdc
+        pingvin_core
+        pingvin_mricore
+        pingvin_toolbox_cpucore
+        pingvin_toolbox_cpucore_math
+        pingvin_toolbox_cpufft
+        pingvin_toolbox_cpunfft
+        pingvin_toolbox_cpudwt
+        pingvin_toolbox_cpu_image
+        pingvin_toolbox_cpucore
+        pingvin_toolbox_log
+        pingvin_toolbox_cpuklt
+        pingvin_toolbox_image_analyze_io
+        pingvin_toolbox_mri_core
+        pingvin_toolbox_cpuoperator
+        pingvin_toolbox_cpu_image
+        pingvin_toolbox_cmr
+        pingvin_toolbox_pr
+        pingvin_toolbox_cpusdc
         ${GTEST_LIBRARIES}
         GTest::gmock
     )
 
 if (BUILD_PYTHON_SUPPORT)
-    target_link_libraries(test_all gadgetron_toolbox_python python)
+    target_link_libraries(test_all pingvin_toolbox_python python)
 endif ()
 
 gtest_discover_tests(test_all DISCOVERY_MODE PRE_TEST)

@@ -7,7 +7,7 @@
 #include "initialization.h"
 
 #include "system_info.h"
-#include "gadgetron_config.h"
+#include "pingvin_config.h"
 
 #include "StreamConsumer.h"
 
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
             ("help,h", "Prints this help message.")
             ("info", "Prints build info about Pingvin.")
             ("home,G",
-                value<path>()->default_value(Info::default_gadgetron_home()),
+                value<path>()->default_value(Info::default_pingvin_home()),
                 "Set the Pingvin home directory.")
             ("input,i",
                 value<std::string>(),
@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
             return 0;
         }
 
-        GINFO("Pingvin %s [%s]\n", GADGETRON_VERSION_STRING, GADGETRON_GIT_SHA1_HASH);
+        GINFO("Pingvin %s [%s]\n", PINGVIN_VERSION_STRING, PINGVIN_GIT_SHA1_HASH);
 
         if (!args.count("config"))
         {

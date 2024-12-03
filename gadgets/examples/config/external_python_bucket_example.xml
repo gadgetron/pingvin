@@ -4,17 +4,17 @@
 
     <stream>
         <gadget>
-            <dll>gadgetron_mricore</dll>
+            <dll>pingvin_mricore</dll>
             <classname>NoiseAdjustGadget</classname>
         </gadget>
 
         <gadget>
-            <dll>gadgetron_mricore</dll>
+            <dll>pingvin_mricore</dll>
             <classname>RemoveROOversamplingGadget</classname>
         </gadget>
 
         <gadget>
-            <dll>gadgetron_mricore</dll>
+            <dll>pingvin_mricore</dll>
             <classname>AcquisitionAccumulateTriggerGadget</classname>
             <property name="trigger_dimension" value="repetition"/>
         </gadget>

@@ -39,7 +39,7 @@ if(CUDA_FOUND)
     # (e.g. https://github.com/NVIDIA/cub/blob/48768e86a40c25d231a6ff1e04107a60016314a7/cub/util_device.cuh#L208)
     # that when used from multiple libraries can cause crashes.
     # See https://github.com/NVIDIA/thrust/issues/1401 for more information.
-    cuda_add_library(gadgetron_toolbox_gpu SHARED
+    cuda_add_library(pingvin_toolbox_gpu SHARED
         core/gpu/check_CUDA.h
         core/gpu/CUBLASContextProvider.cpp
         core/gpu/CUBLASContextProvider.h
@@ -137,7 +137,7 @@ if(CUDA_FOUND)
         solvers/gpu/cuSolverUtils.cu
     )
 
-    target_include_directories(gadgetron_toolbox_gpu
+    target_include_directories(pingvin_toolbox_gpu
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/core/gpu
@@ -154,15 +154,15 @@ if(CUDA_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/solvers/gpu
     )
 
-    set_target_properties(gadgetron_toolbox_gpu PROPERTIES VERSION ${GADGETRON_VERSION_STRING} SOVERSION ${GADGETRON_SOVERSION})
+    set_target_properties(pingvin_toolbox_gpu PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
 
-    target_link_libraries(gadgetron_toolbox_gpu
-        gadgetron_toolbox_cpucore
-        gadgetron_toolbox_cpucore_math
-        gadgetron_toolbox_log
-        gadgetron_toolbox_nfft
-        gadgetron_toolbox_operator
-        gadgetron_toolbox_sdc
+    target_link_libraries(pingvin_toolbox_gpu
+        pingvin_toolbox_cpucore
+        pingvin_toolbox_cpucore_math
+        pingvin_toolbox_log
+        pingvin_toolbox_nfft
+        pingvin_toolbox_operator
+        pingvin_toolbox_sdc
         ${CUDA_LIBRARIES}
         ${CUDA_CUFFT_LIBRARIES}
         ${CUDA_CUBLAS_LIBRARIES}
@@ -171,7 +171,7 @@ if(CUDA_FOUND)
     )
 
 
-    install(TARGETS gadgetron_toolbox_gpu
+    install(TARGETS pingvin_toolbox_gpu
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
         RUNTIME DESTINATION bin
@@ -265,7 +265,7 @@ if(CUDA_FOUND)
         solvers/gpu/hoCuGpBbSolver.h
         solvers/gpu/hoCuNlcgSolver.h
         solvers/gpu/hoCuSbcCgSolver.h
-        DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
+        DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)
 
 else()
     message(STATUS "CUDA not found, not compiling gpu toolbox")

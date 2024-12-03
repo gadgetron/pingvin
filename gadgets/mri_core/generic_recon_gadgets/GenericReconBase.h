@@ -17,7 +17,7 @@
 
 #include "ImageIOAnalyze.h"
 
-#include "gadgetron_sha1.h"
+#include "pingvin_sha1.h"
 
 #include "GenericReconStreamDef.h"
 

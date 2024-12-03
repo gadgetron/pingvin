@@ -5,13 +5,13 @@
 
     <gadget>
       <name>NFFT</name>
-      <dll>gadgetron_hyper</dll>
+      <dll>pingvin_hyper</dll>
       <classname>NFFT2DGadget</classname>
     </gadget>
 
     <gadget>
       <name>Extract</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>ExtractGadget</classname>
     </gadget>
 

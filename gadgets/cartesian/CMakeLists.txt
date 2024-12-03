@@ -1,22 +1,22 @@
-add_library(gadgetron_cartesian SHARED
+add_library(pingvin_cartesian SHARED
   CartesianToGenericGadget.h
   CartesianToGenericGadget.cpp
 )
 
-set_target_properties(gadgetron_cartesian PROPERTIES VERSION ${GADGETRON_VERSION_STRING} SOVERSION ${GADGETRON_SOVERSION})
+set_target_properties(pingvin_cartesian PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
 
-target_link_libraries(gadgetron_cartesian gadgetron_toolbox_cpucore
-  gadgetron_core
-  gadgetron_toolbox_log
-  gadgetron_mricore
-  gadgetron_toolbox_cpucore_math
+target_link_libraries(pingvin_cartesian pingvin_toolbox_cpucore
+  pingvin_core
+  pingvin_toolbox_log
+  pingvin_mricore
+  pingvin_toolbox_cpucore_math
   )
 
 
 install (FILES  CartesianToGenericGadget.h
-                DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
+                DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)
 
-install(TARGETS gadgetron_cartesian
+install(TARGETS pingvin_cartesian
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 	RUNTIME DESTINATION bin

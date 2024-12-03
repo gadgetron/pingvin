@@ -1,25 +1,25 @@
-add_library(gadgetron_fatwater SHARED
+add_library(pingvin_fatwater SHARED
   FatWaterGadget.h FatWaterGadget.cpp
 )
 
-set_target_properties(gadgetron_fatwater PROPERTIES VERSION ${GADGETRON_VERSION_STRING} SOVERSION ${GADGETRON_SOVERSION})
+set_target_properties(pingvin_fatwater PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
 
 target_link_libraries(
-  gadgetron_fatwater
-  gadgetron_core
-  gadgetron_mricore
-  gadgetron_toolbox_cpucore
-  gadgetron_toolbox_cpufft
-  gadgetron_toolbox_cpucore_math
-  gadgetron_toolbox_log
-  gadgetron_toolbox_fatwater
+  pingvin_fatwater
+  pingvin_core
+  pingvin_mricore
+  pingvin_toolbox_cpucore
+  pingvin_toolbox_cpufft
+  pingvin_toolbox_cpucore_math
+  pingvin_toolbox_log
+  pingvin_toolbox_fatwater
 )
 
 install(FILES
   FatWaterGadget.h
-  DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
+  DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)
 
-  install(TARGETS gadgetron_fatwater
+  install(TARGETS pingvin_fatwater
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 	RUNTIME DESTINATION bin
@@ -29,4 +29,4 @@ install(FILES
 
 install(FILES
         config/Generic_Cartesian_Grappa_FatWater.xml
-  DESTINATION ${GADGETRON_INSTALL_CONFIG_PATH} COMPONENT main)
+  DESTINATION ${PINGVIN_INSTALL_CONFIG_PATH} COMPONENT main)

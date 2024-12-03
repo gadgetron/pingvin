@@ -68,12 +68,12 @@ You should see Pingvin log its output:
 
 ```bash
 $ pingvin -c default.xml -i testdata.mrd -o reconstructed.mrd
-12-02 15:31:12.079 DEBUG [system_info.cpp:225] Executable path: "/opt/conda/envs/gadgetron/bin/gadgetron"
-12-02 15:31:12.079 DEBUG [system_info.cpp:231] Default Gadgetron home: "/opt/conda/envs/gadgetron"
+12-02 15:31:12.079 DEBUG [system_info.cpp:225] Executable path: "/opt/conda/envs/pingvin/bin/pingvin"
+12-02 15:31:12.079 DEBUG [system_info.cpp:231] Default Pingvin home: "/opt/conda/envs/pingvin"
 12-02 15:31:12.079 WARNING [initialization.cpp:38] Environment variable 'OMP_WAIT_POLICY' not set to 'PASSIVE'.
 12-02 15:31:12.079 WARNING [initialization.cpp:39] Gadgetron may experience serious performance issues under heavy load (multiple simultaneous reconstructions, etc.)
-12-02 15:31:12.079 INFO [main.cpp:85] Gadgetron 5.0.0.alpha.1 [c0baaa8d864fcba8efd562b7b35fd963956a78b5]
-12-02 15:31:12.079 INFO [StreamConsumer.h:68] Loading configuration from: /opt/conda/envs/gadgetron/share/gadgetron/config/default.xml
+12-02 15:31:12.079 INFO [main.cpp:85] Pingvin 5.0.0.alpha.1 [c0baaa8d864fcba8efd562b7b35fd963956a78b5]
+12-02 15:31:12.079 INFO [StreamConsumer.h:68] Loading configuration from: /opt/conda/envs/pingvin/share/pingvin/config/default.xml
 ```
 
 You can convert the reconstructed dataset if you'd like to use HDF5 tools for viewing the data:

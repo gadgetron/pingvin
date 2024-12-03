@@ -7,14 +7,14 @@ if (MKL_FOUND)
     link_directories( ${MKL_LIB_DIR} ${MKL_COMPILER_LIB_DIR} )
 endif ()
 
-set( gadgetron_cmr_header_files
+set( pingvin_cmr_header_files
     CmrCartesianKSpaceBinningCineGadget.h
     CmrParametricMappingGadget.h
     CmrParametricT1SRMappingGadget.h
     CmrParametricT2MappingGadget.h
     PureCmrCartesianKSpaceBinningCineGadget.h)
 
-set( gadgetron_cmr_src_files
+set( pingvin_cmr_src_files
     CmrCartesianKSpaceBinningCineGadget.cpp
     CmrParametricMappingGadget.cpp
     CmrParametricT1SRMappingGadget.cpp
@@ -44,8 +44,8 @@ if (BUILD_PYTHON_SUPPORT)
 
     include_directories(${CMAKE_SOURCE_DIR}/toolboxes/python)
 
-    set( gadgetron_cmr_header_files ${gadgetron_cmr_header_files} CmrRealTimeLAXCineAIAnalysisGadget.h)
-    set( gadgetron_cmr_src_files ${gadgetron_cmr_src_files} CmrRealTimeLAXCineAIAnalysisGadget.cpp)
+    set( pingvin_cmr_header_files ${pingvin_cmr_header_files} CmrRealTimeLAXCineAIAnalysisGadget.h)
+    set( pingvin_cmr_src_files ${pingvin_cmr_src_files} CmrRealTimeLAXCineAIAnalysisGadget.cpp)
 
     set( config_LandmarkDetection_files
         config/LandmarkDetection/CMR_RTCine_LAX_AI.xml
@@ -66,39 +66,39 @@ if (BUILD_PYTHON_SUPPORT)
         ${config_LandmarkDetection_files}
         ${python_LandmarkDetection_files} )
 
-    install(FILES ${python_LandmarkDetection_files} DESTINATION ${GADGETRON_INSTALL_PYTHON_MODULE_PATH}/cmr_lax_landmark_detection COMPONENT main)
+    install(FILES ${python_LandmarkDetection_files} DESTINATION ${PINGVIN_INSTALL_PYTHON_MODULE_PATH}/cmr_lax_landmark_detection COMPONENT main)
 endif ()
 
-add_library(gadgetron_cmr SHARED
-    ${gadgetron_cmr_header_files}
-    ${gadgetron_cmr_src_files}
+add_library(pingvin_cmr SHARED
+    ${pingvin_cmr_header_files}
+    ${pingvin_cmr_src_files}
     ${config_cmr_files} )
 
-set_target_properties(gadgetron_cmr PROPERTIES VERSION ${GADGETRON_VERSION_STRING} SOVERSION ${GADGETRON_SOVERSION})
+set_target_properties(pingvin_cmr PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
 
-target_link_libraries(gadgetron_cmr
-    gadgetron_core
-    gadgetron_mricore
-    gadgetron_toolbox_log
-    gadgetron_toolbox_cpucore
-    gadgetron_toolbox_cpufft
-    gadgetron_toolbox_cpuklt
-    gadgetron_toolbox_mri_core
-    gadgetron_toolbox_cpuoperator
-    gadgetron_toolbox_image_analyze_io
-    gadgetron_toolbox_cmr
+target_link_libraries(pingvin_cmr
+    pingvin_core
+    pingvin_mricore
+    pingvin_toolbox_log
+    pingvin_toolbox_cpucore
+    pingvin_toolbox_cpufft
+    pingvin_toolbox_cpuklt
+    pingvin_toolbox_mri_core
+    pingvin_toolbox_cpuoperator
+    pingvin_toolbox_image_analyze_io
+    pingvin_toolbox_cmr
 )
 
 if (BUILD_PYTHON_SUPPORT)
-    target_link_libraries(gadgetron_cmr gadgetron_toolbox_python)
+    target_link_libraries(pingvin_cmr pingvin_toolbox_python)
 endif ()
 
-install(FILES ${gadgetron_cmr_header_files} DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
+install(FILES ${pingvin_cmr_header_files} DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)
 
-install(FILES ${config_cmr_files} DESTINATION ${GADGETRON_INSTALL_CONFIG_PATH} COMPONENT main)
+install(FILES ${config_cmr_files} DESTINATION ${PINGVIN_INSTALL_CONFIG_PATH} COMPONENT main)
 
-install(TARGETS gadgetron_cmr
-        EXPORT gadgetron-export
+install(TARGETS pingvin_cmr
+        EXPORT pingvin-export
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 	RUNTIME DESTINATION bin

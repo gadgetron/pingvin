@@ -1,4 +1,4 @@
-# gadgetron_toolbox_plplot is a toolbox for plotting gadgetron data structures using PLplot
+# pingvin_toolbox_plplot is a toolbox for plotting gadgetron data structures using PLplot
 
 include_directories(${PLPLOT_INCLUDE_DIR})
 link_directories(${PLPLOT_LIB_DIR})
@@ -10,24 +10,24 @@ set(plplot_files ${header_files} ${src_files} )
 
 source_group(plplot FILES ${header_files} ${src_files})
 
-add_library(gadgetron_toolbox_plplot SHARED
+add_library(pingvin_toolbox_plplot SHARED
             ${plplot_files} )
 
-set_target_properties(gadgetron_toolbox_plplot PROPERTIES VERSION ${GADGETRON_VERSION_STRING} SOVERSION ${GADGETRON_SOVERSION})
+set_target_properties(pingvin_toolbox_plplot PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
 
-target_link_libraries(gadgetron_toolbox_plplot
+target_link_libraries(pingvin_toolbox_plplot
                       ${PLPLOT_LIBRARIES}
-                      gadgetron_toolbox_cpucore
-                      gadgetron_toolbox_log
-                      gadgetron_toolbox_cpucore_math
-                      gadgetron_toolbox_mri_core
-                      gadgetron_toolbox_cpucore_math )
+                      pingvin_toolbox_cpucore
+                      pingvin_toolbox_log
+                      pingvin_toolbox_cpucore_math
+                      pingvin_toolbox_mri_core
+                      pingvin_toolbox_cpucore_math )
 
-target_include_directories(gadgetron_toolbox_plplot
+target_include_directories(pingvin_toolbox_plplot
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR})
 
-install(TARGETS gadgetron_toolbox_plplot
+install(TARGETS pingvin_toolbox_plplot
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 	RUNTIME DESTINATION bin
@@ -36,4 +36,4 @@ install(TARGETS gadgetron_toolbox_plplot
 
 install (FILES
         ${header_files}
-        DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
+        DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)

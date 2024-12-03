@@ -1,28 +1,28 @@
 
-set(gadgetron_t1_config_files config/MOLLI_T1_Moco.xml)
+set(pingvin_t1_config_files config/MOLLI_T1_Moco.xml)
 
-source_group(config FILES ${gadgetron_t1_config_files})
+source_group(config FILES ${pingvin_t1_config_files})
 
-add_library(gadgetron_t1 SHARED
+add_library(pingvin_t1 SHARED
         T1MocoGadget.cpp)
 
-set_target_properties(gadgetron_t1 PROPERTIES VERSION ${GADGETRON_VERSION_STRING} SOVERSION ${GADGETRON_SOVERSION})
+set_target_properties(pingvin_t1 PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
 
-target_link_libraries(gadgetron_t1
-    gadgetron_core
-    gadgetron_toolbox_log
-    gadgetron_toolbox_cpucore
-    gadgetron_toolbox_cpufft
-    gadgetron_toolbox_demons
-    gadgetron_toolbox_t1
-    gadgetron_toolbox_mri_core
+target_link_libraries(pingvin_t1
+    pingvin_core
+    pingvin_toolbox_log
+    pingvin_toolbox_cpucore
+    pingvin_toolbox_cpufft
+    pingvin_toolbox_demons
+    pingvin_toolbox_t1
+    pingvin_toolbox_mri_core
 )
 
-install(TARGETS gadgetron_t1
+install(TARGETS pingvin_t1
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 	RUNTIME DESTINATION bin
 	COMPONENT main
 )
 
-install(FILES ${gadgetron_t1_config_files} DESTINATION ${GADGETRON_INSTALL_CONFIG_PATH} COMPONENT main)
+install(FILES ${pingvin_t1_config_files} DESTINATION ${PINGVIN_INSTALL_CONFIG_PATH} COMPONENT main)

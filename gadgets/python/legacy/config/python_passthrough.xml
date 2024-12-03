@@ -19,18 +19,18 @@
     -->
 
     <!-- Noise prewhitening -->
-    <gadget><name>NoiseAdjust</name><dll>gadgetron_mricore</dll><classname>NoiseAdjustGadget</classname></gadget>
+    <gadget><name>NoiseAdjust</name><dll>pingvin_mricore</dll><classname>NoiseAdjustGadget</classname></gadget>
 
     <!-- RO asymmetric echo handling -->
-    <gadget><name>AsymmetricEcho</name><dll>gadgetron_mricore</dll><classname>AsymmetricEchoAdjustROGadget</classname></gadget>
+    <gadget><name>AsymmetricEcho</name><dll>pingvin_mricore</dll><classname>AsymmetricEchoAdjustROGadget</classname></gadget>
 
     <!-- RO oversampling removal -->
-    <gadget><name>RemoveROOversampling</name><dll>gadgetron_mricore</dll><classname>RemoveROOversamplingGadget</classname></gadget>
+    <gadget><name>RemoveROOversampling</name><dll>pingvin_mricore</dll><classname>RemoveROOversamplingGadget</classname></gadget>
 
     <!-- Data accumulation and trigger gadget -->
     <gadget>
         <name>AccTrig</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>AcquisitionAccumulateTriggerGadget</classname>
         <property><name>trigger_dimension</name><value>repetition</value></property>
         <property><name>sorting_dimension</name><value></value></property>
@@ -38,7 +38,7 @@
 
     <gadget>
         <name>BucketToBuffer</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>BucketToBufferGadget</classname>
         <property><name>N_dimension</name><value>repetition</value></property>
         <property><name>S_dimension</name><value>set</value></property>
@@ -48,7 +48,7 @@
 
     <gadget>
         <name>PassthroughPython</name>
-        <dll>gadgetron_python</dll>
+        <dll>pingvin_python</dll>
         <classname>PythonGadget</classname>
         <property><name>python_path</name>                  <value>/home/myuser/scripts/python</value></property>
         <property><name>python_module</name>                <value>passthrough</value></property>
@@ -58,7 +58,7 @@
     <!-- Prep ref -->
     <gadget>
         <name>PrepRef</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>GenericReconCartesianReferencePrepGadget</classname>
 
         <!-- parameters for debug and timing -->
@@ -77,7 +77,7 @@
     <!-- Coil compression -->
     <gadget>
         <name>CoilCompression</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>GenericReconEigenChannelGadget</classname>
 
         <!-- parameters for debug and timing -->
@@ -97,7 +97,7 @@
     <!-- Recon -->
     <gadget>
         <name>Recon</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>GenericReconCartesianGrappaGadget</classname>
 
         <!-- image series -->
@@ -123,7 +123,7 @@
     <!-- Partial fourier handling -->
     <gadget>
         <name>PartialFourierHandling</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>GenericReconPartialFourierHandlingFilterGadget</classname>
 
         <!-- parameters for debug and timing -->
@@ -144,7 +144,7 @@
     <!-- Kspace filtering -->
     <gadget>
         <name>KSpaceFilter</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>GenericReconKSpaceFilteringGadget</classname>
 
         <!-- parameters for debug and timing -->
@@ -172,7 +172,7 @@
     <!-- FOV Adjustment -->
     <gadget>
         <name>FOVAdjustment</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>GenericReconFieldOfViewAdjustmentGadget</classname>
 
         <!-- parameters for debug and timing -->
@@ -184,7 +184,7 @@
     <!-- Image Array Scaling -->
     <gadget>
         <name>Scaling</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>GenericReconImageArrayScalingGadget</classname>
 
         <!-- parameters for debug and timing -->
@@ -202,13 +202,13 @@
     <!-- ImageArray to images -->
     <gadget>
         <name>ImageArraySplit</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>ImageArraySplitGadget</classname>
     </gadget>
 
     <gadget>
         <name>ArrayImagePassthroughPython</name>
-        <dll>gadgetron_python</dll>
+        <dll>pingvin_python</dll>
         <classname>PythonGadget</classname>
         <property><name>python_path</name><value>/home/myuser/scripts/python</value></property>
         <property><name>python_module</name><value>passthrough_array_image</value></property>
@@ -218,13 +218,13 @@
     <!-- after recon processing -->
     <gadget>
         <name>ComplexToFloatAttrib</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>ComplexToFloatGadget</classname>
     </gadget>
 
     <gadget>
         <name>FloatToShortAttrib</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>FloatToUShortGadget</classname>
     </gadget>
 

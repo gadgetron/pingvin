@@ -1,7 +1,7 @@
 add_subdirectory(cpu)
 
-add_library(gadgetron_toolbox_nfft INTERFACE)
-target_include_directories(gadgetron_toolbox_nfft
+add_library(pingvin_toolbox_nfft INTERFACE)
+target_include_directories(pingvin_toolbox_nfft
         INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -14,4 +14,4 @@ install(FILES
     NFFT.hpp
     NFFTOperator.h
     NFFTOperator.hpp
-    DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
+    DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)

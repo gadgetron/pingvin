@@ -601,7 +601,7 @@ namespace Gadgetron {
                         meta[str.str()] = {im_header.user_float[i]};
                     }
 
-                    meta["gadgetron_sha1"] = {GADGETRON_SHA1};
+                    meta["gadgetron_sha1"] = {PINGVIN_SHA1};
 
                     meta["measurementID"] = {this->measurement_id_};
                     meta["protocolName"] = {this->protocol_name_};

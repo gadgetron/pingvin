@@ -5,32 +5,32 @@
 
     <gadget>
       <name>NoiseAdjust</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>NoiseAdjustGadget</classname>
     </gadget>
 
     <gadget>
       <name>ReconX</name>
-      <dll>gadgetron_epi</dll>
+      <dll>pingvin_epi</dll>
       <classname>EPIReconXGadget</classname>
     </gadget>
 
     <gadget>
       <name>EPICorr</name>
-      <dll>gadgetron_epi</dll>
+      <dll>pingvin_epi</dll>
       <classname>EPICorrGadget</classname>
     </gadget>
 
     <!-- FFT in X back to k -->
     <gadget>
         <name>FFTX</name>
-        <dll>gadgetron_epi</dll>
+        <dll>pingvin_epi</dll>
         <classname>FFTXGadget</classname>
     </gadget>
 
     <gadget>
         <name>AccTrig</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>AcquisitionAccumulateTriggerGadget</classname>
         <property>
             <name>trigger_dimension</name>
@@ -44,7 +44,7 @@
 
     <gadget>
         <name>Buff</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>BucketToBufferGadget</classname>
         <property>
             <name>N_dimension</name>
@@ -66,31 +66,31 @@
 
     <gadget>
       <name>FFT</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>FFTGadget</classname>
     </gadget>
 
     <gadget>
       <name>Combine</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>CombineGadget</classname>
     </gadget>
 
     <gadget>
       <name>Extract</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>ExtractGadget</classname>
     </gadget>
 
    <gadget>
       <name>AutoScale</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>AutoScaleGadget</classname>
     </gadget>
 
     <gadget>
       <name>FloatToShort</name>
-      <dll>gadgetron_mricore</dll>
+      <dll>pingvin_mricore</dll>
       <classname>FloatToUShortGadget</classname>
     </gadget>
 

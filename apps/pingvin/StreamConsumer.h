@@ -30,11 +30,11 @@ class ErrorThrower : public ErrorReporter
 
 std::filesystem::path find_config_path(const std::string& home_dir, const std::string& config_xml)
 {
-    auto config_path = std::filesystem::path(home_dir) / std::filesystem::path(GADGETRON_CONFIG_PATH) /
+    auto config_path = std::filesystem::path(home_dir) / std::filesystem::path(PINGVIN_CONFIG_PATH) /
                        std::filesystem::path(config_xml);
 
     if (!std::filesystem::is_regular_file(config_path)) {
-        throw std::runtime_error("Failed to find gadgetron configuration at the expected path: " +
+        throw std::runtime_error("Failed to find Pingvin configuration at the expected path: " +
                                  config_path.string());
     }
 

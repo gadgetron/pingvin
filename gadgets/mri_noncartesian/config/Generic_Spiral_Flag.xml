@@ -4,17 +4,17 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
     <!-- Noise prewhitening -->
-    <gadget><name>NoiseAdjust</name><dll>gadgetron_mricore</dll><classname>NoiseAdjustGadget</classname></gadget>
+    <gadget><name>NoiseAdjust</name><dll>pingvin_mricore</dll><classname>NoiseAdjustGadget</classname></gadget>
 
   <gadget>
     <name>PCA</name>
-    <dll>gadgetron_mricore</dll>
+    <dll>pingvin_mricore</dll>
     <classname>PCACoilGadget</classname>
   </gadget>
 
   <gadget>
     <name>CoilReduction</name>
-    <dll>gadgetron_mricore</dll>
+    <dll>pingvin_mricore</dll>
     <classname>CoilReductionGadget</classname>
     <property><name>coils_out</name><value>16</value></property>
   </gadget>
@@ -22,21 +22,21 @@
     <!-- Calculate spiral trajectory and attach -->
     <gadget>
         <name>SpiralToGeneric</name>
-        <dll>gadgetron_spiral</dll>
+        <dll>pingvin_spiral</dll>
         <classname>SpiralToGenericGadget</classname>
     </gadget>
 
     <!-- Data accumulation and trigger gadget -->
     <gadget>
         <name>AccTrig</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>FlagTriggerGadget</classname>
         <property><name>trigger_flags</name><value>last_in_slice || last_in_repetition</value></property>
     </gadget>
 
     <gadget>
         <name>BucketToBuffer</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>BucketToBufferGadget</classname>
         <property><name>N_dimension</name><value>phase</value></property>
         <property><name>S_dimension</name><value>set</value></property>
@@ -47,7 +47,7 @@
 
     <gadget>
         <name>CPUGriddingRecon</name>
-        <dll>gadgetron_mri_noncartesian</dll>
+        <dll>pingvin_mri_noncartesian</dll>
         <classname>CPUGriddingReconGadget</classname>
         <property><name>verbose</name><value>true</value></property>
         <property><name>perform_timing</name><value>true</value></property>
@@ -71,7 +71,7 @@
     <!-- Image Array Scaling -->
     <gadget>
         <name>Scaling</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>GenericReconImageArrayScalingGadget</classname>
 
         <!-- parameters for debug and timing -->
@@ -89,20 +89,20 @@
     <!-- ImageArray to images -->
     <gadget>
         <name>ImageArraySplit</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>ImageArraySplitGadget</classname>
     </gadget>
 
     <!-- after recon processing -->
     <gadget>
         <name>ComplexToFloatAttrib</name>
-        <dll>gadgetron_mricore</dll>
+        <dll>pingvin_mricore</dll>
         <classname>ComplexToFloatGadget</classname>
     </gadget>
 
     <!--<gadget>-->
         <!--<name>FloatToShortAttrib</name>-->
-        <!--<dll>gadgetron_mricore</dll>-->
+        <!--<dll>pingvin_mricore</dll>-->
         <!--<classname>FloatToUShortGadget</classname>-->
 
         <!--<property><name>max_intensity</name><value>32767</value></property>-->

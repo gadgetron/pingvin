@@ -40,25 +40,25 @@ add_custom_command(
     VERBATIM
 )
 
-add_library(gadgetron_mrd SHARED ${mrd_generated_files} include/gadgetron-arrays.h)
-add_library(mrd::mrd ALIAS gadgetron_mrd)
-set_target_properties(gadgetron_mrd PROPERTIES VERSION ${GADGETRON_VERSION_STRING} SOVERSION ${GADGETRON_SOVERSION})
-set_target_properties(gadgetron_mrd PROPERTIES LINKER_LANGUAGE CXX)
+add_library(pingvin_mrd SHARED ${mrd_generated_files} include/gadgetron-arrays.h)
+add_library(mrd::mrd ALIAS pingvin_mrd)
+set_target_properties(pingvin_mrd PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
+set_target_properties(pingvin_mrd PROPERTIES LINKER_LANGUAGE CXX)
 
-target_include_directories(gadgetron_mrd
+target_include_directories(pingvin_mrd
     PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>"
     PUBLIC "$<BUILD_INTERFACE:${mrd_include_dir}>"
 )
 
-target_link_libraries(gadgetron_mrd
+target_link_libraries(pingvin_mrd
     PUBLIC xtensor
     PUBLIC date::date
     PUBLIC nlohmann_json::nlohmann_json
-    gadgetron_toolbox_cpucore
+    pingvin_toolbox_cpucore
 )
 
-install(TARGETS gadgetron_mrd
-    EXPORT gadgetron-export
+install(TARGETS pingvin_mrd
+    EXPORT pingvin-export
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 	RUNTIME DESTINATION bin
@@ -66,7 +66,7 @@ install(TARGETS gadgetron_mrd
 )
 
 install(DIRECTORY ${mrd_generated_dir}
-    DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH}
+    DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH}
     COMPONENT Devel
     FILES_MATCHING PATTERN "*.h"
 )

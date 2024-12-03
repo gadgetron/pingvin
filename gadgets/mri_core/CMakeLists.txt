@@ -1,7 +1,7 @@
 set_source_files_properties(CompressedFloatBufferSse41.cpp PROPERTIES COMPILE_FLAGS "-msse4.1")
 set_source_files_properties(CompressedFloatBufferAvx2.cpp PROPERTIES COMPILE_FLAGS "-mavx2 -mfma")
 
-set(gadgetron_mricore_header_files
+set(pingvin_mricore_header_files
         AugmentImageMetadataGadget.h
         NoiseAdjustGadget.h
         PCACoilGadget.h
@@ -42,7 +42,7 @@ set(gadgetron_mricore_header_files
         # PartialFourierAdjustROGadget.h
         )
 
-set(gadgetron_mricore_src_files
+set(pingvin_mricore_src_files
         AugmentImageMetadataGadget.cpp
         NoiseAdjustGadget.cpp
         PCACoilGadget.cpp
@@ -83,12 +83,12 @@ set(gadgetron_mricore_src_files
         # PartialFourierAdjustROGadget.cpp
         )
 
-set(gadgetron_mricore_config_files
+set(pingvin_mricore_config_files
         config/default.xml
         config/default_optimized.xml
         config/default_measurement_dependencies.xml
         )
-set(gadgetron_mricore_generic_recon_gadgets_header_files
+set(pingvin_mricore_generic_recon_gadgets_header_files
         generic_recon_gadgets/GenericReconBase.h
         generic_recon_gadgets/GenericReconGadget.h
         generic_recon_gadgets/GenericReconCartesianGrappaGadget.h
@@ -114,7 +114,7 @@ set(gadgetron_mricore_generic_recon_gadgets_header_files
         # generic_recon_gadgets/GenericImageReconArrayToImageGadget.h
 )
 
-set(gadgetron_mricore_generic_recon_gadgets_src_files
+set(pingvin_mricore_generic_recon_gadgets_src_files
         generic_recon_gadgets/GenericReconBase.cpp
         generic_recon_gadgets/GenericReconGadget.cpp
         generic_recon_gadgets/GenericReconCartesianGrappaGadget.cpp
@@ -139,7 +139,7 @@ set(gadgetron_mricore_generic_recon_gadgets_src_files
         # generic_recon_gadgets/GenericImageReconArrayToImageGadget.cpp
 )
 
-set(gadgetron_mricore_generic_recon_gadgets_config_files
+set(pingvin_mricore_generic_recon_gadgets_config_files
         generic_recon_gadgets/config/Generic_Cartesian_FFT.xml
         generic_recon_gadgets/config/Generic_Cartesian_Grappa_Cine_Denoise.xml
         generic_recon_gadgets/config/Generic_Cartesian_Grappa_Complex.xml
@@ -172,62 +172,62 @@ if (BUILD_PYTHON_SUPPORT)
       ${NUMPY_INCLUDE_DIRS}
       )
 
-      set( gadgetron_mricore_generic_recon_gadgets_header_files ${gadgetron_mricore_generic_recon_gadgets_header_files} generic_recon_gadgets/GenericReconCartesianGrappaAIGadget.h)
-      set( gadgetron_mricore_generic_recon_gadgets_src_files ${gadgetron_mricore_generic_recon_gadgets_src_files} generic_recon_gadgets/GenericReconCartesianGrappaAIGadget.cpp)
-      set( gadgetron_mricore_generic_recon_gadgets_config_files ${gadgetron_mricore_generic_recon_gadgets_config_files} generic_recon_gadgets/config/Generic_Cartesian_Grappa_AI.xml)
-      set( gadgetron_python_models_files models/grappa_ai.py )
+      set( pingvin_mricore_generic_recon_gadgets_header_files ${pingvin_mricore_generic_recon_gadgets_header_files} generic_recon_gadgets/GenericReconCartesianGrappaAIGadget.h)
+      set( pingvin_mricore_generic_recon_gadgets_src_files ${pingvin_mricore_generic_recon_gadgets_src_files} generic_recon_gadgets/GenericReconCartesianGrappaAIGadget.cpp)
+      set( pingvin_mricore_generic_recon_gadgets_config_files ${pingvin_mricore_generic_recon_gadgets_config_files} generic_recon_gadgets/config/Generic_Cartesian_Grappa_AI.xml)
+      set( pingvin_python_models_files models/grappa_ai.py )
 endif ()
 
-add_library(gadgetron_mricore SHARED
-    ${gadgetron_mricore_header_files}
-    ${gadgetron_mricore_src_files}
-    ${gadgetron_mricore_config_files}
-    ${gadgetron_mricore_generic_recon_gadgets_header_files}
-    ${gadgetron_mricore_generic_recon_gadgets_src_files}
-    ${gadgetron_mricore_generic_recon_gadgets_config_files}
+add_library(pingvin_mricore SHARED
+    ${pingvin_mricore_header_files}
+    ${pingvin_mricore_src_files}
+    ${pingvin_mricore_config_files}
+    ${pingvin_mricore_generic_recon_gadgets_header_files}
+    ${pingvin_mricore_generic_recon_gadgets_src_files}
+    ${pingvin_mricore_generic_recon_gadgets_config_files}
 )
 
-set_target_properties(gadgetron_mricore PROPERTIES VERSION ${GADGETRON_VERSION_STRING} SOVERSION ${GADGETRON_SOVERSION})
+set_target_properties(pingvin_mricore PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
 
-target_link_libraries(gadgetron_mricore
-        gadgetron_core
-        gadgetron_toolbox_log
-        gadgetron_toolbox_cpucore
-        gadgetron_toolbox_cpufft
-        gadgetron_toolbox_image_analyze_io
-        gadgetron_toolbox_denoise
-        gadgetron_toolbox_cpuoperator
-        gadgetron_toolbox_cpuklt
-        gadgetron_toolbox_mri_core
+target_link_libraries(pingvin_mricore
+        pingvin_core
+        pingvin_toolbox_log
+        pingvin_toolbox_cpucore
+        pingvin_toolbox_cpufft
+        pingvin_toolbox_image_analyze_io
+        pingvin_toolbox_denoise
+        pingvin_toolbox_cpuoperator
+        pingvin_toolbox_cpuklt
+        pingvin_toolbox_mri_core
         )
 
-target_include_directories(gadgetron_mricore
+target_include_directories(pingvin_mricore
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 if (BUILD_PYTHON_SUPPORT)
-    target_link_libraries(gadgetron_mricore gadgetron_toolbox_python)
+    target_link_libraries(pingvin_mricore pingvin_toolbox_python)
 
-    install(FILES ${gadgetron_python_models_files}
-            DESTINATION ${GADGETRON_INSTALL_PYTHON_MODULE_PATH} COMPONENT main)
+    install(FILES ${pingvin_python_models_files}
+            DESTINATION ${PINGVIN_INSTALL_PYTHON_MODULE_PATH} COMPONENT main)
 endif ()
 
 install(FILES
-        ${gadgetron_mricore_header_files}
-        DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
+        ${pingvin_mricore_header_files}
+        DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)
 
 install(FILES
-        ${gadgetron_mricore_generic_recon_gadgets_header_files}
-        DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH}/generic_recon_gadgets COMPONENT main)
+        ${pingvin_mricore_generic_recon_gadgets_header_files}
+        DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH}/generic_recon_gadgets COMPONENT main)
 
 
 install(FILES
-        ${gadgetron_mricore_config_files}
-        ${gadgetron_mricore_generic_recon_gadgets_config_files}
-         DESTINATION ${GADGETRON_INSTALL_CONFIG_PATH} COMPONENT main)
+        ${pingvin_mricore_config_files}
+        ${pingvin_mricore_generic_recon_gadgets_config_files}
+         DESTINATION ${PINGVIN_INSTALL_CONFIG_PATH} COMPONENT main)
 
-install(TARGETS gadgetron_mricore
-        EXPORT gadgetron-export
+install(TARGETS pingvin_mricore
+        EXPORT pingvin-export
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
         RUNTIME DESTINATION bin

@@ -1,7 +1,7 @@
 
 #include "system_info.h"
 
-#include "gadgetron_config.h"
+#include "pingvin_config.h"
 #include "log.h"
 #include "Process.h"
 
@@ -26,12 +26,12 @@
 
 namespace Gadgetron::Main::Info {
 
-    std::string gadgetron_version() {
-        return GADGETRON_VERSION_STRING;
+    std::string pingvin_version() {
+        return PINGVIN_VERSION_STRING;
     }
 
-    std::string gadgetron_build() {
-        return GADGETRON_GIT_SHA1_HASH;
+    std::string pingvin_build() {
+        return PINGVIN_GIT_SHA1_HASH;
     }
 
     size_t system_memory() {
@@ -121,7 +121,7 @@ namespace Gadgetron::Main::Info {
             int device_count = CUDA::cuda_device_count();
 
             os << "  -- CUDA Support       : YES" << std::endl;
-            os << "  -- NVCC Flags         : " << GADGETRON_CUDA_NVCC_FLAGS << std::endl;
+            os << "  -- NVCC Flags         : " << PINGVIN_CUDA_NVCC_FLAGS << std::endl;
             os << "  -- CUDA Device count  : " << device_count << std::endl;
 
             for (int dev = 0; dev < device_count; dev++) {
@@ -167,9 +167,9 @@ namespace Gadgetron::Main::Info {
     } // namespace CUDA
 
     void print_system_information(std::ostream &os) {
-        os << "Gadgetron Version Info" << std::endl;
-        os << "  -- Version            : " << gadgetron_version().c_str() << std::endl;
-        os << "  -- Git SHA1           : " << gadgetron_build().c_str() << std::endl;
+        os << "Pingvin Version Info" << std::endl;
+        os << "  -- Version            : " << pingvin_version().c_str() << std::endl;
+        os << "  -- Git SHA1           : " << pingvin_build().c_str() << std::endl;
         os << "  -- System Memory size : " << std::to_string(system_memory() / (1024 * 1024)) << " MB" << std::endl;
         CUDA::print_cuda_information(os);
         os << std::endl;
@@ -188,7 +188,7 @@ namespace Gadgetron::Main::Info {
             if ((_NSGetExecutablePath(path, &size) == 0) && (realpath(path, resolved) != NULL)) {
                 return std::string(resolved);
             } else {
-                throw std::runtime_error("Could not determine location of Gadgetron binary.");
+                throw std::runtime_error("Could not determine location of Pingvin binary.");
             }
         }
     #else
@@ -199,7 +199,7 @@ namespace Gadgetron::Main::Info {
             ssize_t len = readlink("/proc/self/exe", buffer.get(), buffer_size);
 
             if (len < 0) {
-                throw std::runtime_error("Failed to read /proc/self/exe - cannot determine Gadgetron binary path.");
+                throw std::runtime_error("Failed to read /proc/self/exe - cannot determine Pingvin binary path.");
             }
 
             if (size_t(len) == buffer_size) {
@@ -212,9 +212,9 @@ namespace Gadgetron::Main::Info {
     #endif
     } // namespace
 
-    const boost::filesystem::path default_gadgetron_home() {
+    const boost::filesystem::path default_pingvin_home() {
 
-        const char *home = std::getenv("GADGETRON_HOME");
+        const char *home = std::getenv("PINGVIN_HOME");
 
         if (home != nullptr) {
             return boost::filesystem::path(home);
@@ -224,13 +224,13 @@ namespace Gadgetron::Main::Info {
 
         GDEBUG_STREAM("Executable path: " << executable_path);
 
-        boost::filesystem::path gadgetron_home = executable_path
+        boost::filesystem::path pingvin_home = executable_path
                 .parent_path()
                 .parent_path();
 
-        GDEBUG_STREAM("Default Gadgetron home: " << gadgetron_home);
+        GDEBUG_STREAM("Default Pingvin home: " << pingvin_home);
 
-        return gadgetron_home;
+        return pingvin_home;
     }
 
 } // namespace

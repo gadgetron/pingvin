@@ -1,23 +1,23 @@
-add_library(gadgetron_toolbox_denoise SHARED
+add_library(pingvin_toolbox_denoise SHARED
         non_local_means.cpp
         non_local_means.h
         non_local_bayes.cpp non_local_bayes.h)
 
-set_target_properties(gadgetron_toolbox_denoise PROPERTIES VERSION ${GADGETRON_VERSION_STRING} SOVERSION ${GADGETRON_SOVERSION})
+set_target_properties(pingvin_toolbox_denoise PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
 
-target_link_libraries(gadgetron_toolbox_denoise
-        gadgetron_toolbox_log
-        gadgetron_toolbox_cpucore
-        gadgetron_toolbox_cpucore_math
+target_link_libraries(pingvin_toolbox_denoise
+        pingvin_toolbox_log
+        pingvin_toolbox_cpucore
+        pingvin_toolbox_cpucore_math
         armadillo
         )
-target_include_directories(gadgetron_toolbox_denoise
+target_include_directories(pingvin_toolbox_denoise
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         )
 
-install(TARGETS gadgetron_toolbox_denoise
-		EXPORT gadgetron-export
+install(TARGETS pingvin_toolbox_denoise
+		EXPORT pingvin-export
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 	RUNTIME DESTINATION bin
@@ -27,4 +27,4 @@ install(TARGETS gadgetron_toolbox_denoise
 install(FILES
         non_local_means.h
         non_local_bayes.h
-        DESTINATION ${GADGETRON_INSTALL_INCLUDE_PATH} COMPONENT main)
+        DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)
