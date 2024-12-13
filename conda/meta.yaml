@@ -18,7 +18,6 @@ requirements:
     - cuda-libraries=12.3.0                      # [linux64]
     - cuda-nvcc=12.3.52                          # [linux64]
     - cuda-runtime=12.3.0                        # [linux64]
-    - dcmtk=3.6.1
     - fftw=3.3.9
     - gcc_linux-64=9.4.0                         # [linux64]
     - gmock=1.14.0
@@ -53,7 +52,6 @@ requirements:
     - boost=1.80.0
     - cuda-libraries=12.3.0                      # [linux64]
     - cuda-runtime=12.3.0                        # [linux64]
-    - dcmtk=3.6.1
     - fftw=3.3.9
     - h5py=3.7.0
     - hdf5=1.10.6

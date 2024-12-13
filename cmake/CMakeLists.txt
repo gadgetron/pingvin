@@ -5,7 +5,6 @@ install(FILES
     FindGperftools.cmake
     FindMKL.cmake
     FindOctave.cmake
-    FindPLplot.cmake
     FindCBLAS.cmake
     FindLAPACKE.cmake
     FindPugiXML.cmake

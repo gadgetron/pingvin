@@ -100,16 +100,3 @@ instance a chain which produces complex images can be converted to float images,
 ```bash
 mrd_phantom | pingvin -c Generic_Cartesian_Grappa_Complex.xml | pingvin -c stream_complex_to_float.xml | pingvin -c stream_float_to_short.xml -o reconstructed.mrd
 ```
-
-#### Using ISMRMRD input
-
-MR data in the ISMRMRD format must be converted to MRDv2 for compatibility with Pingvin.
-
-You can use the MRD <-> ISMRMRD HDF5/Stream conversion tools (or adapters) *inline* with Pingvin.
-Example:
-
-```bash
-ismrmrd_generate_cartesian_shepp_logan -r 10 -o testdata.h5
-
-ismrmrd_hdf5_to_stream -i testdata.h5 --use-stdout | ismrmrd_to_mrd | pingvin -c default.xml | mrd_to_ismrmrd | ismrmrd_stream_to_hdf5 --use-stdin -o reconstructed.h5
-```

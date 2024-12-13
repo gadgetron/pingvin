@@ -146,15 +146,12 @@ set(pingvin_mricore_generic_recon_gadgets_config_files
         generic_recon_gadgets/config/Generic_Cartesian_Grappa_EPI_AVE.xml
         generic_recon_gadgets/config/Generic_Cartesian_Grappa_EPI.xml
         generic_recon_gadgets/config/Generic_Cartesian_Grappa_ImageArray.xml
-        generic_recon_gadgets/config/Generic_Cartesian_Grappa_RealTimeCine_Cloud.xml
         generic_recon_gadgets/config/Generic_Cartesian_Grappa_RealTimeCine.xml
         generic_recon_gadgets/config/Generic_Cartesian_Grappa_SNR.xml
         generic_recon_gadgets/config/Generic_Cartesian_Grappa_T2W.xml
         generic_recon_gadgets/config/Generic_Cartesian_Grappa.xml
         generic_recon_gadgets/config/Generic_Cartesian_Image_Chain_FFT.xml
-        generic_recon_gadgets/config/Generic_Cartesian_NonLinear_Spirit_RealTimeCine_Cloud.xml
         generic_recon_gadgets/config/Generic_Cartesian_NonLinear_Spirit_RealTimeCine.xml
-        generic_recon_gadgets/config/Generic_Cartesian_RandomSampling_NonLinear_Spirit_RealTimeCine_Cloud.xml
         generic_recon_gadgets/config/Generic_Cartesian_RandomSampling_NonLinear_Spirit_RealTimeCine.xml
         generic_recon_gadgets/config/Generic_Cartesian_Spirit_RealTimeCine.xml
         generic_recon_gadgets/config/Generic_Cartesian_Spirit_SASHA.xml

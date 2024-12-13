@@ -48,9 +48,9 @@ else ()
 endif ()
 
 #VERSIONING AND INSTALL PATHS
-set(PINGVIN_VERSION_MAJOR 5)
-set(PINGVIN_VERSION_MINOR 0)
-set(PINGVIN_VERSION_PATCH 0.alpha.1)
+set(PINGVIN_VERSION_MAJOR 0)
+set(PINGVIN_VERSION_MINOR 1)
+set(PINGVIN_VERSION_PATCH 0)
 set(PINGVIN_VERSION_STRING ${PINGVIN_VERSION_MAJOR}.${PINGVIN_VERSION_MINOR}.${PINGVIN_VERSION_PATCH})
 set(PINGVIN_SOVERSION ${PINGVIN_VERSION_MAJOR}.${PINGVIN_VERSION_MINOR})
 find_package(Git)
@@ -217,11 +217,6 @@ install(TARGETS armadillo EXPORT pingvin-export)
 
 add_subdirectory(libmrd)
 
-if (CUDA_FOUND AND USE_CUDA)
-    # bart needs cuda
-    find_package(BART CONFIG QUIET)
-endif()
-
 find_package(FFTW3 REQUIRED COMPONENTS single double)
 add_library(FFTW INTERFACE)
 target_link_libraries(FFTW INTERFACE ${FFTW3_LIBRARIES})
@@ -293,8 +288,6 @@ if (BUILD_PYTHON_SUPPORT)
 
     install(TARGETS python EXPORT pingvin-export)
 endif()
-
-find_package(PLplot)
 
 option(BUILD_TESTING "Enable test building" On)
 if (BUILD_TESTING)

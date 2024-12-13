@@ -12,7 +12,6 @@ add_subdirectory(cmr)
 add_subdirectory(mri_image)
 
 add_subdirectory(klt)
-add_subdirectory(fatwater)
 add_subdirectory(deblur)
 add_subdirectory(nfft)
 add_subdirectory(dwt)
@@ -24,14 +23,9 @@ add_subdirectory(pattern_recognition)
 add_subdirectory(denoise)
 
 add_subdirectory(image_io)
-add_subdirectory(T1)
 
 if (BUILD_PYTHON_SUPPORT)
     add_subdirectory(python)
-endif ()
-
-if (ARMADILLO_FOUND AND Boost_FOUND AND PLPLOT_FOUND)
-    add_subdirectory(plplot)
 endif ()
 
 if(CUDA_FOUND)
@@ -77,10 +71,6 @@ if(CUDA_FOUND)
         fft/gpu/cuNDFFT.cpp
         fft/gpu/cuNDFFT.cu
         fft/gpu/cuNDFFT.h
-        mri/hyper/CSI_utils.cu
-        mri/hyper/CSI_utils.h
-        mri/hyper/CSIOperator.cpp
-        mri/hyper/CSIOperator.h
         mri/pmri/gpu/b1_map_NIH_Souheil.cu
         mri/pmri/gpu/b1_map.cu
         mri/pmri/gpu/b1_map.h
@@ -143,7 +133,6 @@ if(CUDA_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/core/gpu
         ${CMAKE_CURRENT_SOURCE_DIR}/dwt/gpu/
         ${CMAKE_CURRENT_SOURCE_DIR}/fft/gpu
-        ${CMAKE_CURRENT_SOURCE_DIR}/mri/hyper
         ${CMAKE_CURRENT_SOURCE_DIR}/mri/pmri/gpu
         ${CMAKE_CURRENT_SOURCE_DIR}/nfft/gpu
         ${CMAKE_CURRENT_SOURCE_DIR}/operators/gpu
@@ -207,8 +196,6 @@ if(CUDA_FOUND)
         fft/gpu/cuFFTPlan.h
         fft/gpu/cuFFTPlan.hpp
         fft/gpu/cuNDFFT.h
-        mri/hyper/CSI_utils.h
-        mri/hyper/CSIOperator.h
         mri/pmri/gpu/b1_map.h
         mri/pmri/gpu/cuBuffer.h
         mri/pmri/gpu/cuCartesianSenseOperator.h

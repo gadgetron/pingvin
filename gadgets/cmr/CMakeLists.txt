@@ -23,9 +23,7 @@ set( pingvin_cmr_src_files
 
 set( config_BinningCine_files
     config/BinningCine/CMR_2DT_RTCine_KspaceBinning.xml
-    config/BinningCine/CMR_2DT_RTCine_KspaceBinning_Cloud.xml
-    config/BinningCine/CMR_2DT_RTCine_KspaceBinning_MultiSeries.xml
-    config/BinningCine/CMR_2DT_RTCine_KspaceBinning_MultiSeries_Cloud.xml )
+    config/BinningCine/CMR_2DT_RTCine_KspaceBinning_MultiSeries.xml)
 
 source_group(config/BinningCine FILES ${config_BinningCine_files})
 

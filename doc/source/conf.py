@@ -43,10 +43,10 @@ if read_the_docs_build:
 
 project = 'Pingvin'
 copyright = '2024 Gadgetron'
-author = 'Gadgetron Developers'
+author = 'Pingvin Developers'
 
 # The full version, including alpha/beta/rc tags
-release = '4.0'
+release = '0.1.0'
 
 
 # -- General configuration ---------------------------------------------------
