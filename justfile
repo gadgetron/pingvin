@@ -22,4 +22,4 @@ unit-test: build
     cd build && ctest
 
 e2e-test: install
-    cd test/e2e && pytest
+    cd test/e2e && pytest --download-all

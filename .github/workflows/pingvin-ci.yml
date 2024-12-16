@@ -53,7 +53,7 @@ jobs:
           test_command=". /opt/conda/etc/profile.d/conda.sh \
               && conda activate pingvin \
               && cd /opt/e2e-test/ \
-              && pytest --echo-log-on-failure"
+              && pytest --download-all --echo-log-on-failure"
           docker run --rm --gpus=all --entrypoint /bin/bash "${image_name}" -c "$test_command"
 
   publish-docker-images:

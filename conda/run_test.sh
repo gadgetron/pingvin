@@ -6,4 +6,4 @@ cd test/e2e/
 test -d cases
 test -f conftest.py
 
-pytest
+pytest --download-all
