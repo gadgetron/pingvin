@@ -18,8 +18,12 @@
 #include <boost/algorithm/string/split.hpp>
 #include <typeinfo>
 
+#include <filesystem>
+
+
 using namespace std::string_literals;
 namespace bf = boost::filesystem;
+namespace po = boost::program_options;
 
 namespace Gadgetron {
     namespace {
@@ -177,8 +181,45 @@ namespace Gadgetron {
         }
     }
 
+    void NoiseAdjustGadget::install_cli(po::options_description& options) {
+        // TODO
+        options.add_options()
+            ("noisecovariancein", po::value<std::string>(&noise_covariance_in), "Input noise covariance matrix")
+            ("noisecovarianceout", po::value<std::string>(&noise_covariance_out), "Output noise covariance matrix")
+            ;
+    }
+
+    void NoiseAdjustGadget::initialize_(const Core::Context& context) {
+        this->current_mrd_header = context.header;
+        this->receiver_noise_bandwidth = bandwidth_from_header(context.header);
+        this->measurement_id = measurement_id_from_header(context.header);
+
+        if (!perform_noise_adjust)
+            return;
+
+        GDEBUG("perform_noise_adjust_ is %d\n", perform_noise_adjust);
+        GDEBUG("pass_nonconformant_data_ is %d\n", pass_nonconformant_data);
+        GDEBUG("receiver_noise_bandwidth_ is %f\n", receiver_noise_bandwidth);
+
+#ifdef USE_OMP
+        omp_set_num_threads(1);
+#endif // USE_OMP
+
+        // if (context.parameters.find("noisecovariancein") != context.parameters.end()) {
+        //     noise_covariance_in = context.parameters.at("noisecovariancein");
+        //     GDEBUG_STREAM("Input noise covariance matrix is provided as a parameter: " << noise_covariance_in);
+        // }
+
+        // if (context.parameters.find("noisecovarianceout") != context.parameters.end()) {
+        //     noise_covariance_out = context.parameters.at("noisecovarianceout");
+        //     GDEBUG_STREAM("Output noise covariance matrix is provided as a parameter: " << noise_covariance_out);
+        // }
+
+        noisehandler = load_or_gather();
+    }
+
     NoiseAdjustGadget::NoiseAdjustGadget(const Core::Context& context, const Core::GadgetProperties& props)
-        : Core::ChannelGadget<mrd::Acquisition>(context, props)
+        : Core::NewChannelGadget<mrd::Acquisition>(context, props)
         , current_mrd_header(context.header)
         , receiver_noise_bandwidth{ bandwidth_from_header(context.header) }
         , measurement_id{ measurement_id_from_header(context.header) }
@@ -421,6 +462,6 @@ namespace Gadgetron {
         return std::nullopt;
     }
 
-    GADGETRON_GADGET_EXPORT(NoiseAdjustGadget)
+GADGETRON_GADGET_EXPORT(NoiseAdjustGadget)
 
 } // namespace Gadgetron

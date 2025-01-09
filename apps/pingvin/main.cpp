@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <boost/program_options.hpp>
 
 #include "log.h"
@@ -12,7 +12,7 @@
 #include "StreamConsumer.h"
 
 
-using namespace boost::filesystem;
+using namespace std::filesystem;
 using namespace boost::program_options;
 using namespace Gadgetron::Main;
 

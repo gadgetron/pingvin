@@ -9,7 +9,11 @@ namespace Gadgetron::Main::Nodes {
     class ParallelProcess : public Processable {
 
     public:
+        ParallelProcess(const Config::ParallelProcess& conf, const Core::Context& context)
+            :  pureStream{ conf.stream, context }, workers{ conf.workers } {}
+
         ParallelProcess(const Config::ParallelProcess& conf, const Core::Context& context, Loader& loader);
+
         void process(Core::GenericInputChannel input, Core::OutputChannel output, ErrorHandler& error_handler) override;
         const std::string& name() override;
     private:

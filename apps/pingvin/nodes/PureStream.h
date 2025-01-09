@@ -7,6 +7,7 @@
 namespace Gadgetron::Main::Nodes {
     class PureStream {
     public:
+        PureStream(const Config::PureStream&, const Core::Context&) {}
         PureStream(const Config::PureStream&, const Core::Context&, Loader&);
         Core::Message process_function(Core::Message) const;
 

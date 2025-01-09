@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ostream>
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 namespace Gadgetron::Main::Info {
 
@@ -14,7 +14,7 @@ namespace Gadgetron::Main::Info {
     bool python_support();
     bool matlab_support();
 
-    const boost::filesystem::path default_pingvin_home();
+    const std::filesystem::path default_pingvin_home();
 
     namespace CUDA {
         bool cuda_support();

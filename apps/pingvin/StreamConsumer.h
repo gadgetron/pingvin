@@ -5,7 +5,6 @@
 #include <thread>
 
 #include <boost/asio.hpp>
-#include <boost/filesystem/path.hpp>
 #include <boost/program_options/variables_map.hpp>
 
 #include <mrd/binary/protocols.h>
@@ -14,12 +13,15 @@
 #include "ErrorHandler.h"
 #include "Loader.h"
 
+#include "Node.h"
+
+#include "pingvin_config.h"
+
 using namespace Gadgetron::Core;
 using namespace Gadgetron::Main;
 
 namespace
 {
-
 class ErrorThrower : public ErrorReporter
 {
   public:
@@ -41,6 +43,26 @@ std::filesystem::path find_config_path(const std::string& home_dir, const std::s
     return config_path;
 }
 
+    class NewNodeProcessable : public Processable {
+    public:
+        NewNodeProcessable(const std::shared_ptr<Gadgetron::Core::Node>& node, std::string name) : node_(node), name_(std::move(name)) {}
+
+        void process(GenericInputChannel input,
+                OutputChannel output,
+                ErrorHandler &
+        ) override {
+            node_->process(input, output);
+        }
+
+        const std::string& name() override {
+            return name_;
+        }
+
+    private:
+        std::shared_ptr<Gadgetron::Core::Node> node_;
+        const std::string name_;
+    };
+
 } // namespace
 
 class StreamConsumer
@@ -53,7 +75,9 @@ public:
     void consume(std::istream& input_stream, std::ostream& output_stream, std::string config_xml_name)
     {
         Context::Paths paths{
-            args_["home"].as<boost::filesystem::path>().string()
+            (args_.count("home"))
+                ? args_["home"].as<std::filesystem::path>().string()
+                : "/opt/pingvin"
         };
 
         mrd::binary::MrdReader mrd_reader(input_stream);
@@ -63,7 +87,7 @@ public:
 
         auto context = StreamContext(hdr, paths, args_);
         auto loader = Loader(context);
-        auto config_path = find_config_path(args_["home"].as<boost::filesystem::path>().string(), config_xml_name);
+        auto config_path = find_config_path(args_["home"].as<std::filesystem::path>().string(), config_xml_name);
 
         GINFO_STREAM("Loading configuration from: " << config_path.string());
         std::ifstream file(config_path, std::ios::in | std::ios::binary);
@@ -73,8 +97,13 @@ public:
 
         auto config = Config::parse(file);
         file.close();
-
         auto stream = loader.load(config.stream);
+
+        consume_stream(mrd_reader, mrd_writer, stream);
+    }
+
+    void consume_stream(mrd::binary::MrdReader& mrd_reader, mrd::binary::MrdWriter& mrd_writer, const std::unique_ptr<Nodes::Stream>& stream)
+    {
         auto input_channel = make_channel<MessageChannel>();
         auto output_channel = make_channel<MessageChannel>();
         std::atomic<bool> processing = true;
@@ -121,7 +150,6 @@ public:
         process_future.get();
     }
 
-  private:
 
     mrd::Header consume_mrd_header(mrd::binary::MrdReader& mrd_reader, mrd::binary::MrdWriter& mrd_writer)
     {
@@ -135,6 +163,8 @@ public:
         }
         return hdr.value();
     }
+
+  private:
 
     void consume_input_stream(mrd::binary::MrdReader& mrd_reader, ChannelPair& input_channel)
     {

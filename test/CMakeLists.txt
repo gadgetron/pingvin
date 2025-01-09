@@ -78,6 +78,7 @@ target_link_libraries(test_all
         pingvin_toolbox_cpusdc
         ${GTEST_LIBRARIES}
         GTest::gmock
+        Boost::program_options
     )
 
 if (BUILD_PYTHON_SUPPORT)

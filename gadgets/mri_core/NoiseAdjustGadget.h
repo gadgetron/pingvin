@@ -26,13 +26,21 @@ namespace Gadgetron {
 
     struct IgnoringNoise {};
 
-    class NoiseAdjustGadget : public Core::ChannelGadget<mrd::Acquisition> {
+    // class NoiseAdjustGadget : public Core::ChannelGadget<mrd::Acquisition> {
+    class NoiseAdjustGadget : public Core::NewChannelGadget<mrd::Acquisition> {
     public:
+        NoiseAdjustGadget(): Core::NewChannelGadget<mrd::Acquisition>() {}
+
         NoiseAdjustGadget(const Core::Context& context, const Core::GadgetProperties& props);
+
+        void install_cli(po::options_description& options) override;
 
         void process(Core::InputChannel<mrd::Acquisition>& in, Core::OutputChannel& out) override;
 
         using NoiseHandler = std::variant<NoiseGatherer, LoadedNoise, Prewhitener, IgnoringNoise>;
+
+        virtual std::string name() override { return "NoiseAdjustGadget"; }
+        virtual std::string description() override { return "Adjusts noise in the data"; }
 
     protected:
         NODE_PROPERTY(perform_noise_adjust, bool, "Whether to actually perform the noise adjust", true);
@@ -40,13 +48,18 @@ namespace Gadgetron {
         NODE_PROPERTY(noise_dwell_time_us_preset, float, "Preset dwell time for noise measurement", 0.0);
         NODE_PROPERTY(scale_only_channels_by_name, std::string, "List of named channels that should only be scaled", "");
 
-        const float receiver_noise_bandwidth;
+        void initialize_(const Core::Context& context) override;
 
-        const std::string measurement_id;
+        // const float receiver_noise_bandwidth;
+        float receiver_noise_bandwidth;
+
+        // const std::string measurement_id;
+        std::string measurement_id;
         std::vector<size_t> scale_only_channels;
 
         // We will store/load a copy of the noise scans XML header to enable us to check which coil layout, etc.
-        const mrd::Header current_mrd_header;
+        // const mrd::Header current_mrd_header;
+        mrd::Header current_mrd_header;
 
         NoiseHandler noisehandler = IgnoringNoise{};
 

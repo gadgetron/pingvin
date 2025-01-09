@@ -11,7 +11,7 @@
 #include <pwd.h>
 #include <sstream>
 #include <memory>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 #if defined(BSD)
 #include <sys/sysctl.h>
@@ -212,19 +212,19 @@ namespace Gadgetron::Main::Info {
     #endif
     } // namespace
 
-    const boost::filesystem::path default_pingvin_home() {
+    const std::filesystem::path default_pingvin_home() {
 
         const char *home = std::getenv("PINGVIN_HOME");
 
         if (home != nullptr) {
-            return boost::filesystem::path(home);
+            return std::filesystem::path(home);
         }
 
-        boost::filesystem::path executable_path = get_executable_path();
+        std::filesystem::path executable_path = get_executable_path();
 
         GDEBUG_STREAM("Executable path: " << executable_path);
 
-        boost::filesystem::path pingvin_home = executable_path
+        std::filesystem::path pingvin_home = executable_path
                 .parent_path()
                 .parent_path();
 

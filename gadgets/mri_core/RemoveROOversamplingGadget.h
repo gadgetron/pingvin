@@ -13,14 +13,20 @@
 #endif // USE_OMP
 
 namespace Gadgetron {
-class RemoveROOversamplingGadget : public Core::ChannelGadget<mrd::Acquisition> {
+class RemoveROOversamplingGadget : public Core::NewChannelGadget<mrd::Acquisition> {
   public:
-    using Core::ChannelGadget<mrd::Acquisition>::ChannelGadget;
+    using Core::NewChannelGadget<mrd::Acquisition>::NewChannelGadget;
+
+    RemoveROOversamplingGadget() {};
     RemoveROOversamplingGadget(const Core::Context& context, const Core::GadgetProperties& props);
     ~RemoveROOversamplingGadget() override = default;
     void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& output) override;
 
+    void install_cli(po::options_description& options) override;
+
   protected:
+    void initialize_(const Core::Context& context) override;
+
     hoNDArray<std::complex<float>> fft_res_;
     hoNDArray<std::complex<float>> ifft_res_;
 

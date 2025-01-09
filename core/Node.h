@@ -5,6 +5,7 @@
 #include "Context.h"
 #include <boost/dll/alias.hpp>
 
+namespace po = boost::program_options;
 namespace Gadgetron::Core {
 
     /**
@@ -55,6 +56,29 @@ namespace Gadgetron::Core {
          * @param out Channel of output
          */
         virtual void process(InputChannel<TYPELIST...>& in, OutputChannel& out) = 0;
+    };
+
+    template <class... TYPELIST> class NewChannelGadget : public ChannelGadget<TYPELIST...> {
+    public:
+        using ChannelGadget<TYPELIST...>::ChannelGadget;
+
+        NewChannelGadget(): ChannelGadget<TYPELIST...>(Context{}, GadgetProperties{}) {
+            GDEBUG_STREAM("NewChannelGadget created");
+        }
+
+        virtual void install_cli(po::options_description& options) = 0;
+
+        void initialize(const Core::Context& context, const GadgetProperties& properties) {
+            // this->context = context;
+            this->properties = properties;
+            this->initialize_(context);
+        }
+
+        virtual std::string name() { return "Unnamed"; }
+        virtual std::string description() { return "Unknown description"; }
+
+    protected:
+        virtual void initialize_(const Context& context) = 0;
     };
 
 }

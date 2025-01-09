@@ -20,8 +20,10 @@ namespace Gadgetron::Core {
             return IO::from_string<T>(properties.at(name));
         }
 
-    private:
-        const GadgetProperties properties;
+    /** TODO: These are no longer private or const, so they can be initialized *after* the Node has been constructed */
+    // private:
+    //     const GadgetProperties properties;
+        GadgetProperties properties;
     };
 
     template<>

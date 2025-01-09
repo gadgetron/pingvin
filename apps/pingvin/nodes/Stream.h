@@ -20,7 +20,10 @@ namespace Gadgetron::Main::Nodes {
     class Stream : public Processable {
     public:
         const std::string key;
-        Stream(const Config::Stream &, const Core::StreamContext &, Loader &);
+        Stream(const Config::Stream& config, const Core::StreamContext&) : key(config.key) {}
+        Stream(const Config::Stream&, const Core::StreamContext&, Loader &);
+
+        Stream(std::vector<std::shared_ptr<Processable>> nodes): nodes(std::move(nodes)), key("TODO") {}
 
         void process(
                 Core::GenericInputChannel input,

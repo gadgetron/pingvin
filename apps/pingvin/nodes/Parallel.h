@@ -19,6 +19,7 @@ namespace Gadgetron::Main::Nodes {
         using Merge  = Core::Parallel::Merge;
 
     public:
+        Parallel(const Config::Parallel &, const Core::StreamContext &) {}
         Parallel(const Config::Parallel &, const Core::StreamContext &, Loader &);
 
         void process(

@@ -4,8 +4,6 @@
 #include "ParallelProcess.h"
 #include "Processable.h"
 
-#include "Loader.h"
-
 #include "Node.h"
 
 namespace {

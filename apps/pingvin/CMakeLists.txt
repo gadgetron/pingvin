@@ -14,6 +14,8 @@ add_executable(pingvin
         Config.cpp
         Config.h
 
+        StreamConsumer.h
+
         ErrorHandler.h
 
         nodes/Processable.h
@@ -43,7 +45,9 @@ target_link_libraries(pingvin
 target_include_directories(pingvin
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR})
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${CMAKE_SOURCE_DIR}
+        )
 
 
 if (REQUIRE_SIGNED_CONFIG)
