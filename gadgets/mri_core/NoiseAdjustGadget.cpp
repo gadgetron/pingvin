@@ -182,10 +182,13 @@ namespace Gadgetron {
     }
 
     void NoiseAdjustGadget::install_cli(po::options_description& options) {
-        // TODO
         options.add_options()
-            ("noisecovariancein", po::value<std::string>(&noise_covariance_in), "Input noise covariance matrix")
-            ("noisecovarianceout", po::value<std::string>(&noise_covariance_out), "Output noise covariance matrix")
+            ("noise_covariance_in", po::value<std::string>(&noise_covariance_in), "Input noise covariance matrix")
+            ("noise_covariance_out", po::value<std::string>(&noise_covariance_out), "Output noise covariance matrix")
+            ("perform_noise_adjust", po::value<bool>(&perform_noise_adjust)->default_value(true), "Whether to actually perform the noise adjust")
+            ("pass_nonconformant_data", po::value<bool>(&pass_nonconformant_data)->default_value(true), "Whether to pass data that does not conform")
+            ("noise_dwell_time_us_preset", po::value<float>(&noise_dwell_time_us_preset)->default_value(0.0), "Preset dwell time for noise measurement")
+            ("scale_only_channels_by_name", po::value<std::string>(&scale_only_channels_by_name), "List of named channels that should only be scaled")
             ;
     }
 
@@ -194,12 +197,12 @@ namespace Gadgetron {
         this->receiver_noise_bandwidth = bandwidth_from_header(context.header);
         this->measurement_id = measurement_id_from_header(context.header);
 
-        if (!perform_noise_adjust)
-            return;
-
         GDEBUG("perform_noise_adjust_ is %d\n", perform_noise_adjust);
         GDEBUG("pass_nonconformant_data_ is %d\n", pass_nonconformant_data);
         GDEBUG("receiver_noise_bandwidth_ is %f\n", receiver_noise_bandwidth);
+
+        if (!perform_noise_adjust)
+            return;
 
 #ifdef USE_OMP
         omp_set_num_threads(1);
@@ -219,7 +222,7 @@ namespace Gadgetron {
     }
 
     NoiseAdjustGadget::NoiseAdjustGadget(const Core::Context& context, const Core::GadgetProperties& props)
-        : Core::NewChannelGadget<mrd::Acquisition>(context, props)
+        : Core::ChannelGadget<mrd::Acquisition>(context, props)
         , current_mrd_header(context.header)
         , receiver_noise_bandwidth{ bandwidth_from_header(context.header) }
         , measurement_id{ measurement_id_from_header(context.header) }

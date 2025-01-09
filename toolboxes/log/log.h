@@ -190,7 +190,9 @@ namespace Gadgetron
 #define GDEBUG_CONDITION_STREAM(con, message) { if ( con ) GDEBUG_STREAM(message) }
 #define GWARN_CONDITION_STREAM(con, message) { if ( con ) GWARN_STREAM(message) }
 
-#define GADGET_THROW(msg) { GERROR_STREAM(msg); throw std::runtime_error(msg); }
+// #define GADGET_THROW(msg) { GERROR_STREAM(msg); throw std::runtime_error(msg); }
+#define GADGET_THROW(msg) { GERROR_STREAM(msg); throw std::runtime_error(std::string(__FILE__) + ":" + std::to_string(__LINE__) + " -- " + msg); }
+
 #define GADGET_CHECK_THROW(con) { if ( !(con) ) { GERROR_STREAM(#con); throw std::runtime_error(#con); } }
 
 #define GADGET_CATCH_THROW(con) { try { con; } catch(...) { GERROR_STREAM(#con); throw std::runtime_error(#con); } }

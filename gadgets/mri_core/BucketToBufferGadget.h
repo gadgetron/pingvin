@@ -19,8 +19,11 @@ namespace Gadgetron {
 
     class BucketToBufferGadget : public Core::ChannelGadget<mrd::AcquisitionBucket> {
     public:
-        BucketToBufferGadget(const Core::Context& context, const Core::GadgetProperties& props);
+        // BucketToBufferGadget(const Core::Context& context, const Core::GadgetProperties& props);
+        using Core::ChannelGadget<mrd::AcquisitionBucket>::ChannelGadget;
         enum class Dimension { average, contrast, phase, repetition, set, segment, slice, none };
+
+        virtual void install_cli(po::options_description& desc) override;
 
     struct BufferKey {
         uint32_t average,slice,contrast,phase,repetition,set,segment;
@@ -43,8 +46,6 @@ namespace Gadgetron {
         NODE_PROPERTY(split_slices, bool, "Split slices", false);
         NODE_PROPERTY(ignore_segment, bool, "Ignore segment", false);
         NODE_PROPERTY(verbose, bool, "Whether to print more information", false);
-
-        mrd::Header header;
 
         void process(Core::InputChannel<mrd::AcquisitionBucket>& in, Core::OutputChannel& out) override;
         BufferKey getKey(const mrd::EncodingCounters& idx) const;

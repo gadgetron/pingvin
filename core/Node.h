@@ -21,6 +21,7 @@ namespace Gadgetron::Core {
          * @param out Channel in which messages are sent on downstream
          */
         virtual void process(GenericInputChannel& in, OutputChannel& out) = 0;
+
     };
 
     class GenericChannelGadget : public Node, public PropertyMixin {
@@ -29,8 +30,25 @@ namespace Gadgetron::Core {
 
 //        [[deprecated("ChannelGadget should be called with both context and properties")]]
 //        GenericChannelGadget(const GadgetProperties& properties) : PropertyMixin(properties) {}
+
+        GenericChannelGadget() : PropertyMixin(GadgetProperties{}) {}
+
+        void initialize(const Core::Context& context, const GadgetProperties& properties) {
+            this->properties = properties;
+            this->header = context.header;
+            this->initialize_(context);
+        }
+
+        virtual void install_cli(po::options_description& options) {}
+        virtual std::string name() { return "Unnamed"; }
+        virtual std::string description() { return "Unknown description"; }
+
     protected:
-        const mrd::Header header ={};
+        virtual void initialize_(const Context& context) {}
+
+        /** TODO: No longer const, so it can be set in `initialize()` after construction */
+        // const mrd::Header header ={};
+        mrd::Header header ={};
     };
 
     /**
@@ -44,8 +62,12 @@ namespace Gadgetron::Core {
 
         using GenericChannelGadget::GenericChannelGadget;
 
+        ChannelGadget(): GenericChannelGadget(Context{}, GadgetProperties{}) {
+            GDEBUG_STREAM("ChannelGadget created");
+        }
+
         ///
-        void process(GenericInputChannel& in, OutputChannel& out) final {
+        void process(GenericInputChannel& in, OutputChannel& out) override final {
             auto typed_input = InputChannel<TYPELIST...>(in, out);
             this->process(typed_input, out);
         }
@@ -57,30 +79,6 @@ namespace Gadgetron::Core {
          */
         virtual void process(InputChannel<TYPELIST...>& in, OutputChannel& out) = 0;
     };
-
-    template <class... TYPELIST> class NewChannelGadget : public ChannelGadget<TYPELIST...> {
-    public:
-        using ChannelGadget<TYPELIST...>::ChannelGadget;
-
-        NewChannelGadget(): ChannelGadget<TYPELIST...>(Context{}, GadgetProperties{}) {
-            GDEBUG_STREAM("NewChannelGadget created");
-        }
-
-        virtual void install_cli(po::options_description& options) = 0;
-
-        void initialize(const Core::Context& context, const GadgetProperties& properties) {
-            // this->context = context;
-            this->properties = properties;
-            this->initialize_(context);
-        }
-
-        virtual std::string name() { return "Unnamed"; }
-        virtual std::string description() { return "Unknown description"; }
-
-    protected:
-        virtual void initialize_(const Context& context) = 0;
-    };
-
 }
 
 #define GADGETRON_GADGET_EXPORT(GadgetClass)                                    \

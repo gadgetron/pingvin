@@ -34,7 +34,7 @@ class Pipeline {
     Pipeline(std::string name, std::string description) : name_(name), description_(description) {}
     virtual ~Pipeline() = default;
 
-    using TempGadget = NewChannelGadget<mrd::Acquisition>;
+    // using TempGadget = NewChannelGadget<mrd::Acquisition>;
 
     // class Builder {
     // public:
@@ -162,7 +162,7 @@ class Pipeline {
     std::string name_;
     std::string description_;
 
-    std::vector<std::shared_ptr<TempGadget>> gadgets_;
+    std::vector<std::shared_ptr<GenericChannelGadget>> gadgets_;
     std::vector<std::shared_ptr<Processable>> processables_;
 };
 

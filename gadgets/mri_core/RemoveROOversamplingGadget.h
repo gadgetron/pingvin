@@ -13,9 +13,9 @@
 #endif // USE_OMP
 
 namespace Gadgetron {
-class RemoveROOversamplingGadget : public Core::NewChannelGadget<mrd::Acquisition> {
+class RemoveROOversamplingGadget : public Core::ChannelGadget<mrd::Acquisition> {
   public:
-    using Core::NewChannelGadget<mrd::Acquisition>::NewChannelGadget;
+    using Core::ChannelGadget<mrd::Acquisition>::ChannelGadget;
 
     RemoveROOversamplingGadget() {};
     RemoveROOversamplingGadget(const Core::Context& context, const Core::GadgetProperties& props);

@@ -4,6 +4,11 @@
 
 #include "gadgets/mri_core/NoiseAdjustGadget.h"
 #include "gadgets/mri_core/RemoveROOversamplingGadget.h"
+#include "gadgets/mri_core/AcquisitionAccumulateTriggerGadget.h"
+#include "gadgets/mri_core/BucketToBufferGadget.h"
+#include "gadgets/mri_core/SimpleReconGadget.h"
+#include "gadgets/mri_core/ImageArraySplitGadget.h"
+#include "gadgets/mri_core/ExtractGadget.h"
 
 namespace pingvin {
 
@@ -20,8 +25,13 @@ class Default : public Pipeline {
         //     .append<Gadgetron::RemoveROOversamplingGadget>()
         //     .build();
 
-        this->append<Gadgetron::NoiseAdjustGadget>();
+        // this->append<Gadgetron::NoiseAdjustGadget>();
         this->append<Gadgetron::RemoveROOversamplingGadget>();
+        this->append<Gadgetron::AcquisitionAccumulateTriggerGadget>();
+        this->append<Gadgetron::BucketToBufferGadget>();
+        this->append<Gadgetron::SimpleReconGadget>();
+        this->append<Gadgetron::ImageArraySplitGadget>();
+        this->append<Gadgetron::ExtractGadget>();
     }
 };
 

@@ -133,6 +133,7 @@ namespace Gadgetron {
 
         buckets.clear();
     }
+
     void AcquisitionAccumulateTriggerGadget::process(Core::InputChannel<std::variant<mrd::Acquisition, mrd::WaveformUint32>>& in, Core::OutputChannel& out)
     {
         auto waveforms = std::vector<mrd::WaveformUint32>{};
@@ -168,6 +169,16 @@ namespace Gadgetron {
         GDEBUG_STREAM("AcquisitionAccumulateTriggerGadget processed " << count << " Acquisitions total");
         send_data(out, buckets, waveforms);
     }
+
+    void AcquisitionAccumulateTriggerGadget::install_cli(po::options_description& desc)
+    {
+        desc.add_options()
+            ("trigger_dimension", po::value<TriggerDimension>(&trigger_dimension)->default_value(TriggerDimension::none), "Dimension to trigger on")
+            ("sorting_dimension", po::value<TriggerDimension>(&sorting_dimension)->default_value(TriggerDimension::none), "Dimension to sort on")
+            ("n_acquisitions_before_trigger", po::value<unsigned long>(&n_acquisitions_before_trigger)->default_value(40), "Number of acquisitions before first trigger")
+            ("n_acquisitions_before_ongoing_trigger", po::value<unsigned long>(&n_acquisitions_before_ongoing_trigger)->default_value(40), "Number of acquisitions before ongoing triggers");
+    }
+
     GADGETRON_GADGET_EXPORT(AcquisitionAccumulateTriggerGadget);
 
     namespace {
@@ -190,6 +201,33 @@ namespace Gadgetron {
         auto lower = str;
         boost::to_lower(lower);
         trigger = triggerdimension_from_name.at(lower);
+    }
+
+    std::ostream& operator<<(std::ostream& out, const TriggerDimension& param) {
+        for (auto it = triggerdimension_from_name.begin(); it != triggerdimension_from_name.end(); ++it) {
+            if (it->second == param) {
+                out << it->first;
+                break;
+            }
+        }
+        return out;
+    }
+
+    void validate(boost::any& v, const std::vector<std::string>& values, TriggerDimension*, int)
+    {
+        // Make sure no previous assignment to 'a' was made.
+        po::validators::check_first_occurrence(v);
+        // Extract the first string from 'values'. If there is more than
+        // one string, it's an error, and exception will be thrown.
+        const std::string& s = po::validators::get_single_string(values);
+
+        TriggerDimension td;
+        try {
+            Gadgetron::from_string(s, td);
+        } catch (std::exception& e) {
+            throw po::validation_error(po::validation_error::invalid_option_value);
+        }
+        v = boost::any(td);
     }
 
 } // namespace Gadgetron

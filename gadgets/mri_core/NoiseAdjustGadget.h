@@ -26,11 +26,9 @@ namespace Gadgetron {
 
     struct IgnoringNoise {};
 
-    // class NoiseAdjustGadget : public Core::ChannelGadget<mrd::Acquisition> {
-    class NoiseAdjustGadget : public Core::NewChannelGadget<mrd::Acquisition> {
+    class NoiseAdjustGadget : public Core::ChannelGadget<mrd::Acquisition> {
     public:
-        NoiseAdjustGadget(): Core::NewChannelGadget<mrd::Acquisition>() {}
-
+        using Core::ChannelGadget<mrd::Acquisition>::ChannelGadget;
         NoiseAdjustGadget(const Core::Context& context, const Core::GadgetProperties& props);
 
         void install_cli(po::options_description& options) override;

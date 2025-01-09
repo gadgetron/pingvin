@@ -8,6 +8,11 @@ add_executable(emperor
 
         ../../gadgets/mri_core/NoiseAdjustGadget.cpp
         ../../gadgets/mri_core/RemoveROOversamplingGadget.cpp
+        ../../gadgets/mri_core/AcquisitionAccumulateTriggerGadget.cpp
+        ../../gadgets/mri_core/BucketToBufferGadget.cpp
+        ../../gadgets/mri_core/SimpleReconGadget.cpp
+        ../../gadgets/mri_core/ImageArraySplitGadget.cpp
+        ../../gadgets/mri_core/ExtractGadget.cpp
 
         ../pingvin/StreamConsumer.h
 

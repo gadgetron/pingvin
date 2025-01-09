@@ -6,7 +6,8 @@ namespace Gadgetron {
 
 RemoveROOversamplingGadget::RemoveROOversamplingGadget(const Core::Context& context,
                                                        const Core::GadgetProperties& props)
-    : Core::NewChannelGadget<mrd::Acquisition>(context, props) {
+    : Core::ChannelGadget<mrd::Acquisition>(context, props)
+{
     auto h = (context.header);
 
     if (h.encoding.size() == 0) {

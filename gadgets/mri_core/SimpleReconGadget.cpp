@@ -2,15 +2,10 @@
 
 namespace Gadgetron {
 
-    SimpleReconGadget::SimpleReconGadget(const Core::Context& context, const Core::GadgetProperties& props)
-        : ChannelGadget(context, props)
-    {
-        header = context.header;
-        image_counter_ = 0;
-    }
-
     void SimpleReconGadget::process(Core::InputChannel<mrd::ReconData>& input, Core::OutputChannel& out)
     {
+        long long image_counter = 0;
+
         for (mrd::ReconData reconData : input) {
             GDEBUG_STREAM("Processing reconData containing " << reconData.buffers.size() << " recon bits");
             // Iterate over all the recon bits
@@ -89,7 +84,7 @@ namespace Gadgetron {
                             imghdr.acquisition_time_stamp = acqhdr.acquisition_time_stamp;
                             imghdr.physiology_time_stamp = acqhdr.physiology_time_stamp;
                             imghdr.image_type = mrd::ImageType::kComplex;
-                            imghdr.image_index = ++image_counter_;
+                            imghdr.image_index = ++image_counter;
                             imghdr.image_series_index = 0;
 
                             // Grab a wrapper around the relevant chunk of data [E0,E1,E2,CHA] for this loc, n, and s
@@ -127,6 +122,6 @@ namespace Gadgetron {
             }
         }
     }
-    GADGETRON_GADGET_EXPORT(SimpleReconGadget);
 
+    GADGETRON_GADGET_EXPORT(SimpleReconGadget);
 }

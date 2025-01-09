@@ -8,14 +8,15 @@
 
 namespace Gadgetron {
 
-
-
     class AcquisitionAccumulateTriggerGadget
         : public Core::ChannelGadget<std::variant<mrd::Acquisition, mrd::WaveformUint32>> {
     public:
         using Core::ChannelGadget<std::variant<mrd::Acquisition, mrd::WaveformUint32>>::ChannelGadget;
         void process(Core::InputChannel<std::variant<mrd::Acquisition, mrd::WaveformUint32>>& in,
             Core::OutputChannel& out) override;
+
+        void install_cli(po::options_description& desc) override;
+
         enum class TriggerDimension {
             kspace_encode_step_1,
             kspace_encode_step_2,

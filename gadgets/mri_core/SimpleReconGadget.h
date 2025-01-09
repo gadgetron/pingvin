@@ -16,11 +16,9 @@ namespace Gadgetron {
 
     class SimpleReconGadget : public Core::ChannelGadget<mrd::ReconData> {
     public:
-        SimpleReconGadget(const Core::Context& context, const Core::GadgetProperties& props);
-        void process(Core::InputChannel<mrd::ReconData>& input, Core::OutputChannel& out) override;
+        using Core::ChannelGadget<mrd::ReconData>::ChannelGadget;
+        // SimpleReconGadget(const Core::Context& context, const Core::GadgetProperties& props);
 
-    protected:
-        mrd::Header header;
-        long long image_counter_;
+        void process(Core::InputChannel<mrd::ReconData>& input, Core::OutputChannel& out) override;
     };
 }

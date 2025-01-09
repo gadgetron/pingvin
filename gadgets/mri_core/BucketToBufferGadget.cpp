@@ -593,10 +593,6 @@ namespace Gadgetron {
         }
     }
 
-
-    BucketToBufferGadget::BucketToBufferGadget(const Core::Context& context, const Core::GadgetProperties& props)
-        : ChannelGadget(context, props), header{ context.header } {}
-
     namespace {
         using Dimension = BucketToBufferGadget::Dimension;
         const std::map<std::string, BucketToBufferGadget::Dimension> dimension_from_name
@@ -606,10 +602,46 @@ namespace Gadgetron {
               };
     }
 
+    void BucketToBufferGadget::install_cli(po::options_description& desc) {
+        desc.add_options()
+            ("N_dimension", po::value<Dimension>(&N_dimension)->default_value(Dimension::none), "N-Dimensions")
+            ("S_dimension", po::value<Dimension>(&S_dimension)->default_value(Dimension::none), "S-Dimensions")
+            ("split_slices", po::value<bool>(&split_slices)->default_value(false), "Split slices")
+            ("ignore_segment", po::value<bool>(&ignore_segment)->default_value(false), "Ignore segment")
+            ("verbose", po::value<bool>(&verbose)->default_value(false), "Whether to print more information");
+    }
+
     void from_string(const std::string& str, BucketToBufferGadget::Dimension& dim) {
         auto lower = str;
         boost::to_lower(lower);
         dim = dimension_from_name.at(lower);
+    }
+
+    std::ostream& operator<<(std::ostream& out, const BucketToBufferGadget::Dimension& param) {
+        for (auto it = dimension_from_name.begin(); it != dimension_from_name.end(); ++it) {
+            if (it->second == param) {
+                out << it->first;
+                break;
+            }
+        }
+        return out;
+    }
+
+    void validate(boost::any& v, const std::vector<std::string>& values, BucketToBufferGadget::Dimension*, int)
+    {
+        // Make sure no previous assignment to 'a' was made.
+        po::validators::check_first_occurrence(v);
+        // Extract the first string from 'values'. If there is more than
+        // one string, it's an error, and exception will be thrown.
+        const std::string& s = po::validators::get_single_string(values);
+
+        BucketToBufferGadget::Dimension d;
+        try {
+            Gadgetron::from_string(s, d);
+        } catch (std::exception& e) {
+            throw po::validation_error(po::validation_error::invalid_option_value);
+        }
+        v = boost::any(d);
     }
 
     GADGETRON_GADGET_EXPORT(BucketToBufferGadget)
