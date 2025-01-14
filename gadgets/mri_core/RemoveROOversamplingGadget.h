@@ -16,10 +16,9 @@ namespace Gadgetron {
 class RemoveROOversamplingGadget : public Core::ChannelGadget<mrd::Acquisition> {
   public:
     using Core::ChannelGadget<mrd::Acquisition>::ChannelGadget;
-
-    RemoveROOversamplingGadget() {};
+    RemoveROOversamplingGadget(): ChannelGadget("remove_oversampling") {}
     RemoveROOversamplingGadget(const Core::Context& context, const Core::GadgetProperties& props);
-    ~RemoveROOversamplingGadget() override = default;
+
     void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& output) override;
 
     void install_cli(po::options_description& options) override;

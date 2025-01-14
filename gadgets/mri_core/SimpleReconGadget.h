@@ -17,7 +17,7 @@ namespace Gadgetron {
     class SimpleReconGadget : public Core::ChannelGadget<mrd::ReconData> {
     public:
         using Core::ChannelGadget<mrd::ReconData>::ChannelGadget;
-        // SimpleReconGadget(const Core::Context& context, const Core::GadgetProperties& props);
+        SimpleReconGadget() : ChannelGadget("simple_recon") {}
 
         void process(Core::InputChannel<mrd::ReconData>& input, Core::OutputChannel& out) override;
     };

@@ -193,7 +193,6 @@ namespace Gadgetron {
     }
 
     void NoiseAdjustGadget::initialize_(const Core::Context& context) {
-        this->current_mrd_header = context.header;
         this->receiver_noise_bandwidth = bandwidth_from_header(context.header);
         this->measurement_id = measurement_id_from_header(context.header);
 
@@ -223,7 +222,6 @@ namespace Gadgetron {
 
     NoiseAdjustGadget::NoiseAdjustGadget(const Core::Context& context, const Core::GadgetProperties& props)
         : Core::ChannelGadget<mrd::Acquisition>(context, props)
-        , current_mrd_header(context.header)
         , receiver_noise_bandwidth{ bandwidth_from_header(context.header) }
         , measurement_id{ measurement_id_from_header(context.header) }
     {
@@ -259,8 +257,8 @@ namespace Gadgetron {
             size_t CHA = noise_covariance->matrix.get_size(0);
             if (noise_covariance->coil_labels.size() == CHA) {
                 std::vector<std::string> current_coil_labels;
-                if (current_mrd_header.acquisition_system_information) {
-                    for (auto& l : current_mrd_header.acquisition_system_information->coil_label) {
+                if (header.acquisition_system_information) {
+                    for (auto& l : header.acquisition_system_information->coil_label) {
                         current_coil_labels.push_back(l.coil_name);
                     }
                 }
@@ -291,7 +289,7 @@ namespace Gadgetron {
                 }
                 return LoadedNoise{noise_covariance->matrix, noise_covariance->noise_dwell_time_us};
 
-            } else if (current_mrd_header.acquisition_system_information) {
+            } else if (header.acquisition_system_information) {
                 GERROR("Noise covariance matrix is malformed. Number of labels does not match number of channels.");
             }
         }
@@ -338,7 +336,7 @@ namespace Gadgetron {
         normalize_covariance(ng);
 
         std::vector<mrd::CoilLabelType> coil_labels;
-        for (auto& label : current_mrd_header.acquisition_system_information->coil_label) {
+        for (auto& label : header.acquisition_system_information->coil_label) {
             coil_labels.push_back(label);
         }
 
@@ -427,9 +425,9 @@ namespace Gadgetron {
 
     void NoiseAdjustGadget::process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& output) {
 
-        scale_only_channels = current_mrd_header.acquisition_system_information
+        scale_only_channels = header.acquisition_system_information
                                   ? find_scale_only_channels(scale_only_channels_by_name,
-                                      current_mrd_header.acquisition_system_information->coil_label)
+                                      header.acquisition_system_information->coil_label)
                                   : std::vector<size_t>{};
 
         for (auto acq : input) {

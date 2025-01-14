@@ -3,8 +3,6 @@
 #include <map>
 #include <memory>
 
-#include "Loader.h"
-
 #include "Channel.h"
 #include "Context.h"
 
@@ -17,18 +15,18 @@ namespace {
     using DecoratedBranch = Gadgetron::Main::Nodes::Parallel::DecoratedBranch;
     using DecoratedMerge  = Gadgetron::Main::Nodes::Parallel::DecoratedMerge;
 
-    using branch_factory = Loader::generic_factory<Branch>;
-    using merge_factory = Loader::generic_factory<Merge>;
+    // using branch_factory = Loader::generic_factory<Branch>;
+    // using merge_factory = Loader::generic_factory<Merge>;
 
-    std::unique_ptr<DecoratedBranch> load_branch(const Config::Branch &conf, const Context &context, Loader &loader) {
-        auto factory = loader.load_factory<branch_factory>("branch_factory_export_", conf.classname, conf.dll);
-        return std::make_unique<DecoratedBranch>(factory(context, Config::name(conf), conf.properties), Config::name(conf));
-    }
+    // std::unique_ptr<DecoratedBranch> load_branch(const Config::Branch &conf, const Context &context, Loader &loader) {
+    //     auto factory = loader.load_factory<branch_factory>("branch_factory_export_", conf.classname, conf.dll);
+    //     return std::make_unique<DecoratedBranch>(factory(context, Config::name(conf), conf.properties), Config::name(conf));
+    // }
 
-    std::unique_ptr<DecoratedMerge> load_merge(const Config::Merge &conf, const Context &context, Loader &loader) {
-        auto factory = loader.load_factory<merge_factory>("merge_factory_export_", conf.classname, conf.dll);
-        return std::make_unique<DecoratedMerge>(factory(context, Config::name(conf), conf.properties), Config::name(conf));
-    }
+    // std::unique_ptr<DecoratedMerge> load_merge(const Config::Merge &conf, const Context &context, Loader &loader) {
+    //     auto factory = loader.load_factory<merge_factory>("merge_factory_export_", conf.classname, conf.dll);
+    //     return std::make_unique<DecoratedMerge>(factory(context, Config::name(conf), conf.properties), Config::name(conf));
+    // }
 
     template<class KEY, class VALUE, class F>
     auto transform_map(std::map<KEY, VALUE>& input, F f) {
@@ -68,17 +66,17 @@ namespace {
 
 namespace Gadgetron::Main::Nodes {
 
-    Parallel::Parallel(
-            const Config::Parallel &config,
-            const Core::StreamContext &context,
-            Loader &loader
-    ) : branch(load_branch(config.branch, context, loader)), merge(load_merge(config.merge, context, loader)) {
-        std::transform(
-                config.streams.begin(), config.streams.end(),
-                std::back_inserter(streams),
-                [&](auto &stream_config) { return std::make_shared<Stream>(stream_config, context, loader); }
-        );
-    }
+    // Parallel::Parallel(
+    //         const Config::Parallel &config,
+    //         const Core::StreamContext &context,
+    //         Loader &loader
+    // ) : branch(load_branch(config.branch, context, loader)), merge(load_merge(config.merge, context, loader)) {
+    //     std::transform(
+    //             config.streams.begin(), config.streams.end(),
+    //             std::back_inserter(streams),
+    //             [&](auto &stream_config) { return std::make_shared<Stream>(stream_config, context, loader); }
+    //     );
+    // }
 
     void Parallel::process(
             InputChannel input,

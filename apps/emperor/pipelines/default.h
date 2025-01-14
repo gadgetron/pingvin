@@ -2,7 +2,6 @@
 
 #include "pipeline.h"
 
-#include "gadgets/mri_core/NoiseAdjustGadget.h"
 #include "gadgets/mri_core/RemoveROOversamplingGadget.h"
 #include "gadgets/mri_core/AcquisitionAccumulateTriggerGadget.h"
 #include "gadgets/mri_core/BucketToBufferGadget.h"
@@ -21,11 +20,10 @@ class Default : public Pipeline {
         // gadgets_.push_back(std::make_shared<Gadgetron::RemoveROOversamplingGadget>());
 
         // gadgets_ = Builder()
-        //     .append<Gadgetron::NoiseAdjustGadget>()
         //     .append<Gadgetron::RemoveROOversamplingGadget>()
+        //     .append<Gadgetron::AcquisitionAccumulateTriggerGadget>()
         //     .build();
 
-        // this->append<Gadgetron::NoiseAdjustGadget>();
         this->append<Gadgetron::RemoveROOversamplingGadget>();
         this->append<Gadgetron::AcquisitionAccumulateTriggerGadget>();
         this->append<Gadgetron::BucketToBufferGadget>();

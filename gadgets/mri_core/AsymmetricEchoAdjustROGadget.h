@@ -15,6 +15,7 @@ namespace Gadgetron{
     {
       public:
         using Core::ChannelGadget<mrd::Acquisition>::ChannelGadget;
+        AsymmetricEchoAdjustROGadget() : ChannelGadget("asymmetric_echo_adjust") {}
         AsymmetricEchoAdjustROGadget(const Core::Context& context, const Core::GadgetProperties& props);
         ~AsymmetricEchoAdjustROGadget() override = default;
         void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& output) override;

@@ -17,6 +17,7 @@ namespace Gadgetron{
     {
       public:
         using Core::ChannelGadget<ImageOrImageArray>::ChannelGadget;
+        ImageArraySplitGadget() : ChannelGadget("image_array_split") {}
         void process(Core::InputChannel<ImageOrImageArray>& input, Core::OutputChannel& output) override;
     };
 }

@@ -9,26 +9,6 @@ namespace po = boost::program_options;
 
 namespace pingvin {
 
-using gadget_parameter = std::pair<std::string, std::string>;
-
-std::istream& operator>>(std::istream& in, gadget_parameter& param) {
-    std::string token;
-    in >> token;
-    // parse <key>=<value> into a gadget_parameter
-    auto pos = token.find('=');
-    if (pos == std::string::npos) {
-        throw std::runtime_error("Invalid gadget parameter: " + token);
-    }
-    param.first = token.substr(0, pos);
-    param.second = token.substr(pos + 1);
-    return in;
-}
-
-std::ostream& operator<<(std::ostream& out, const gadget_parameter& param) {
-    out << param.first << "=" << param.second;
-    return out;
-}
-
 class Pipeline {
   public:
     Pipeline(std::string name, std::string description) : name_(name), description_(description) {}
@@ -67,9 +47,6 @@ class Pipeline {
 
     void run(po::variables_map& vm) {
         std::cerr << "Running pipeline " << name_ << std::endl;
-        // for (auto& g: gadgets_) {
-        //     g->process();
-        // }
 
         std::cerr << "OK, now running Pingvin" << std::endl;
 
@@ -101,7 +78,7 @@ class Pipeline {
         mrd::binary::MrdReader mrd_reader(input_stream);
         mrd::binary::MrdWriter mrd_writer(output_stream);
 
-        StreamConsumer consumer(vm);
+        StreamConsumer consumer;
         mrd::Header hdr = consumer.consume_mrd_header(mrd_reader, mrd_writer);
 
         auto context = StreamContext(hdr, paths, vm);
@@ -126,11 +103,6 @@ class Pipeline {
             ("config,c", po::value<std::string>(), "Pipeline configuration file")
             ("input,i", po::value<std::string>(), "Input stream")
             ("output,o", po::value<std::string>(), "Output stream")
-            // TODO: Remove this once all Gadgets no longer use `parameters`
-            ("parameter",
-                po::value<std::vector<gadget_parameter>>(),
-                "Parameter to be passed to the Pingvin reconstruction config. Multiple parameters can be passed."
-                "Format: --parameter <name>=<value> --parameter <name>=<value> ...");
             ;
 
         po::options_description gadgets("Pipeline Nodes");
@@ -138,7 +110,9 @@ class Pipeline {
         for (auto& g: gadgets_) {
             po::options_description group(g->name());
             g->install_cli(group);
-            gadgets.add(group);
+            if (!group.options().empty()) {
+                gadgets.add(group);
+            }
         }
 
         desc.add(gadgets);
@@ -152,8 +126,8 @@ class Pipeline {
     template <typename T>
     void append(void) {
         auto n = std::make_shared<T>();
-        gadgets_.push_back(n);
-        processables_.push_back(std::make_shared<NewNodeProcessable>(n, "TODO"));
+        gadgets_.emplace_back(n);
+        processables_.emplace_back(std::make_shared<NewNodeProcessable>(n, "TODO"));
     }
 
     // template <typename T>

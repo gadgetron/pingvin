@@ -1,5 +1,5 @@
 #include "pipelines/noise.h"
-#include "pipelines/cartesian_grappa.h"
+// #include "pipelines/cartesian_grappa.h"
 #include "pipelines/default.h"
 
 #include "log.h"
@@ -16,6 +16,27 @@ using namespace pingvin;
 namespace po = boost::program_options;
 namespace fs = std::filesystem;
 
+namespace {
+
+std::string envvar_to_parameter(const std::string& env_var)
+{
+    static const std::string prefix("PINGVIN_");
+
+    if (env_var.compare(0, prefix.size(), prefix) != 0) {
+        return std::string();
+    }
+
+    std::string option(env_var.substr(prefix.size()));
+
+    option.replace(option.find("_"), 1, ".");
+    std::replace(option.begin(), option.end(), '_', '-');
+    std::transform(option.begin(), option.end(), option.begin(),
+        [](unsigned char c){ return std::tolower(c); });
+    return option;
+}
+
+}
+
 int main(int argc, char** argv)
 {
     po::options_description global("Global options");
@@ -24,7 +45,7 @@ int main(int argc, char** argv)
     global.add_options()
         ("help,h", "Prints this help message.")
         ("info", "Prints build info about Pingvin.")
-        ("home,G",
+        ("home",
             po::value<std::filesystem::path>()->default_value(pingvin_home),
             "Set the Pingvin home directory.")
         ;
@@ -75,7 +96,7 @@ int main(int argc, char** argv)
     std::vector<std::shared_ptr<Pipeline>> pipelines;
     pipelines.push_back(std::make_shared<NoiseDependency>());
     pipelines.push_back(std::make_shared<Default>());
-    pipelines.push_back(std::make_shared<CartesianGrappa>());
+    // pipelines.push_back(std::make_shared<CartesianGrappa>());
     std::map<std::string, std::shared_ptr<Pipeline>> pipeline_map;
     for (auto& pipeline : pipelines) {
         pipeline_map[pipeline->name()] = pipeline;
@@ -123,7 +144,7 @@ int main(int argc, char** argv)
             return 0;
         }
 
-        po::store(po::parse_environment(pipeline_desc, "PINGVIN_"), vm);
+        po::store(po::parse_environment(pipeline_desc, envvar_to_parameter), vm);
 
         if (vm.count("config")) {
             auto config_filename = vm["config"].as<std::string>();

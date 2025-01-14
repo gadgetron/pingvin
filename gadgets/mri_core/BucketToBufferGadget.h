@@ -19,8 +19,8 @@ namespace Gadgetron {
 
     class BucketToBufferGadget : public Core::ChannelGadget<mrd::AcquisitionBucket> {
     public:
-        // BucketToBufferGadget(const Core::Context& context, const Core::GadgetProperties& props);
         using Core::ChannelGadget<mrd::AcquisitionBucket>::ChannelGadget;
+        BucketToBufferGadget() : ChannelGadget("bucket_to_buffer") {}
         enum class Dimension { average, contrast, phase, repetition, set, segment, slice, none };
 
         virtual void install_cli(po::options_description& desc) override;

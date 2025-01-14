@@ -12,6 +12,8 @@ namespace Gadgetron {
         : public Core::ChannelGadget<std::variant<mrd::Acquisition, mrd::WaveformUint32>> {
     public:
         using Core::ChannelGadget<std::variant<mrd::Acquisition, mrd::WaveformUint32>>::ChannelGadget;
+        AcquisitionAccumulateTriggerGadget() : ChannelGadget("accumulate_trigger") {}
+
         void process(Core::InputChannel<std::variant<mrd::Acquisition, mrd::WaveformUint32>>& in,
             Core::OutputChannel& out) override;
 

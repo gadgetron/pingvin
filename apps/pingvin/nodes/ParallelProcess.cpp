@@ -45,12 +45,6 @@ namespace Gadgetron::Main::Nodes {
         input_thread.join(); output_thread.join();
     }
 
-    ParallelProcess::ParallelProcess(
-            const Config::ParallelProcess& conf,
-            const Context& context,
-            Loader& loader
-    ) : pureStream{ conf.stream, context, loader }, workers{ conf.workers } {}
-
     const std::string& ParallelProcess::name() {
         const static std::string n = "ParallelProcess";
         return n;

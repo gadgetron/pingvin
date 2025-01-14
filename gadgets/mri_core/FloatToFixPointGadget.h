@@ -21,7 +21,7 @@ namespace Gadgetron
     public:
 
         using Core::ChannelGadget<mrd::Image<float>>::ChannelGadget;
-
+        FloatToFixPointGadget() : ChannelGadget("float_to_fixpoint") {}
         ~FloatToFixPointGadget() override = default ;
 
         void process(Core::InputChannel<mrd::Image<float>>& input, Core::OutputChannel& output) override;

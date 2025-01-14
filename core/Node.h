@@ -27,11 +27,7 @@ namespace Gadgetron::Core {
     class GenericChannelGadget : public Node, public PropertyMixin {
     public:
         GenericChannelGadget(const Context& context, const GadgetProperties& properties) : PropertyMixin(properties), header{context.header} {}
-
-//        [[deprecated("ChannelGadget should be called with both context and properties")]]
-//        GenericChannelGadget(const GadgetProperties& properties) : PropertyMixin(properties) {}
-
-        GenericChannelGadget() : PropertyMixin(GadgetProperties{}) {}
+        GenericChannelGadget(const std::string& name, const Context& context, const GadgetProperties& properties) : PropertyMixin(properties), header{context.header}, name_(name) {}
 
         void initialize(const Core::Context& context, const GadgetProperties& properties) {
             this->properties = properties;
@@ -40,8 +36,9 @@ namespace Gadgetron::Core {
         }
 
         virtual void install_cli(po::options_description& options) {}
-        virtual std::string name() { return "Unnamed"; }
-        virtual std::string description() { return "Unknown description"; }
+
+        /** TODO: Consider renaming to "key" or "label" */
+        virtual std::string name() { return name_; }
 
     protected:
         virtual void initialize_(const Context& context) {}
@@ -49,6 +46,8 @@ namespace Gadgetron::Core {
         /** TODO: No longer const, so it can be set in `initialize()` after construction */
         // const mrd::Header header ={};
         mrd::Header header ={};
+
+        std::string name_;
     };
 
     /**
@@ -62,9 +61,7 @@ namespace Gadgetron::Core {
 
         using GenericChannelGadget::GenericChannelGadget;
 
-        ChannelGadget(): GenericChannelGadget(Context{}, GadgetProperties{}) {
-            GDEBUG_STREAM("ChannelGadget created");
-        }
+        ChannelGadget(const std::string name): GenericChannelGadget(name, Context{}, GadgetProperties{}) { }
 
         ///
         void process(GenericInputChannel& in, OutputChannel& out) override final {

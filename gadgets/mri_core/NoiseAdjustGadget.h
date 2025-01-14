@@ -29,6 +29,7 @@ namespace Gadgetron {
     class NoiseAdjustGadget : public Core::ChannelGadget<mrd::Acquisition> {
     public:
         using Core::ChannelGadget<mrd::Acquisition>::ChannelGadget;
+        NoiseAdjustGadget() : ChannelGadget("noise_adjust") {}
         NoiseAdjustGadget(const Core::Context& context, const Core::GadgetProperties& props);
 
         void install_cli(po::options_description& options) override;
@@ -36,9 +37,6 @@ namespace Gadgetron {
         void process(Core::InputChannel<mrd::Acquisition>& in, Core::OutputChannel& out) override;
 
         using NoiseHandler = std::variant<NoiseGatherer, LoadedNoise, Prewhitener, IgnoringNoise>;
-
-        virtual std::string name() override { return "NoiseAdjustGadget"; }
-        virtual std::string description() override { return "Adjusts noise in the data"; }
 
     protected:
         NODE_PROPERTY(perform_noise_adjust, bool, "Whether to actually perform the noise adjust", true);
@@ -54,10 +52,6 @@ namespace Gadgetron {
         // const std::string measurement_id;
         std::string measurement_id;
         std::vector<size_t> scale_only_channels;
-
-        // We will store/load a copy of the noise scans XML header to enable us to check which coil layout, etc.
-        // const mrd::Header current_mrd_header;
-        mrd::Header current_mrd_header;
 
         NoiseHandler noisehandler = IgnoringNoise{};
 

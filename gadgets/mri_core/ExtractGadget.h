@@ -10,6 +10,7 @@ namespace Gadgetron {
 class ExtractGadget : public Core::ChannelGadget<mrd::Image<std::complex<float>>> {
   public:
     using Core::ChannelGadget<mrd::Image<std::complex<float>>>::ChannelGadget;
+    ExtractGadget() : ChannelGadget("extract") {}
     ExtractGadget(const Core::Context& context, const Core::GadgetProperties& props);
 
     void process(Core::InputChannel<mrd::Image<std::complex<float>>>& in, Core::OutputChannel& out) override;

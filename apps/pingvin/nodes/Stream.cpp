@@ -10,61 +10,32 @@ namespace {
     using namespace Gadgetron::Core;
     using namespace Gadgetron::Main;
     using namespace Gadgetron::Main::Nodes;
-    using namespace std::string_literals;
+    // using namespace std::string_literals;
 
-    class NodeProcessable : public Processable {
-    public:
-        NodeProcessable(std::function<std::unique_ptr<Node>()> factory, std::string name) : factory(std::move(factory)), name_(std::move(name)) {}
+    // class NodeProcessable : public Processable {
+    // public:
+    //     NodeProcessable(std::function<std::unique_ptr<Node>()> factory, std::string name) : factory(std::move(factory)), name_(std::move(name)) {}
 
-        void process(GenericInputChannel input,
-                OutputChannel output,
-                ErrorHandler &
-        ) override {
-            auto node = factory();
-            node->process(input, output);
-        }
+    //     void process(GenericInputChannel input,
+    //             OutputChannel output,
+    //             ErrorHandler &
+    //     ) override {
+    //         auto node = factory();
+    //         node->process(input, output);
+    //     }
 
-        const std::string& name() override {
-            return name_;
-        }
+    //     const std::string& name() override {
+    //         return name_;
+    //     }
 
-    private:
-        std::function<std::unique_ptr<Node>()> factory;
-        const std::string name_;
-    };
+    // private:
+    //     std::function<std::unique_ptr<Node>()> factory;
+    //     const std::string name_;
+    // };
 
-    std::shared_ptr<Processable> load_node(const Config::Gadget &conf, const StreamContext &context, Loader &loader) {
-        auto factory = loader.load_factory<Loader::generic_factory<Node>>("gadget_factory_export_", conf.classname,
-                                                                          conf.dll);
-        return std::make_shared<NodeProcessable>(
-            [=]() {
-                GDEBUG("Loading Gadget %s (class %s) from %s\n", conf.name.c_str(), conf.classname.c_str(), conf.dll.c_str());
-                return factory(context, Config::name(conf), conf.properties);
-            },
-            Config::name(conf)
-        );
-    }
-
-    std::shared_ptr<Processable> load_node(const Config::Parallel &conf, const StreamContext &context, Loader &loader) {
-        GDEBUG("Loading Parallel block\n");
-        return std::make_shared<Nodes::Parallel>(conf, context, loader);
-    }
-
-    std::shared_ptr<Processable> load_node(const Config::ParallelProcess& conf, const StreamContext& context, Loader& loader){
-        GDEBUG("Loading ParalleProcess block\n");
-        return std::make_shared<Nodes::ParallelProcess>(conf,context,loader);
-    }
 }
 
 namespace Gadgetron::Main::Nodes {
-
-    Stream::Stream(const Config::Stream &config, const Core::StreamContext &context, Loader &loader) : key(config.key) {
-        for (auto &node_config : config.nodes) {
-            nodes.emplace_back(
-                    std::visit([&](auto n) { return load_node(n, context, loader); }, node_config)
-            );
-        }
-    }
 
     void Stream::process(GenericInputChannel input,
             OutputChannel output,

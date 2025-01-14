@@ -4,14 +4,11 @@
 #include <sstream>
 #include <thread>
 
-#include <boost/asio.hpp>
-#include <boost/program_options/variables_map.hpp>
-
 #include <mrd/binary/protocols.h>
 
+#include "nodes/Stream.h"
 #include "Channel.h"
 #include "ErrorHandler.h"
-#include "Loader.h"
 
 #include "Node.h"
 
@@ -68,39 +65,8 @@ std::filesystem::path find_config_path(const std::string& home_dir, const std::s
 class StreamConsumer
 {
 public:
-    StreamConsumer(const boost::program_options::variables_map& args)
-        : args_(args) {}
+    StreamConsumer() {}
     ~StreamConsumer() {}
-
-    void consume(std::istream& input_stream, std::ostream& output_stream, std::string config_xml_name)
-    {
-        Context::Paths paths{
-            (args_.count("home"))
-                ? args_["home"].as<std::filesystem::path>().string()
-                : "/opt/pingvin"
-        };
-
-        mrd::binary::MrdReader mrd_reader(input_stream);
-        mrd::binary::MrdWriter mrd_writer(output_stream);
-
-        mrd::Header hdr = consume_mrd_header(mrd_reader, mrd_writer);
-
-        auto context = StreamContext(hdr, paths, args_);
-        auto loader = Loader(context);
-        auto config_path = find_config_path(args_["home"].as<std::filesystem::path>().string(), config_xml_name);
-
-        GINFO_STREAM("Loading configuration from: " << config_path.string());
-        std::ifstream file(config_path, std::ios::in | std::ios::binary);
-        if (!file.is_open()) {
-            throw std::runtime_error("Failed to open file at path: " + config_path.string());
-        }
-
-        auto config = Config::parse(file);
-        file.close();
-        auto stream = loader.load(config.stream);
-
-        consume_stream(mrd_reader, mrd_writer, stream);
-    }
 
     void consume_stream(mrd::binary::MrdReader& mrd_reader, mrd::binary::MrdWriter& mrd_writer, const std::unique_ptr<Nodes::Stream>& stream)
     {
@@ -221,6 +187,4 @@ public:
         mrd_writer.EndData();
         mrd_writer.Close();
     }
-
-    boost::program_options::variables_map args_;
 };

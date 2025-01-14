@@ -5,6 +5,7 @@ namespace Gadgetron::Core {
 class GenericPureGadget : public GenericChannelGadget {
 public:
     using GenericChannelGadget::GenericChannelGadget;
+    GenericPureGadget(const std::string name): GenericChannelGadget(name, Context{}, GadgetProperties{}) { }
 
         void process(GenericInputChannel&in, OutputChannel &out) final {
             for (auto message : in)
