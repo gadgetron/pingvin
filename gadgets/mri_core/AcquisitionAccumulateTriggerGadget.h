@@ -9,7 +9,7 @@
 namespace Gadgetron {
 
     class AcquisitionAccumulateTriggerGadget
-        : public Core::ChannelGadget<std::variant<mrd::Acquisition, mrd::WaveformUint32>> {
+        : public Core::MRChannelGadget<std::variant<mrd::Acquisition, mrd::WaveformUint32>> {
     public:
         enum class TriggerDimension {
             kspace_encode_step_1,
@@ -49,15 +49,8 @@ namespace Gadgetron {
             unsigned long n_acquisitions_before_ongoing_trigger = 40;
         };
 
-        AcquisitionAccumulateTriggerGadget(const Core::Context& context, const Core::GadgetProperties& props)
-            : Core::ChannelGadget<std::variant<mrd::Acquisition, mrd::WaveformUint32>>(
-                  Core::Context{.header = context.header}, Core::GadgetProperties{})
-            , parameters_("TODO: This constructor only exists because it is used by unit test")
-        { }
-
         AcquisitionAccumulateTriggerGadget(const Core::MrdContext& context, const Parameters& params)
-            : Core::ChannelGadget<std::variant<mrd::Acquisition, mrd::WaveformUint32>>(
-                  Core::Context{.header = context.header}, Core::GadgetProperties{})
+            : Core::MRChannelGadget<std::variant<mrd::Acquisition, mrd::WaveformUint32>>(context, params)
             , parameters_(params) {}
 
         void process(Core::InputChannel<std::variant<mrd::Acquisition, mrd::WaveformUint32>>& in,

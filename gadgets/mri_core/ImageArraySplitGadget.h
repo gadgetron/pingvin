@@ -13,12 +13,13 @@ namespace Gadgetron{
 
   using ImageOrImageArray = std::variant<mrd::AnyImage, mrd::ImageArray>;
 
-  class ImageArraySplitGadget : public Core::ChannelGadget<ImageOrImageArray>
+  class ImageArraySplitGadget : public Core::MRChannelGadget<ImageOrImageArray>
     {
       public:
-        ImageArraySplitGadget(const Core::MrdContext& context, const Parameters& params)
-            : Core::ChannelGadget<ImageOrImageArray>(Core::Context{.header=context.header}, Core::GadgetProperties{})
+        ImageArraySplitGadget(const Core::MrdContext& context, const Core::NodeParameters& params)
+          : Core::MRChannelGadget<ImageOrImageArray>(context, params)
         { }
+
         void process(Core::InputChannel<ImageOrImageArray>& input, Core::OutputChannel& output) override;
     };
 }

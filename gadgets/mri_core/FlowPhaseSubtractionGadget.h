@@ -11,11 +11,14 @@ namespace Gadgetron{
     {
 
     public:
-        using Core::ChannelGadget<mrd::Image<std::complex<float>>>::ChannelGadget;
+        FlowPhaseSubtractionGadget(const Core::Context& context, const Core::GadgetProperties& props);
 
         ~FlowPhaseSubtractionGadget() override = default;
 
         void process(Core::InputChannel<mrd::Image<std::complex<float>>>& in, Core::OutputChannel& out) override;
+
+    protected:
+        uint32_t sets_;
     };
 }
 

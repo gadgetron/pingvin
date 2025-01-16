@@ -52,6 +52,7 @@ class NodeParameters {
 public:
     NodeParameters(const std::string& prefix, const std::string& description): prefix_(prefix), description_(description) {}
     NodeParameters(const std::string& prefix): prefix_(prefix) {}
+    NodeParameters(): prefix_("unknown") {};
 
     template <typename T>
     void register_parameter(const std::string& name, T* value, const std::string& description) {

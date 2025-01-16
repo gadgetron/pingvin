@@ -1,6 +1,7 @@
 #include "pipelines/noise.h"
 // #include "pipelines/cartesian_grappa.h"
 #include "pipelines/default.h"
+#include "pipelines/file_search.h"
 
 #include "log.h"
 #include "system_info.h"
@@ -11,10 +12,9 @@
 #include <fstream>
 #include <filesystem>
 
-using namespace pingvin;
-
 namespace po = boost::program_options;
-namespace fs = std::filesystem;
+
+using namespace pingvin;
 
 namespace {
 
@@ -42,14 +42,13 @@ int main(int argc, char** argv)
 {
     po::options_description global("Global options");
 
-    std::filesystem::path pingvin_home("/tmp/pingvin");
     global.add_options()
-        ("help,h", "Prints this help message.")
-        ("info", "Prints build info about Pingvin.")
+        ("help,h", "Prints this help message")
+        ("info", "Prints build info about Pingvin")
         ("home",
-            po::value<std::filesystem::path>()->default_value(pingvin_home),
-            "Set the Pingvin home directory.")
-        ("config,c", po::value<std::string>(), "Configuration file.")
+            po::value<std::filesystem::path>()->default_value(Gadgetron::Main::Info::default_pingvin_home()),
+            "Set the Pingvin home directory")
+        ("config,c", po::value<std::string>(), "Pipeline configuration file")
         ("input,i", po::value<std::string>(), "Input stream (default=stdin)")
         ("output,o", po::value<std::string>(), "Output stream (default=stdout)")
         ;
@@ -60,7 +59,7 @@ int main(int argc, char** argv)
         ("subargs", po::value<std::vector<std::string>>(), "Arguments for the pipeline.")
         ;
 
-    po::options_description help_options;
+    po::options_description help_options("Pingvin usage");
     help_options.add(global);
 
     po::options_description allowed_options;
@@ -97,7 +96,7 @@ int main(int argc, char** argv)
     }
 
     // "Choose" a Pipeline
-    std::vector<Pipeline::IBuilder*> builders{&default_mr, &noise_dependency};
+    std::vector<Pipeline::IBuilder*> builders{&default_mr, &noise_dependency, &file_search};
     std::map<std::string, Pipeline::IBuilder*> builder_map;
     for (auto& builder : builders) {
         builder_map[builder->name] = builder;
@@ -105,7 +104,7 @@ int main(int argc, char** argv)
 
     if (!vm.count("pipeline")) {
         if (vm.count("help")) {
-            fs::path progpath(argv[0]);
+            std::filesystem::path progpath(argv[0]);
             std::cerr << "Usage: " << progpath.filename().string() << " [global options] <PIPELINE> [pipeline options]"
                         << std::endl;
             std::cerr << help_options << std::endl;
@@ -137,7 +136,7 @@ int main(int argc, char** argv)
 
         if (vm.count("help")) {
             std::cerr << help_options << std::endl;
-            std::cerr << "Pipeline:" << std::endl;
+            std::cerr << "--- " << subcmd << " ---" << std::endl;
             std::cerr << pipeline_options << std::endl;
             return 0;
         }
@@ -181,15 +180,11 @@ int main(int argc, char** argv)
     std::istream& input_stream = input_file ? *input_file : std::cin;
     std::ostream& output_stream = output_file ? *output_file : std::cout;
 
-    std::cerr << "Pingvin Home: " << vm["home"].as<std::filesystem::path>() << std::endl;
-
     auto pipeline = builder->build(input_stream, output_stream);
 
     pipeline.run();
 
     std::flush(output_stream);
-
-    std::cout << "Pingvin finished successfully" << std::endl;
 
     return 0;
 }

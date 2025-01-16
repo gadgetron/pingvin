@@ -16,13 +16,13 @@ namespace Gadgetron::Core {
 
     public:
         virtual ~Node() = default;
+
         /**
          * The function which processes the data coming from the InputChannel. Conceptually a coroutine.
          * @param in Channel from which messages are received from upstream
          * @param out Channel in which messages are sent on downstream
          */
         virtual void process(GenericInputChannel& in, OutputChannel& out) = 0;
-
     };
 
     class GenericChannelGadget : public Node, public PropertyMixin {
@@ -31,10 +31,7 @@ namespace Gadgetron::Core {
             using NodeParameters::NodeParameters;
         };
 
-        GenericChannelGadget(const Context& context, const GadgetProperties& properties) : PropertyMixin(properties), header{context.header} {}
-
-    protected:
-        const mrd::Header header ={};
+        GenericChannelGadget(const Context& context, const GadgetProperties& properties) : PropertyMixin(properties) {}
     };
 
     /**
@@ -45,10 +42,8 @@ namespace Gadgetron::Core {
      */
     template <class... TYPELIST> class ChannelGadget : public GenericChannelGadget {
     public:
-
         using GenericChannelGadget::GenericChannelGadget;
 
-        ///
         void process(GenericInputChannel& in, OutputChannel& out) override final {
             auto typed_input = InputChannel<TYPELIST...>(in, out);
             this->process(typed_input, out);
@@ -60,6 +55,15 @@ namespace Gadgetron::Core {
          * @param out Channel of output
          */
         virtual void process(InputChannel<TYPELIST...>& in, OutputChannel& out) = 0;
+    };
+
+    /** TODO: Move to MR-specific location! */
+    template <class... TYPELIST> class MRChannelGadget : public ChannelGadget<TYPELIST...> {
+    public:
+        using ChannelGadget<TYPELIST...>::ChannelGadget;
+
+        MRChannelGadget(const MrdContext& context, const NodeParameters& parameters)
+            : ChannelGadget<TYPELIST...>(Core::Context{}, Core::GadgetProperties{}) {}
     };
 }
 

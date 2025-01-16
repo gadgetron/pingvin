@@ -7,7 +7,7 @@
 
 namespace Gadgetron {
 
-class ExtractGadget : public Core::ChannelGadget<mrd::Image<std::complex<float>>> {
+class ExtractGadget : public Core::MRChannelGadget<mrd::Image<std::complex<float>>> {
   public:
     struct Parameters : public Core::NodeParameters {
         using NodeParameters::NodeParameters;
@@ -32,7 +32,7 @@ class ExtractGadget : public Core::ChannelGadget<mrd::Image<std::complex<float>>
     void process(Core::InputChannel<mrd::Image<std::complex<float>>>& in, Core::OutputChannel& out) override;
 
   protected:
-    Parameters parameters_;
+    const Parameters parameters_;
 
     std::set<mrd::ImageType> image_types;
 };

@@ -155,11 +155,6 @@ namespace Gadgetron {
     void PhysioInterpolationGadget::process(Core::InputChannel<mrd::Image<std::complex<float>>> &in,
                                             Core::OutputChannel &out) {
 
-
-        mrd::EncodingLimitsType e_limits = header.encoding[0].encoding_limits;
-        auto slc_limit = e_limits.slice ? e_limits.slice->maximum + 1 : 1;
-
-
         auto buffers = std::map<int, std::vector<mrd::Image<std::complex<float>>>>{};
         auto time_stamp_buffer = std::map<int, std::vector<float>>{};
 
@@ -252,7 +247,7 @@ namespace Gadgetron {
 
                     double cycle_length_in_ms = time_stamp_resolution_ * cycle_lengths[current_cycle];
                     std::ostringstream ostr;
-                    if (slc_limit > 1) {
+                    if (slice_limit_ > 1) {
                         ostr << "_SLC_" << header.slice.value_or(0) << "_RR" << cycle_length_in_ms << "ms";
                     } else {
                         ostr << "_RR" << cycle_length_in_ms << "ms";

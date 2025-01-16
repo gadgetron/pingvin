@@ -13,11 +13,9 @@
 #endif // USE_OMP
 
 namespace Gadgetron {
-class RemoveROOversamplingGadget : public Core::ChannelGadget<mrd::Acquisition> {
+class RemoveROOversamplingGadget : public Core::MRChannelGadget<mrd::Acquisition> {
   public:
-    using GenericChannelGadget::Parameters;
-
-    RemoveROOversamplingGadget(const Core::MrdContext& context, const Parameters& params);
+    RemoveROOversamplingGadget(const Core::MrdContext& context, const Core::NodeParameters& params);
 
     void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& output) override;
 

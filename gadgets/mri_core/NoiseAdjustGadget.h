@@ -26,7 +26,7 @@ namespace Gadgetron {
 
     struct IgnoringNoise {};
 
-    class NoiseAdjustGadget : public Core::ChannelGadget<mrd::Acquisition> {
+    class NoiseAdjustGadget : public Core::MRChannelGadget<mrd::Acquisition> {
     public:
         struct Parameters : public Core::NodeParameters {
             using NodeParameters::NodeParameters;
@@ -62,6 +62,8 @@ namespace Gadgetron {
 
         const std::string measurement_id;
         std::vector<size_t> scale_only_channels;
+
+        std::optional<mrd::AcquisitionSystemInformationType> acquisition_system_information_;
 
         NoiseHandler noisehandler = IgnoringNoise{};
 

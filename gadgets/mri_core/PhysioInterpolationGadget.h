@@ -34,12 +34,18 @@ class PhysioInterpolationGadget : public Core::ChannelGadget<mrd::Image<std::com
     {
     public:
 
-        using Core::ChannelGadget<mrd::Image<std::complex<float>>>::ChannelGadget;
+        PhysioInterpolationGadget(const Core::Context& context, const Core::GadgetProperties& props)
+            : Core::ChannelGadget<mrd::Image<std::complex<float>>>(context, props)
+        {
+            mrd::EncodingLimitsType e_limits = context.header.encoding[0].encoding_limits;
+            slice_limit_ = e_limits.slice ? e_limits.slice->maximum + 1 : 1;
+        }
 
         ~PhysioInterpolationGadget() override = default;
 
-
     protected:
+        uint32_t slice_limit_;
+
         NODE_PROPERTY(physiology_time_index, int, "Physiology time index", 0);
         NODE_PROPERTY(mode, PhysioInterpolationMode, "Mode, 0=separate series for each RR, 1=First complete RR only", PhysioInterpolationMode::separate);
         NODE_PROPERTY(phases, unsigned short, "Number of cardiac phases", 30);
@@ -49,7 +55,6 @@ class PhysioInterpolationGadget : public Core::ChannelGadget<mrd::Image<std::com
 
       public:
         void process(Core::InputChannel<mrd::Image<std::complex<float>>>& in, Core::OutputChannel& out) override;
-
 };
 
 }

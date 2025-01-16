@@ -38,8 +38,8 @@ namespace Gadgetron { namespace Test {
         return header;
     }
 
-    inline Core::Context generate_context() {
-        Core::Context context;
+    inline Core::MrdContext generate_context() {
+        Core::MrdContext context;
         context.header = generate_header();
         return context;
     }
@@ -49,21 +49,21 @@ namespace Gadgetron { namespace Test {
         Core::GenericInputChannel output;
     };
 
-    template <class GADGET>
-    inline GadgetChannels<GADGET> setup_gadget(Core::GadgetProperties properties, Core::Context context = generate_context()) {
+    template <class GADGET, class PARAMETERS>
+    inline GadgetChannels<GADGET> setup_gadget(PARAMETERS& params, Core::MrdContext context = generate_context()) {
 
         auto channels  = Core::make_channel();
         auto channels2 = Core::make_channel();
 
         auto thread = std::thread(
-            [](auto input, auto output, auto properties, auto context) {
+            [](auto input, auto output, auto params, auto context) {
                 try {
-                    GADGET gadget(context, properties);
+                    GADGET gadget(context, params);
                     Core::Node& node = gadget;
                     node.process(input, output);
                 } catch (const Core::ChannelClosed&){}
             },
-            std::move(channels.input), std::move(channels2.output), properties, context);
+            std::move(channels.input), std::move(channels2.output), params, context);
 
         thread.detach();
         return { std::move(channels.output), std::move(channels2.input) };

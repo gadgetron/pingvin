@@ -19,7 +19,9 @@ using namespace std::chrono_literals;
 TEST(AcquisitionAccumulateTriggerTest, slice_trigger) {
 
     try {
-        auto channels = setup_gadget<AcquisitionAccumulateTriggerGadget>({ { "trigger_dimension"s, "slice"s } });
+        AcquisitionAccumulateTriggerGadget::Parameters params;
+        params.trigger_dimension = AcquisitionAccumulateTriggerGadget::TriggerDimension::slice;
+        auto channels = setup_gadget<AcquisitionAccumulateTriggerGadget>(params);
 
         for (size_t i = 0; i < 11; i++) {
             auto acq                      = generate_acquisition(192, 16);

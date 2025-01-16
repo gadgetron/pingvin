@@ -59,10 +59,10 @@ namespace Gadgetron {
                 uint32_t espace       = acq.head.encoding_space_ref.value_or(0);
                 mrd::ReconAssembly& assembly = getReconAssembly(recon_data_buffers, key, espace);
                 if (!assembly.ref) {
-                    assembly.ref = makeDataBuffer(acq, header.encoding[espace], acq_bucket.refstats[espace], true);
+                    assembly.ref = makeDataBuffer(acq, encoding_[espace], acq_bucket.refstats[espace], true);
                 }
 
-                add_acquisition(*assembly.ref, acq, header.encoding[espace], acq_bucket.refstats[espace], true);
+                add_acquisition(*assembly.ref, acq, encoding_[espace], acq_bucket.refstats[espace], true);
             }
 
             // Buffer the bucketed Acquisitions
@@ -71,10 +71,10 @@ namespace Gadgetron {
                 uint32_t espace       = acq.head.encoding_space_ref.value_or(0);
                 mrd::ReconAssembly& assembly = getReconAssembly(recon_data_buffers, key, espace);
                 if (assembly.data.data.empty()) {
-                    assembly.data = makeDataBuffer(acq, header.encoding[espace], acq_bucket.datastats[espace], false);
+                    assembly.data = makeDataBuffer(acq, encoding_[espace], acq_bucket.datastats[espace], false);
                 }
 
-                add_acquisition(assembly.data, acq, header.encoding[espace], acq_bucket.datastats[espace], false);
+                add_acquisition(assembly.data, acq, encoding_[espace], acq_bucket.datastats[espace], false);
             }
 
             // Send all the ReconData messages

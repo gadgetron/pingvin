@@ -17,7 +17,7 @@ namespace Gadgetron {
     // Since the order of data can be changed from its acquried time order, there is no easy way to resort waveform data
     // Therefore, the waveform data was copied and passed with every buffer
 
-    class BucketToBufferGadget : public Core::ChannelGadget<mrd::AcquisitionBucket> {
+    class BucketToBufferGadget : public Core::MRChannelGadget<mrd::AcquisitionBucket> {
     public:
 
         enum class Dimension { average, contrast, phase, repetition, set, segment, slice, none };
@@ -39,11 +39,12 @@ namespace Gadgetron {
             bool verbose = false;
         };
 
-        using Core::ChannelGadget<mrd::AcquisitionBucket>::ChannelGadget;
         BucketToBufferGadget(const Core::MrdContext& context, const Parameters& params)
-            : Core::ChannelGadget<mrd::AcquisitionBucket>(Core::Context{.header=context.header}, Core::GadgetProperties{})
+            : Core::MRChannelGadget<mrd::AcquisitionBucket>(context, params)
             , parameters_(params)
-        { }
+        {
+            encoding_ = context.header.encoding;
+        }
 
     struct BufferKey {
         uint32_t average,slice,contrast,phase,repetition,set,segment;
@@ -60,7 +61,9 @@ namespace Gadgetron {
     };
 
     protected:
-        Parameters parameters_;
+        const Parameters parameters_;
+
+        std::vector<mrd::EncodingType> encoding_;
 
         void process(Core::InputChannel<mrd::AcquisitionBucket>& in, Core::OutputChannel& out) override;
         BufferKey getKey(const mrd::EncodingCounters& idx) const;

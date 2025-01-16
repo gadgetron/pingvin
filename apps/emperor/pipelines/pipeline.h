@@ -238,8 +238,6 @@ class Pipeline {
         }
 
         Pipeline build(std::istream& input_stream, std::ostream& output_stream) override {
-            std::cerr << "Building pipeline " << pipeline_name << std::endl;
-
             if (!source_builder_) {
                 throw std::runtime_error("No source specified");
             }

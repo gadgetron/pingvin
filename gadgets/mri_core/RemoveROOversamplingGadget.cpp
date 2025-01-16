@@ -49,8 +49,8 @@ void RemoveROOversamplingGadget::process(Core::InputChannel<mrd::Acquisition>& i
     }
 }
 
-RemoveROOversamplingGadget::RemoveROOversamplingGadget(const Core::MrdContext& context, const Parameters& params)
-    : Core::ChannelGadget<mrd::Acquisition>(Core::Context{.header = context.header}, Core::GadgetProperties{})
+RemoveROOversamplingGadget::RemoveROOversamplingGadget(const Core::MrdContext& context, const Core::NodeParameters& params)
+    : Core::MRChannelGadget<mrd::Acquisition>(context, params)
 {
     auto h = context.header;
 

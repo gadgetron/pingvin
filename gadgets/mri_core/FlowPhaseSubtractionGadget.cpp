@@ -7,16 +7,21 @@
 
 namespace Gadgetron {
 
+FlowPhaseSubtractionGadget::FlowPhaseSubtractionGadget(const Core::Context& context, const Core::GadgetProperties& props)
+    : Core::ChannelGadget<mrd::Image<std::complex<float>>>(context, props)
+{
+    const auto e_limits = context.header.encoding[0].encoding_limits;
+    sets_ = e_limits.set ? e_limits.set->maximum + 1 : 1;
+
+    if (sets_ > 2) {
+        GADGET_THROW("Phase subtraction only implemented for two sets");
+    }
+}
+
 void FlowPhaseSubtractionGadget::process(Core::InputChannel<mrd::Image<std::complex<float>>>& in,
                                          Core::OutputChannel& out) {
 
-    const auto e_limits = this->header.encoding[0].encoding_limits;
-    const auto sets = e_limits.set ? e_limits.set->maximum + 1 : 1;
-
-    if (sets > 2)
-        throw std::runtime_error("Phase subtraction only implemented for two sets");
-
-    if (sets < 2) {
+    if (sets_ < 2) {
         std::move(in.begin(), in.end(), out.begin());
         return;
     }
