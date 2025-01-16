@@ -16,8 +16,9 @@ namespace Gadgetron{
   class ImageArraySplitGadget : public Core::ChannelGadget<ImageOrImageArray>
     {
       public:
-        using Core::ChannelGadget<ImageOrImageArray>::ChannelGadget;
-        ImageArraySplitGadget() : ChannelGadget("image_array_split") {}
+        ImageArraySplitGadget(const Core::MrdContext& context, const Parameters& params)
+            : Core::ChannelGadget<ImageOrImageArray>(Core::Context{.header=context.header}, Core::GadgetProperties{})
+        { }
         void process(Core::InputChannel<ImageOrImageArray>& input, Core::OutputChannel& output) override;
     };
 }

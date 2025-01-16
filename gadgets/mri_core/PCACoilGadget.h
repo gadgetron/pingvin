@@ -12,7 +12,6 @@ namespace Gadgetron {
   class PCACoilGadget : public Core::ChannelGadget<mrd::Acquisition>
   {
   public:
-    PCACoilGadget() : ChannelGadget("pca_coil") {}
     PCACoilGadget(const Core::Context& context, const Core::GadgetProperties& props);
     ~PCACoilGadget() override;
 
@@ -21,8 +20,6 @@ namespace Gadgetron {
   protected:
     NODE_PROPERTY(uncombined_channels_by_name, std::string, "List of comma separated channels by name", "");
     // GADGET_PROPERTY(present_uncombined_channels, int, "Number of uncombined channels found", 0);
-
-    void initialize_(const Core::Context& context) override;
 
     void calculate_coefficients(int location);
     void do_pca(mrd::Acquisition& acq);

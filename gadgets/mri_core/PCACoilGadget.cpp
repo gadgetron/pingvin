@@ -64,29 +64,6 @@ namespace Gadgetron {
 
     }
 
-    void PCACoilGadget::initialize_(const Core::Context& context) {
-        std::vector<std::string> uncomb;
-        if (uncombined_channels_by_name.size()) {
-            GDEBUG("uncomb_str: %s\n", uncombined_channels_by_name.c_str());
-            boost::split(uncomb, uncombined_channels_by_name, boost::is_any_of(","));
-            for (unsigned int i = 0; i < uncomb.size(); i++) {
-                std::string ch = boost::algorithm::trim_copy(uncomb[i]);
-                if (context.header.acquisition_system_information) {
-                    for (size_t i = 0; i < context.header.acquisition_system_information->coil_label.size(); i++) {
-                        if (ch == context.header.acquisition_system_information->coil_label[i].coil_name) {
-                            uncombined_channels_.push_back(i);//This assumes that the channels are sorted in the header
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-#ifdef USE_OMP
-        omp_set_num_threads(1);
-#endif // USE_OMP
-    }
-
     PCACoilGadget::~PCACoilGadget()
     {
         std::map<int, hoNDKLT<std::complex<float> >* >::iterator it;

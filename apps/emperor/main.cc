@@ -18,7 +18,7 @@ namespace fs = std::filesystem;
 
 namespace {
 
-std::string envvar_to_parameter(const std::string& env_var)
+std::string envvar_to_node_parameter(const std::string& env_var)
 {
     static const std::string prefix("PINGVIN_");
 
@@ -35,7 +35,8 @@ std::string envvar_to_parameter(const std::string& env_var)
     return option;
 }
 
-}
+} // namespace
+
 
 int main(int argc, char** argv)
 {
@@ -48,6 +49,9 @@ int main(int argc, char** argv)
         ("home",
             po::value<std::filesystem::path>()->default_value(pingvin_home),
             "Set the Pingvin home directory.")
+        ("config,c", po::value<std::string>(), "Configuration file.")
+        ("input,i", po::value<std::string>(), "Input stream (default=stdin)")
+        ("output,o", po::value<std::string>(), "Output stream (default=stdout)")
         ;
 
     po::options_description hidden("Hidden options");
@@ -92,14 +96,11 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    // "Register" all Pipelines
-    std::vector<std::shared_ptr<Pipeline>> pipelines;
-    pipelines.push_back(std::make_shared<NoiseDependency>());
-    pipelines.push_back(std::make_shared<Default>());
-    // pipelines.push_back(std::make_shared<CartesianGrappa>());
-    std::map<std::string, std::shared_ptr<Pipeline>> pipeline_map;
-    for (auto& pipeline : pipelines) {
-        pipeline_map[pipeline->name()] = pipeline;
+    // "Choose" a Pipeline
+    std::vector<Pipeline::IBuilder*> builders{&default_mr, &noise_dependency};
+    std::map<std::string, Pipeline::IBuilder*> builder_map;
+    for (auto& builder : builders) {
+        builder_map[builder->name] = builder;
     }
 
     if (!vm.count("pipeline")) {
@@ -109,42 +110,39 @@ int main(int argc, char** argv)
                         << std::endl;
             std::cerr << help_options << std::endl;
             std::cerr << "Pipelines:" << std::endl;
-            for (auto& pipeline : pipelines) {
-                std::cerr << "┌ " << pipeline->name() << std::endl << "└──── " << pipeline->description() << std::endl;
+            for (auto& builder : builders) {
+                // std::cerr << "┌ " << builder->name << std::endl << "└──── " << builder->description << std::endl;
+                std::cerr << "- " << builder->name << std::endl << "  └── " << builder->description << std::endl;
             }
             return 0;
         } else {
             std::cerr << "No pipeline specified" << std::endl;
-
             return 1;
         }
     }
 
     std::string subcmd = vm["pipeline"].as<std::string>();
-    if (!pipeline_map.count(subcmd)) {
+    if (!builder_map.count(subcmd)) {
         std::cerr << "Unknown pipeline: " << subcmd << std::endl;
         return 1;
     }
-    std::cerr << "You chose pipeline: " << subcmd << std::endl;
-    auto& pipeline = pipeline_map[subcmd];
+    auto& builder = builder_map[subcmd];
 
-    pipeline->build();
-
-    po::options_description pipeline_desc("Pipeline Options");
-    pipeline->install_cli(pipeline_desc);
+    po::options_description pipeline_options = builder->collect_options();
 
     try {
         // Parse again for Pipeline
-        po::parsed_options parsed = po::basic_command_line_parser(unrecognized).options(pipeline_desc).run();
+        po::parsed_options parsed = po::basic_command_line_parser(unrecognized).options(pipeline_options).run();
         po::store(parsed, vm);
 
         if (vm.count("help")) {
-            std::cerr << pipeline->name() << ":" << std::endl << "  " << pipeline->description() << std::endl << std::endl;
-            std::cerr << pipeline_desc << std::endl;
+            std::cerr << help_options << std::endl;
+            std::cerr << "Pipeline:" << std::endl;
+            std::cerr << pipeline_options << std::endl;
             return 0;
         }
 
-        po::store(po::parse_environment(pipeline_desc, envvar_to_parameter), vm);
+        po::store(po::parse_environment(pipeline_options, envvar_to_node_parameter), vm);
 
         if (vm.count("config")) {
             auto config_filename = vm["config"].as<std::string>();
@@ -153,7 +151,7 @@ int main(int argc, char** argv)
                 std::cerr << "Could not open config file: " << config_filename << std::endl;
                 return 1;
             }
-            po::store(po::parse_config_file(config_file, pipeline_desc), vm);
+            po::store(po::parse_config_file(config_file, pipeline_options), vm);
         }
 
         po::notify(vm);
@@ -164,9 +162,32 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    std::unique_ptr<std::istream> input_file;
+    if (vm.count("input")) {
+        input_file = std::make_unique<std::ifstream>(vm["input"].as<std::string>());
+        if (!input_file->good()) {
+            std::cerr << "Could not open input file: " << vm["input"].as<std::string>() << std::endl;
+        }
+    }
+
+    std::unique_ptr<std::ostream> output_file;
+    if (vm.count("output")) {
+        output_file = std::make_unique<std::ofstream>(vm["output"].as<std::string>());
+        if (!output_file->good()) {
+            std::cerr << "Could not open output file: " << vm["output"].as<std::string>() << std::endl;
+        }
+    }
+
+    std::istream& input_stream = input_file ? *input_file : std::cin;
+    std::ostream& output_stream = output_file ? *output_file : std::cout;
+
     std::cerr << "Pingvin Home: " << vm["home"].as<std::filesystem::path>() << std::endl;
 
-    pipeline->run(vm);
+    auto pipeline = builder->build(input_stream, output_stream);
+
+    pipeline.run();
+
+    std::flush(output_stream);
 
     std::cout << "Pingvin finished successfully" << std::endl;
 

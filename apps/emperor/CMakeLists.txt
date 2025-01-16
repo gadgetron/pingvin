@@ -3,8 +3,6 @@ configure_file(../pingvin/pingvin_config.in pingvin_config.h)
 add_executable(emperor
     main.cc
 
-        ../pingvin/StreamConsumer.h
-
         ../pingvin/ErrorHandler.h
 
         ../pingvin/nodes/Processable.h

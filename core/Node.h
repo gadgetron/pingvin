@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Parameters.h"
 #include "Channel.h"
 #include "PropertyMixin.h"
 #include "Context.h"
@@ -26,28 +27,14 @@ namespace Gadgetron::Core {
 
     class GenericChannelGadget : public Node, public PropertyMixin {
     public:
+        struct Parameters : NodeParameters {
+            using NodeParameters::NodeParameters;
+        };
+
         GenericChannelGadget(const Context& context, const GadgetProperties& properties) : PropertyMixin(properties), header{context.header} {}
-        GenericChannelGadget(const std::string& name, const Context& context, const GadgetProperties& properties) : PropertyMixin(properties), header{context.header}, name_(name) {}
-
-        void initialize(const Core::Context& context, const GadgetProperties& properties) {
-            this->properties = properties;
-            this->header = context.header;
-            this->initialize_(context);
-        }
-
-        virtual void install_cli(po::options_description& options) {}
-
-        /** TODO: Consider renaming to "key" or "label" */
-        virtual std::string name() { return name_; }
 
     protected:
-        virtual void initialize_(const Context& context) {}
-
-        /** TODO: No longer const, so it can be set in `initialize()` after construction */
-        // const mrd::Header header ={};
-        mrd::Header header ={};
-
-        std::string name_;
+        const mrd::Header header ={};
     };
 
     /**
@@ -60,8 +47,6 @@ namespace Gadgetron::Core {
     public:
 
         using GenericChannelGadget::GenericChannelGadget;
-
-        ChannelGadget(const std::string name): GenericChannelGadget(name, Context{}, GadgetProperties{}) { }
 
         ///
         void process(GenericInputChannel& in, OutputChannel& out) override final {
@@ -78,6 +63,8 @@ namespace Gadgetron::Core {
     };
 }
 
+/** TODO: Delete everywhere */
+/*
 #define GADGETRON_GADGET_EXPORT(GadgetClass)                                    \
     std::unique_ptr<Gadgetron::Core::Node> gadget_factory_##GadgetClass(        \
             const Gadgetron::Core::Context& context,                            \
@@ -86,3 +73,6 @@ namespace Gadgetron::Core {
         return std::make_unique<GadgetClass>(context, props);                   \
     }                                                                           \
 BOOST_DLL_ALIAS(gadget_factory_##GadgetClass, gadget_factory_export_##GadgetClass)
+*/
+
+#define GADGETRON_GADGET_EXPORT(GadgetClass)

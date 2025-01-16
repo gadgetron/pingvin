@@ -11,26 +11,17 @@
 
 namespace pingvin {
 
-class Default : public Pipeline {
-  public:
-    Default() : Pipeline("default", "Basic Cartesian Reconstruction") { }
+  using namespace Gadgetron;
 
-    void build(void) override {
-        // gadgets_.push_back(std::make_shared<Gadgetron::NoiseAdjustGadget>());
-        // gadgets_.push_back(std::make_shared<Gadgetron::RemoveROOversamplingGadget>());
-
-        // gadgets_ = Builder()
-        //     .append<Gadgetron::RemoveROOversamplingGadget>()
-        //     .append<Gadgetron::AcquisitionAccumulateTriggerGadget>()
-        //     .build();
-
-        this->append<Gadgetron::RemoveROOversamplingGadget>();
-        this->append<Gadgetron::AcquisitionAccumulateTriggerGadget>();
-        this->append<Gadgetron::BucketToBufferGadget>();
-        this->append<Gadgetron::SimpleReconGadget>();
-        this->append<Gadgetron::ImageArraySplitGadget>();
-        this->append<Gadgetron::ExtractGadget>();
-    }
-};
+static auto default_mr = Pipeline::Builder<MrdContext>("default", "Basic Cartesian Reconstruction")
+        .withSource<MrdSource>()
+        .withSink<MrdSink>()
+        .withNode<RemoveROOversamplingGadget>("ros")
+        .withNode<AcquisitionAccumulateTriggerGadget>("accumulate")
+        .withNode<BucketToBufferGadget>("buffer")
+        .withNode<SimpleReconGadget>("recon")
+        .withNode<ImageArraySplitGadget>("image-split")
+        .withNode<ExtractGadget>("extract")
+        ;
 
 } // namespace pingvin

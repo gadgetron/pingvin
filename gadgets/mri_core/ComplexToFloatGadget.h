@@ -12,7 +12,6 @@ namespace Gadgetron
 class ComplexToFloatGadget: public Core::PureGadget<mrd::Image<float>,mrd::Image<std::complex<float>>>
     {
     public:
-        ComplexToFloatGadget() : Core::PureGadget<mrd::Image<float>,mrd::Image<std::complex<float>>>("complex_to_float") {}
         ComplexToFloatGadget(const Core::Context& context, const Core::GadgetProperties& props);
 
         mrd::Image<float> process_function(mrd::Image<std::complex<float>> args) const override;

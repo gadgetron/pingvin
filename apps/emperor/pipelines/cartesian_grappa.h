@@ -20,27 +20,23 @@
 
 namespace pingvin {
 
-class CartesianGrappa : public Pipeline {
-  public:
-    CartesianGrappa() : Pipeline("cartesian-grappa", "Cartesian Grappa Recon") { }
-
-    void build(void) override {
-        this->append<Gadgetron::NoiseAdjustGadget>();
-        this->append<Gadgetron::AsymmetricEchoAdjustROGadget>();
-        this->append<Gadgetron::RemoveROOversamplingGadget>();
-        this->append<Gadgetron::AcquisitionAccumulateTriggerGadget>();
-        this->append<Gadgetron::BucketToBufferGadget>();
-        this->append<Gadgetron::GenericReconCartesianReferencePrepGadget>();
-        this->append<Gadgetron::GenericReconEigenChannelGadget>();
-        this->append<Gadgetron::GenericReconCartesianGrappaGadget>();
-        this->append<Gadgetron::GenericReconPartialFourierHandlingFilterGadget>();
-        this->append<Gadgetron::GenericReconKSpaceFilteringGadget>();
-        this->append<Gadgetron::GenericReconFieldOfViewAdjustmentGadget>();
-        this->append<Gadgetron::GenericReconImageArrayScalingGadget>();
-        this->append<Gadgetron::ImageArraySplitGadget>();
-        this->append<Gadgetron::ComplexToFloatGadget>();
-        this->append<Gadgetron::FloatToUShortGadget>();
-    }
-};
+static auto cartesian_grappa = Pipeline::Builder<MrdContext>("cartesian-grappa", "Cartesian Grappa Recon")
+        .withSource<MrdSource>()
+        .withSink<MrdSink>()
+        .withNode<NoiseAdjustGadget>("noise")
+        .withNode<AsymmetricEchoAdjustROGadget>("asymmetric-echo")
+        .withNode<RemoveROOversamplingGadget>("ros")
+        .withNode<AcquisitionAccumulateTriggerGadget>("acquisition-accumulate")
+        .withNode<BucketToBufferGadget>("bucket-to-buffer")
+        .withNode<GenericReconCartesianReferencePrepGadget>("reference-prep")
+        .withNode<GenericReconEigenChannelGadget>("eigen-channel")
+        .withNode<GenericReconCartesianGrappaGadget>("grappa")
+        .withNode<GenericReconPartialFourierHandlingFilterGadget>("pf-handling")
+        .withNode<GenericReconKSpaceFilteringGadget>("kspace-filtering")
+        .withNode<GenericReconFieldOfViewAdjustmentGadget>("fov-adjustment")
+        .withNode<GenericReconImageArrayScalingGadget>("image-array-scaling")
+        .withNode<ImageArraySplitGadget>("image-split")
+        .withNode<ComplexToFloatGadget>("complex-to-float")
+        .withNode<FloatToUShortGadget>("float-to-ushort");
 
 } // namespace pingvin

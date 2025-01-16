@@ -4,41 +4,6 @@
 
 namespace Gadgetron {
 
-RemoveROOversamplingGadget::RemoveROOversamplingGadget(const Core::Context& context,
-                                                       const Core::GadgetProperties& props)
-    : Core::ChannelGadget<mrd::Acquisition>(context, props)
-{
-    auto h = (context.header);
-
-    if (h.encoding.size() == 0) {
-        GDEBUG("Number of encoding spaces: %d\n", h.encoding.size());
-        GERROR("This Gadget needs an encoding description\n");
-        return;
-    }
-
-    mrd::EncodingSpaceType e_space = h.encoding[0].encoded_space;
-    mrd::EncodingSpaceType r_space = h.encoding[0].recon_space;
-
-    encodeNx_ = e_space.matrix_size.x;
-    encodeFOV_ = e_space.field_of_view_mm.x;
-    reconNx_ = r_space.matrix_size.x;
-    reconFOV_ = r_space.field_of_view_mm.x;
-
-#ifdef USE_OMP  // TODO: Should this be removed? Its from the old version
-    omp_set_num_threads(1);
-    GDEBUG_STREAM("RemoveROOversamplingGadget:omp_set_num_threads(1) ... ");
-#endif // USE_OMP
-
-    // If the encoding and recon matrix size and FOV are the same
-    // then the data is not oversampled and we can safely pass
-    // the data onto the next gadget
-    if ((encodeNx_ == reconNx_) && (encodeFOV_ == reconFOV_)) {
-        dowork_ = false;
-    } else {
-        dowork_ = true;
-    }
-}
-
 void RemoveROOversamplingGadget::process(Core::InputChannel<mrd::Acquisition>& in, Core::OutputChannel& out) {
     for (auto acq : in) {
         if (dowork_) {
@@ -84,12 +49,10 @@ void RemoveROOversamplingGadget::process(Core::InputChannel<mrd::Acquisition>& i
     }
 }
 
-void RemoveROOversamplingGadget::install_cli(po::options_description& options) {
-    // TODO
-}
-
-void RemoveROOversamplingGadget::initialize_(const Core::Context& context) {
-    auto h = (context.header);
+RemoveROOversamplingGadget::RemoveROOversamplingGadget(const Core::MrdContext& context, const Parameters& params)
+    : Core::ChannelGadget<mrd::Acquisition>(Core::Context{.header = context.header}, Core::GadgetProperties{})
+{
+    auto h = context.header;
 
     if (h.encoding.size() == 0) {
         GDEBUG("Number of encoding spaces: %d\n", h.encoding.size());

@@ -85,7 +85,7 @@ namespace Gadgetron {
         using Trigger = std::variant<EqualityTrigger, NumAcquisitionsTrigger, NoneTrigger>;
 
         Trigger get_trigger(const AcquisitionAccumulateTriggerGadget& gadget) {
-            switch (gadget.trigger_dimension) {
+            switch (gadget.parameters_.trigger_dimension) {
 
             case TriggerDimension::kspace_encode_step_1:
             case TriggerDimension::kspace_encode_step_2:
@@ -103,8 +103,8 @@ namespace Gadgetron {
             case TriggerDimension::user_4:
             case TriggerDimension::user_5:
             case TriggerDimension::user_6:
-            case TriggerDimension::user_7: return EqualityTrigger(gadget.trigger_dimension);
-            case TriggerDimension::n_acquisitions: return NumAcquisitionsTrigger(gadget.n_acquisitions_before_trigger,gadget.n_acquisitions_before_ongoing_trigger);
+            case TriggerDimension::user_7: return EqualityTrigger(gadget.parameters_.trigger_dimension);
+            case TriggerDimension::n_acquisitions: return NumAcquisitionsTrigger(gadget.parameters_.n_acquisitions_before_trigger, gadget.parameters_.n_acquisitions_before_ongoing_trigger);
             case TriggerDimension::none: return NoneTrigger();
             default: throw std::runtime_error("ENUM TriggerDimension is in an invalid state.");
             }
@@ -156,7 +156,7 @@ namespace Gadgetron {
                 send_data(out, buckets, waveforms);
             }
             // It is enough to put the first one, since they are linked
-            auto sorting_index = get_index(acq.head, sorting_dimension);
+            auto sorting_index = get_index(acq.head, parameters_.sorting_dimension);
 
             mrd::AcquisitionBucket& bucket = buckets[sorting_index];
             Gadgetron::add_acquisition_to_bucket(bucket, std::move(acq));
@@ -168,15 +168,6 @@ namespace Gadgetron {
         }
         GDEBUG_STREAM("AcquisitionAccumulateTriggerGadget processed " << count << " Acquisitions total");
         send_data(out, buckets, waveforms);
-    }
-
-    void AcquisitionAccumulateTriggerGadget::install_cli(po::options_description& desc)
-    {
-        desc.add_options()
-            ("trigger_dimension", po::value<TriggerDimension>(&trigger_dimension)->default_value(TriggerDimension::none), "Dimension to trigger on")
-            ("sorting_dimension", po::value<TriggerDimension>(&sorting_dimension)->default_value(TriggerDimension::none), "Dimension to sort on")
-            ("n_acquisitions_before_trigger", po::value<unsigned long>(&n_acquisitions_before_trigger)->default_value(40), "Number of acquisitions before first trigger")
-            ("n_acquisitions_before_ongoing_trigger", po::value<unsigned long>(&n_acquisitions_before_ongoing_trigger)->default_value(40), "Number of acquisitions before ongoing triggers");
     }
 
     GADGETRON_GADGET_EXPORT(AcquisitionAccumulateTriggerGadget);

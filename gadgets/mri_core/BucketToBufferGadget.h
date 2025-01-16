@@ -19,11 +19,31 @@ namespace Gadgetron {
 
     class BucketToBufferGadget : public Core::ChannelGadget<mrd::AcquisitionBucket> {
     public:
-        using Core::ChannelGadget<mrd::AcquisitionBucket>::ChannelGadget;
-        BucketToBufferGadget() : ChannelGadget("bucket_to_buffer") {}
+
         enum class Dimension { average, contrast, phase, repetition, set, segment, slice, none };
 
-        virtual void install_cli(po::options_description& desc) override;
+        struct Parameters : public Core::NodeParameters {
+            using NodeParameters::NodeParameters;
+            Parameters(const std::string& prefix) : NodeParameters(prefix, "Bucket To Buffer Options")
+            {
+                register_parameter("N-dimensions", &N_dimension, "N-Dimensions");
+                register_parameter("S-dimensions", &S_dimension, "S-Dimensions");
+                register_flag("split-slices", &split_slices, "Split slices");
+                register_flag("ignore-segment", &ignore_segment, "Ignore segment");
+                register_flag("verbose", &verbose, "Whether to print more information");
+            }
+            Dimension N_dimension = Dimension::none;
+            Dimension S_dimension = Dimension::none;
+            bool split_slices = false;
+            bool ignore_segment = false;
+            bool verbose = false;
+        };
+
+        using Core::ChannelGadget<mrd::AcquisitionBucket>::ChannelGadget;
+        BucketToBufferGadget(const Core::MrdContext& context, const Parameters& params)
+            : Core::ChannelGadget<mrd::AcquisitionBucket>(Core::Context{.header=context.header}, Core::GadgetProperties{})
+            , parameters_(params)
+        { }
 
     struct BufferKey {
         uint32_t average,slice,contrast,phase,repetition,set,segment;
@@ -40,12 +60,7 @@ namespace Gadgetron {
     };
 
     protected:
-        NODE_PROPERTY(N_dimension, Dimension, "N-Dimensions", Dimension::none);
-        NODE_PROPERTY(S_dimension, Dimension, "S-Dimensions", Dimension::none);
-
-        NODE_PROPERTY(split_slices, bool, "Split slices", false);
-        NODE_PROPERTY(ignore_segment, bool, "Ignore segment", false);
-        NODE_PROPERTY(verbose, bool, "Whether to print more information", false);
+        Parameters parameters_;
 
         void process(Core::InputChannel<mrd::AcquisitionBucket>& in, Core::OutputChannel& out) override;
         BufferKey getKey(const mrd::EncodingCounters& idx) const;
@@ -66,4 +81,6 @@ namespace Gadgetron {
     };
 
     void from_string(const std::string&, BucketToBufferGadget::Dimension&);
+    std::ostream& operator<<(std::ostream& out, const BucketToBufferGadget::Dimension& param);
+    void validate(boost::any& v, const std::vector<std::string>& values, BucketToBufferGadget::Dimension*, int);
 }

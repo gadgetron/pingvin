@@ -6,13 +6,12 @@
 
 namespace pingvin {
 
-class NoiseDependency: public Pipeline {
-  public:
-    NoiseDependency() : Pipeline("noise", "Compute noise covariance for measurement dependency") { }
+  using namespace Gadgetron;
 
-    void build(void) override {
-        gadgets_.push_back(std::make_shared<Gadgetron::NoiseAdjustGadget>());
-    }
-};
+  static auto noise_dependency = Pipeline::Builder<MrdContext>("noise", "Compute noise covariance for measurement dependency")
+        .withSource<MrdSource>()
+        .withSink<MrdSink>()
+        .withNode<NoiseAdjustGadget>("noise")
+        ;
 
 } // namespace pingvin

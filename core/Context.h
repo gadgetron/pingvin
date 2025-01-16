@@ -6,6 +6,12 @@
 
 namespace Gadgetron::Core {
 
+    /** TODO: Move to MR-specific location */
+    struct MrdContext  {
+        mrd::Header header;
+    };
+
+
     struct Context {
         using Header = mrd::Header;
 

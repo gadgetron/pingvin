@@ -131,11 +131,11 @@ namespace Gadgetron {
 
     BufferKey BucketToBufferGadget::getKey(const mrd::EncodingCounters& idx) const {
         BufferKey key(idx);
-        clear(N_dimension, key);
-        clear(S_dimension, key);
-        if (!split_slices)
+        clear(parameters_.N_dimension, key);
+        clear(parameters_.S_dimension, key);
+        if (!parameters_.split_slices)
             key.slice = 0;
-        if (ignore_segment)
+        if (parameters_.ignore_segment)
             key.segment = 0;
         return key;
     }
@@ -188,10 +188,10 @@ namespace Gadgetron {
         uint32_t NE2 = getNE2(encoding, stats, forref);
         size_t NCHA = acq.Coils();
         uint32_t NLOC = getNLOC(encoding, stats);
-        uint32_t NN = getSizeFromDimension(N_dimension, stats);
-        uint32_t NS = getSizeFromDimension(S_dimension, stats);
+        uint32_t NN = getSizeFromDimension(parameters_.N_dimension, stats);
+        uint32_t NS = getSizeFromDimension(parameters_.S_dimension, stats);
 
-        GDEBUG_CONDITION_STREAM(verbose, "Data dimensions [RO E1 E2 CHA N S SLC] : ["
+        GDEBUG_CONDITION_STREAM(parameters_.verbose, "Data dimensions [RO E1 E2 CHA N S SLC] : ["
                                              << NE0 << " " << NE1 << " " << NE2 << " " << NCHA << " " << NN << " " << NS
                                              << " " << NLOC << "]");
 
@@ -221,7 +221,7 @@ namespace Gadgetron {
     uint32_t BucketToBufferGadget::getNLOC(
         const mrd::EncodingType& encoding, const mrd::EncodingLimitsType& stats) const {
         uint32_t NLOC;
-        if (split_slices) {
+        if (parameters_.split_slices) {
             NLOC = 1;
         } else {
             if (encoding.encoding_limits.slice.has_value()) {
@@ -343,7 +343,7 @@ namespace Gadgetron {
         sampling.sampling_limits.kspace_encoding_step_2.maximum = encoding.encoding_limits.kspace_encoding_step_2->maximum;
         sampling.sampling_limits.kspace_encoding_step_2.center = encoding.encoding_limits.kspace_encoding_step_2->center;
 
-        if (verbose) {
+        if (parameters_.verbose) {
             GDEBUG_STREAM("Encoding space : " << acq.head.encoding_space_ref.value_or(0) << " - "
                           << int(encoding.trajectory) << " - FOV : [ " << encoding.encoded_space.field_of_view_mm.x << " "
                           << encoding.encoded_space.field_of_view_mm.y << " " << encoding.encoded_space.field_of_view_mm.z
@@ -432,7 +432,7 @@ namespace Gadgetron {
             sampling.sampling_limits.kspace_encoding_step_2.center = encoding.encoding_limits.kspace_encoding_step_2->center;
         }
 
-        if (verbose) {
+        if (parameters_.verbose) {
             GDEBUG_STREAM("Encoding space : "
                           << int(encoding.trajectory) << " - FOV : [ " << encoding.encoded_space.field_of_view_mm.x << " "
                           << encoding.encoded_space.field_of_view_mm.y << " " << encoding.encoded_space.field_of_view_mm.z
@@ -462,7 +462,7 @@ namespace Gadgetron {
         uint16_t NS   = (uint16_t)dataBuffer.data.get_size(5);
         uint16_t NLOC = (uint16_t)dataBuffer.data.get_size(6);
 
-        const size_t slice_loc = split_slices || NLOC == 1 ? 0 : acq.head.idx.slice.value_or(0);
+        const size_t slice_loc = parameters_.split_slices || NLOC == 1 ? 0 : acq.head.idx.slice.value_or(0);
 
         // Stuff the data
         uint32_t npts_to_copy = acq.Samples() - acq.head.discard_pre.value_or(0) - acq.head.discard_post.value_or(0);
@@ -488,11 +488,11 @@ namespace Gadgetron {
             throw std::runtime_error("Acquired reference data does not fit into the reference data buffer.\n");
         }
 
-        uint32_t NUsed = (uint32_t)getDimensionKey(N_dimension, acq.head.idx);
+        uint32_t NUsed = (uint32_t)getDimensionKey(parameters_.N_dimension, acq.head.idx);
         if (NUsed >= NN)
             NUsed = NN - 1;
 
-        uint32_t SUsed = (uint32_t)getDimensionKey(S_dimension, acq.head.idx);
+        uint32_t SUsed = (uint32_t)getDimensionKey(parameters_.S_dimension, acq.head.idx);
         if (SUsed >= NS)
             SUsed = NS - 1;
 
@@ -600,15 +600,6 @@ namespace Gadgetron {
                 { "repetition", Dimension::repetition }, { "set", Dimension::set }, { "segment", Dimension::segment },
                 { "slice", Dimension::slice }, { "", Dimension::none }, { "none", Dimension::none }
               };
-    }
-
-    void BucketToBufferGadget::install_cli(po::options_description& desc) {
-        desc.add_options()
-            ("N_dimension", po::value<Dimension>(&N_dimension)->default_value(Dimension::none), "N-Dimensions")
-            ("S_dimension", po::value<Dimension>(&S_dimension)->default_value(Dimension::none), "S-Dimensions")
-            ("split_slices", po::value<bool>(&split_slices)->default_value(false), "Split slices")
-            ("ignore_segment", po::value<bool>(&ignore_segment)->default_value(false), "Ignore segment")
-            ("verbose", po::value<bool>(&verbose)->default_value(false), "Whether to print more information");
     }
 
     void from_string(const std::string& str, BucketToBufferGadget::Dimension& dim) {

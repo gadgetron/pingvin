@@ -116,19 +116,18 @@ public:
         process_future.get();
     }
 
+    // mrd::Header consume_mrd_header(mrd::binary::MrdReader& mrd_reader, mrd::binary::MrdWriter& mrd_writer)
+    // {
+    //     std::optional<mrd::Header> hdr;
 
-    mrd::Header consume_mrd_header(mrd::binary::MrdReader& mrd_reader, mrd::binary::MrdWriter& mrd_writer)
-    {
-        std::optional<mrd::Header> hdr;
+    //     mrd_reader.ReadHeader(hdr);
+    //     mrd_writer.WriteHeader(hdr);
 
-        mrd_reader.ReadHeader(hdr);
-        mrd_writer.WriteHeader(hdr);
-
-        if (!hdr.has_value()) {
-            GADGET_THROW("Failed to read ISMRMRD header");
-        }
-        return hdr.value();
-    }
+    //     if (!hdr.has_value()) {
+    //         GADGET_THROW("Failed to read ISMRMRD header");
+    //     }
+    //     return hdr.value();
+    // }
 
   private:
 
