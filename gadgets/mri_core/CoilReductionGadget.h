@@ -11,16 +11,28 @@
 #include <boost/algorithm/string/split.hpp>
 
 namespace Gadgetron{
-  class CoilReductionGadget : public Core::ChannelGadget<mrd::Acquisition>
+  class CoilReductionGadget : public Core::MRChannelGadget<mrd::Acquisition>
     {
       public:
-        using Core::ChannelGadget<mrd::Acquisition>::ChannelGadget;
-        CoilReductionGadget(const Core::Context& context, const Core::GadgetProperties& props);
+        struct Parameters : public Core::NodeParameters {
+          std::string coil_mask = "";
+          unsigned int coils_out = 128;
+
+          Parameters(const std::string& prefix) : NodeParameters(prefix, "Coil Reduction Options") {
+            register_parameter("coil-mask", &coil_mask, "String mask of zeros and ones, e.g. 000111000 indicating which coils to keep");
+            register_parameter("coils-out", &coils_out, "Number of coils to keep, coils with higher indices will be discarded");
+          }
+
+        };
+
+        CoilReductionGadget(const Core::MrdContext& context, const Parameters& params);
         ~CoilReductionGadget() override = default;
+
         void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& output) override;
+
       protected:
-        NODE_PROPERTY(coil_mask, std::string, "String mask of zeros and ones, e.g. 000111000 indicating which coils to keep", "");
-        NODE_PROPERTY(coils_out, int, "Number of coils to keep, coils with higher indices will be discarded", 128);
+        const Parameters parameters_;
+
         std::vector<unsigned short> coil_mask_;
         unsigned int coils_in_;
         unsigned int coils_out_;

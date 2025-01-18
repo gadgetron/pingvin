@@ -10,14 +10,11 @@
 
 namespace Gadgetron
 {
-class AugmentImageMetadataGadget: public Core::PureGadget<mrd::Image<std::complex<float>>,mrd::Image<std::complex<float>>>
-    {
-    public:
-        using BaseClass = Core::PureGadget<mrd::Image<std::complex<float>>,mrd::Image<std::complex<float>>>;
+class AugmentImageMetadataGadget: public Core::MRPureGadget<mrd::Image<std::complex<float>>,mrd::Image<std::complex<float>>>
+{
+public:
+    using Core::MRPureGadget<mrd::Image<std::complex<float>>,mrd::Image<std::complex<float>>>::MRPureGadget;
 
-        AugmentImageMetadataGadget(const Core::Context& context, const Core::GadgetProperties& props)
-            : BaseClass(context,props) {}
-
-        mrd::Image<std::complex<float>> process_function(mrd::Image<std::complex<float>> args) const override;
+    mrd::Image<std::complex<float>> process_function(mrd::Image<std::complex<float>> args) const override;
 };
 }

@@ -19,8 +19,9 @@ namespace {
 } // namespace
 
 namespace Gadgetron {
-    AsymmetricEchoAdjustROGadget::AsymmetricEchoAdjustROGadget(const Core::Context& context, const Core::GadgetProperties& props)
-        : Core::ChannelGadget<mrd::Acquisition>(context, props)
+
+    AsymmetricEchoAdjustROGadget::AsymmetricEchoAdjustROGadget(const Core::MrdContext& context, const Parameters& params)
+        : Core::MRChannelGadget<mrd::Acquisition>(context, params)
     {
         auto current_mrd_header = (context.header);
         maxRO_.resize(current_mrd_header.encoding.size());
@@ -30,6 +31,7 @@ namespace Gadgetron {
             GDEBUG_STREAM("max RO for encoding space  " << e << " : " << maxRO_[e]);
         }
     }
+
     void AsymmetricEchoAdjustROGadget::process(Core::InputChannel<mrd::Acquisition>& in, Core::OutputChannel& out) {
         for (auto acq : in) {
             bool is_noise = acq.head.flags.HasFlags(mrd::AcquisitionFlags::kIsNoiseMeasurement);

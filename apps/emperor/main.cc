@@ -96,7 +96,7 @@ int main(int argc, char** argv)
     }
 
     // "Choose" a Pipeline
-    std::vector<Pipeline::IBuilder*> builders{&default_mr, &noise_dependency, &file_search};
+    std::vector<Pipeline::IBuilder*> builders{&default_mr, &default_mr_optimized, &noise_dependency, &file_search};
     std::map<std::string, Pipeline::IBuilder*> builder_map;
     for (auto& builder : builders) {
         builder_map[builder->name] = builder;

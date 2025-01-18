@@ -9,10 +9,10 @@
 
 namespace Gadgetron
 {
-class ComplexToFloatGadget: public Core::PureGadget<mrd::Image<float>,mrd::Image<std::complex<float>>>
+class ComplexToFloatGadget: public Core::MRPureGadget<mrd::Image<float>,mrd::Image<std::complex<float>>>
     {
     public:
-        ComplexToFloatGadget(const Core::Context& context, const Core::GadgetProperties& props);
+        ComplexToFloatGadget(const Core::MrdContext&, const Parameters&);
 
         mrd::Image<float> process_function(mrd::Image<std::complex<float>> args) const override;
     private:

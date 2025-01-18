@@ -23,13 +23,14 @@ namespace Gadgetron {
         }
     }
 
-    PCACoilGadget::PCACoilGadget(const Core::Context& context, const Core::GadgetProperties& props)
-        : Core::ChannelGadget<mrd::Acquisition>(context, props)
+    PCACoilGadget::PCACoilGadget(const Core::MrdContext& context, const Parameters& params)
+        : Core::MRChannelGadget<mrd::Acquisition>(context, params)
+        , parameters_(params)
     {
         std::vector<std::string> uncomb;
-        if (uncombined_channels_by_name.size()) {
-            GDEBUG("uncomb_str: %s\n", uncombined_channels_by_name.c_str());
-            boost::split(uncomb, uncombined_channels_by_name, boost::is_any_of(","));
+        if (parameters_.uncombined_channels_by_name.size()) {
+            GDEBUG_STREAM("uncomb_str: " << parameters_.uncombined_channels_by_name);
+            boost::split(uncomb, parameters_.uncombined_channels_by_name, boost::is_any_of(","));
             for (unsigned int i = 0; i < uncomb.size(); i++) {
                 std::string ch = boost::algorithm::trim_copy(uncomb[i]);
                 if (context.header.acquisition_system_information) {
@@ -42,21 +43,6 @@ namespace Gadgetron {
                 }
             }
         }
-
-        /** NOTE:
-         *
-         * This PCACoilGadget used to have a GADGET_PROPERTY "present_uncombined_channels" that was
-         * updated here to `uncombined_channels_.size()`, then later referenced by the NoiseAdjustGadget
-         * **only** in the `interventional_mri/grappa_device.xml` chain, which is untested.
-         *
-         * However, ChannelGadgets don't seem to support a non-const GADGET_PROPERTY. They only support
-         * NODE_PROPERTY, which declares a const member variable.
-         *
-         * Since the grappa_device chains is not tested anywhere, I think this is a "dead" feature.
-         *
-         */
-        // present_uncombined_channels.value((int)uncombined_channels_.size());
-        // GDEBUG("Number of uncombined channels (present_uncombined_channels) set to %d\n", uncombined_channels_.size());
 
 #ifdef USE_OMP
         omp_set_num_threads(1);

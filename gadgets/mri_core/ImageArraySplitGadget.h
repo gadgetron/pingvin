@@ -16,9 +16,7 @@ namespace Gadgetron{
   class ImageArraySplitGadget : public Core::MRChannelGadget<ImageOrImageArray>
     {
       public:
-        ImageArraySplitGadget(const Core::MrdContext& context, const Core::NodeParameters& params)
-          : Core::MRChannelGadget<ImageOrImageArray>(context, params)
-        { }
+        using Core::MRChannelGadget<ImageOrImageArray>::MRChannelGadget;
 
         void process(Core::InputChannel<ImageOrImageArray>& input, Core::OutputChannel& output) override;
     };

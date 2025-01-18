@@ -11,13 +11,13 @@
 #include "hoNDArray.h"
 
 namespace Gadgetron{
-  class AsymmetricEchoAdjustROGadget : public Core::ChannelGadget<mrd::Acquisition>
+  class AsymmetricEchoAdjustROGadget : public Core::MRChannelGadget<mrd::Acquisition>
     {
       public:
-        using Core::ChannelGadget<mrd::Acquisition>::ChannelGadget;
-        AsymmetricEchoAdjustROGadget(const Core::Context& context, const Core::GadgetProperties& props);
-        ~AsymmetricEchoAdjustROGadget() override = default;
+        AsymmetricEchoAdjustROGadget(const Core::MrdContext& context, const Parameters& params);
+
         void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& output) override;
+
       protected:
         std::vector<unsigned int> maxRO_;
     };

@@ -2,10 +2,6 @@
 
 namespace Gadgetron{
 
-    FFTGadget::FFTGadget(const Core::Context& context, const Core::GadgetProperties& props) : ChannelGadget(context, props){
-        image_counter_ = 0;
-    }
-
     mrd::Image<std::complex<float>> CreateAndFFTImage(mrd::ReconBuffer dbuff, uint16_t n, uint16_t s, uint16_t loc, long long image_index){
 
         //7D, fixed order [E0, E1, E2, CHA, N, S, LOC]

@@ -43,35 +43,37 @@ set(pingvin_mricore_header_files
         )
 
 set(pingvin_mricore_src_files
+        AcquisitionAccumulateTriggerGadget.cpp
+        AsymmetricEchoAdjustROGadget.cpp
         AugmentImageMetadataGadget.cpp
+        AutoScaleGadget.cpp
+        BucketToBufferGadget.cpp
+        CoilReductionGadget.cpp
+        CombineGadget.cpp
+        ComplexToFloatGadget.cpp
+        CompressedFloatBuffer.cpp
+        CompressedFloatBufferAvx2.cpp
+        CompressedFloatBufferSse41.cpp
+        cpuisa.cpp
+        DenoiseGadget.cpp
+        ExtractGadget.cpp
+        FFTGadget.cpp
+        FlagTriggerGadget.cpp
+        FloatToFixPointGadget.cpp
+        FlowPhaseSubtractionGadget.cpp
+        ImageArraySplitGadget.cpp
+        MaxwellCorrectionGadget.cpp
         NoiseAdjustGadget.cpp
         PCACoilGadget.cpp
-        FFTGadget.cpp
-        CombineGadget.cpp
-        ExtractGadget.cpp
-        FloatToFixPointGadget.cpp
-        RemoveROOversamplingGadget.cpp
-        CoilReductionGadget.cpp
-        FlowPhaseSubtractionGadget.cpp
         PhysioInterpolationGadget.cpp
-        AsymmetricEchoAdjustROGadget.cpp
-        MaxwellCorrectionGadget.cpp
-        ComplexToFloatGadget.cpp
-        AcquisitionAccumulateTriggerGadget.cpp
-        BucketToBufferGadget.cpp
-        ImageArraySplitGadget.cpp
+        RemoveROOversamplingGadget.cpp
         SimpleReconGadget.cpp
-        ImageSortGadget.cpp
-        CompressedFloatBuffer.cpp
-        CompressedFloatBufferSse41.cpp
-        CompressedFloatBufferAvx2.cpp
-        cpuisa.cpp
-        AutoScaleGadget.cpp
-        DenoiseGadget.cpp
-        FlagTriggerGadget.cpp
-        ImageIndexGadget.cpp
-        AccumulatorGadget.cpp
-        ScaleGadget.cpp
+
+        # These Gadgets are NOT TESTED, but they HAVE BEEN upgraded to MRD v2
+        # AccumulatorGadget.cpp
+        # ImageIndexGadget.cpp
+        # ImageSortGadget.cpp
+        # ScaleGadget.cpp
 
         # These Gadgets are NOT TESTED and have not been upgraded to MRD v2
         # CoilComputationGadget.cpp

@@ -43,7 +43,7 @@ namespace {
 
 namespace Gadgetron {
 	mrd::AnyImage AutoScaleGadget::process_function(mrd::AnyImage image) const {
-		return visit([&](auto &image) -> mrd::AnyImage { return autoscale(image, max_value, histogram_bins); }, image);
+		return visit([&](auto &image) -> mrd::AnyImage { return autoscale(image, parameters_.max_value, parameters_.histogram_bins); }, image);
 	}
 	GADGETRON_GADGET_EXPORT(AutoScaleGadget);
 }
