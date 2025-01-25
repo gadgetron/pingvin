@@ -1,25 +1,19 @@
-#ifndef FFTXGADGET_H
-#define FFTXGADGET_H
+#pragma once
 
-#include "Gadget.h"
+#include "Node.h"
 #include "hoNDArray.h"
 
 #include <complex>
 
 namespace Gadgetron{
 
-  class FFTXGadget : 
-  public Gadget1<mrd::Acquisition>
-  {
+  class FFTXGadget : public Core::ChannelGadget<mrd::Acquisition> {
     public:
-      FFTXGadget();
-      virtual ~FFTXGadget();
+      FFTXGadget(const Core::Context& context, const Core::GadgetProperties& props)
+        : ChannelGadget(context, props) {}
 
     protected:
-      virtual int process( GadgetContainerMessage< mrd::Acquisition>* m1);
-
-      hoNDArray< std::complex<float> > r_;
-      hoNDArray< std::complex<float> > buf_;
+      void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& out) override;
   };
+
 }
-#endif //FFTXGADGET_H

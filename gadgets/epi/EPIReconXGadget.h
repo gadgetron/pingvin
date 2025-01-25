@@ -1,40 +1,26 @@
-#ifndef EPIRECONXGADGET_H
-#define EPIRECONXGADGET_H
+#pragma once
 
-#include "Gadget.h"
-#include "hoNDArray.h"
-#include "hoArmadillo.h"
-
-#include <complex>
-
-#include "EPIReconXObjectFlat.h"
+#include "Node.h"
 #include "EPIReconXObjectTrapezoid.h"
+#include "EPIReconXObjectFlat.h"
 
-namespace Gadgetron{
+namespace Gadgetron {
 
-  class EPIReconXGadget : 
-  public Gadget1<mrd::Acquisition>
-    {
+    class EPIReconXGadget : public Core::ChannelGadget<mrd::Acquisition> {
     public:
-      EPIReconXGadget();
-      virtual ~EPIReconXGadget();
-      
+        EPIReconXGadget(const Core::Context& context, const Core::GadgetProperties& props);
+
     protected:
-      GADGET_PROPERTY(verboseMode, bool, "Verbose output", false);
+        NODE_PROPERTY(verbose_mode_, bool, "Verbose output", false);
 
-      virtual int process_config(const mrd::Header& header);
-      virtual int process(GadgetContainerMessage<mrd::Acquisition>* m1);
+        void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& out) override;
 
-      // in verbose mode, more info is printed out
-      bool verboseMode_;
+        // A set of reconstruction objects
+        EPI::EPIReconXObjectTrapezoid<std::complex<float>> reconx;
+        EPI::EPIReconXObjectFlat<std::complex<float>> reconx_other;
 
-      // A set of reconstruction objects
-      EPI::EPIReconXObjectTrapezoid<std::complex<float> > reconx;
-      EPI::EPIReconXObjectFlat<std::complex<float> > reconx_other;
-
-      // readout oversampling for reconx_other
-      float oversamplng_ratio2_;
-
+        // readout oversampling for reconx_other
+        float oversamplng_ratio2_;
     };
-}
-#endif //EPIRECONXGADGET_H
+
+} // namespace Gadgetron

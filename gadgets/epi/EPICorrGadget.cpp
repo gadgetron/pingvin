@@ -13,17 +13,15 @@ namespace Gadgetron {
 
 #define OE_PHASE_CORR_POLY_ORDER 4
 
-    EPICorrGadget::EPICorrGadget() {}
-
-    EPICorrGadget::~EPICorrGadget() {}
-
-    int EPICorrGadget::process_config(const mrd::Header& header) {
-        auto& h = header;
+    EPICorrGadget::EPICorrGadget(const Core::Context& context, const Core::GadgetProperties& props)
+        : Core::ChannelGadget<mrd::Acquisition>(context, props)
+        , corrComputed_(false), navNumber_(-1), epiEchoNumber_(-1)
+    {
+        auto& h = context.header;
 
         if (h.encoding.size() == 0) {
             GDEBUG("Number of encoding spaces: %d\n", h.encoding.size());
-            GDEBUG("This Gadget needs an encoding description\n");
-            return GADGET_FAIL;
+            GADGET_THROW("This Gadget needs an encoding description\n");
         }
 
         // Get the encoding space and trajectory description
@@ -35,13 +33,11 @@ namespace Gadgetron {
         if (h.encoding[0].trajectory_description) {
             traj_desc = *h.encoding[0].trajectory_description;
         } else {
-            GDEBUG("Trajectory description missing");
-            return GADGET_FAIL;
+            GADGET_THROW("Trajectory description missing");
         }
 
         if (traj_desc.identifier != "ConventionalEPI") {
-            GDEBUG("Expected trajectory description identifier 'ConventionalEPI', not found.");
-            return GADGET_FAIL;
+            GADGET_THROW("Expected trajectory description identifier 'ConventionalEPI', not found.");
         }
 
 
@@ -55,113 +51,95 @@ namespace Gadgetron {
         }
 
         // Make sure the reference navigator is properly set:
-        if (referenceNavigatorNumber.value() > (numNavigators_ - 1)) {
-            GDEBUG("Reference navigator number is larger than number of navigators acquired.");
-            return GADGET_FAIL;
+        if (referenceNavigatorNumber > (numNavigators_ - 1)) {
+            GADGET_THROW("Reference navigator number is larger than number of navigators acquired.");
         }
 
         // Initialize arrays needed for temporal filtering, if requested:
-        GDEBUG_STREAM("navigatorParameterFilterLength = " << navigatorParameterFilterLength.value());
-        if (navigatorParameterFilterLength.value() > 1) {
+        GDEBUG_STREAM("navigatorParameterFilterLength = " << navigatorParameterFilterLength);
+        if (navigatorParameterFilterLength > 1) {
             init_arrays_for_nav_parameter_filtering(e_limits);
         }
 
-        verboseMode_ = verboseMode.value();
-
-        corrComputed_ = false;
-        navNumber_ = -1;
-        epiEchoNumber_ = -1;
-
         GDEBUG_STREAM("EPICorrGadget configured");
-        return 0;
     }
 
-    int EPICorrGadget::process(
-            GadgetContainerMessage<mrd::Acquisition> *m1) {
+    void EPICorrGadget::process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& out)
+    {
+        std::vector<mrd::Acquisition> unprocessed_acquisitions;
 
-         // Get a reference to the acquisition header
-        auto& hdr = m1->getObjectPtr()->head;
-        auto& data = m1->getObjectPtr()->data;
+        for (auto acq: input) {
+            // Get a reference to the acquisition header
+            auto& hdr = acq.head;
+            auto& data = acq.data;
 
-        // Pass on the non-EPI data (e.g. FLASH Calibration)
-        if (hdr.encoding_space_ref > 0) {
-            // It is enough to put the first one, since they are linked
-            if (this->next()->putq(m1) == -1) {
-                m1->release();
-                GERROR("EPICorrGadget::process, passing data on to next gadget");
-                return -1;
+            // Pass on the non-EPI data (e.g. FLASH Calibration)
+            if (hdr.encoding_space_ref > 0) {
+                out.push(std::move(acq));
+                continue;
             }
-            return 0;
-        }
 
-        // We have data from encoding space 0.
+            // Check to see if the data is a navigator line or an imaging line
+            if (hdr.flags.HasFlags(mrd::AcquisitionFlags::kIsPhasecorrData)) {
+                arma::cx_fmat adata = as_arma_matrix(data);
+                process_phase_correction_data(hdr, adata);
+            } else {
 
-        // Make an armadillo matrix of the data
+                unprocessed_acquisitions.push_back(std::move(acq));
+                if (corrComputed_) {
+                    for (auto& msg : unprocessed_acquisitions) {
 
-        // Check to see if the data is a navigator line or an imaging line
-        if (hdr.flags.HasFlags(mrd::AcquisitionFlags::kIsPhasecorrData)) {
-            arma::cx_fmat adata = as_arma_matrix(data);
-            process_phase_correction_data(hdr, adata);
-            m1->release();
+                        arma::cx_fmat adata = as_arma_matrix(msg.data);
 
-        } else {
+                        mrd::AcquisitionHeader &hdr = msg.head;
+                        apply_epi_correction(hdr, adata);
 
-            unprocessed_messages_.emplace_back(m1);
-            if (corrComputed_) {
-                for (auto msg : unprocessed_messages_) {
-
-                    arma::cx_fmat adata = as_arma_matrix(msg->getObjectPtr()->data);
-
-                    mrd::AcquisitionHeader &hdr = msg->getObjectPtr()->head;
-                    apply_epi_correction(hdr, adata);
-                    if (this->next()->putq(msg) == -1) {
-                        msg->release();
-                        GERROR("EPICorrGadget::process, passing data on to next gadget");
-                        return -1;
+                        out.push(std::move(msg));
                     }
+                    unprocessed_acquisitions.clear();
                 }
-                unprocessed_messages_.clear();
             }
         }
-        return 0;
     }
 
-    void EPICorrGadget::apply_epi_correction(mrd::AcquisitionHeader &hdr, arma::cx_fmat &adata) {// Increment the echo number
+    void EPICorrGadget::apply_epi_correction(mrd::AcquisitionHeader &hdr, arma::cx_fmat &adata)
+    {
+        // Increment the echo number
         epiEchoNumber_ += 1;
 
         if (epiEchoNumber_ == 0) {
-                // For now, we will correct the phase evolution of each EPI line, with respect
-                //   to the first line in the EPI readout train (echo 0), due to B0 inhomogeneities.
-                //   That is, the reconstructed images will have the phase that the object had at
-                //   the beginning of the EPI readout train (excluding the phase due to encoding),
-                //   multiplied by the coil phase.
-                // Later, we could add the time between the excitation and echo 0, or between one
-                //   of the navigators and echo 0, to correct for phase differences from shot to shot.
-                //   This will be important for multi-shot EPI acquisitions.
-                RefNav_to_Echo0_time_ES_ = 0;
-            }
+            // For now, we will correct the phase evolution of each EPI line, with respect
+            //   to the first line in the EPI readout train (echo 0), due to B0 inhomogeneities.
+            //   That is, the reconstructed images will have the phase that the object had at
+            //   the beginning of the EPI readout train (excluding the phase due to encoding),
+            //   multiplied by the coil phase.
+            // Later, we could add the time between the excitation and echo 0, or between one
+            //   of the navigators and echo 0, to correct for phase differences from shot to shot.
+            //   This will be important for multi-shot EPI acquisitions.
+            RefNav_to_Echo0_time_ES_ = 0;
+        }
 
         // Apply the correction
-// We use the armadillo notation that loops over all the columns
+        // We use the armadillo notation that loops over all the columns
         if (hdr.flags.HasFlags(mrd::AcquisitionFlags::kIsReverse)) {
-                // Negative readout
-                for (int p = 0; p < adata.n_cols; p++) {
-                    adata.col(p) %= (pow(corrB0_, epiEchoNumber_ + RefNav_to_Echo0_time_ES_) % corrneg_);
-                }
-                // Now that we have corrected we set the readout direction to positive
-                hdr.flags.UnsetFlags(mrd::AcquisitionFlags::kIsReverse);
-            } else {
-                // Positive readout
-                for (int p = 0; p < adata.n_cols; p++) {
-                    adata.col(p) %= (pow(corrB0_, epiEchoNumber_ + RefNav_to_Echo0_time_ES_) % corrpos_);
-                }
+            // Negative readout
+            for (int p = 0; p < adata.n_cols; p++) {
+                adata.col(p) %= (pow(corrB0_, epiEchoNumber_ + RefNav_to_Echo0_time_ES_) % corrneg_);
             }
+            // Now that we have corrected we set the readout direction to positive
+            hdr.flags.UnsetFlags(mrd::AcquisitionFlags::kIsReverse);
+        } else {
+            // Positive readout
+            for (int p = 0; p < adata.n_cols; p++) {
+                adata.col(p) %= (pow(corrB0_, epiEchoNumber_ + RefNav_to_Echo0_time_ES_) % corrpos_);
+            }
+        }
     }
 
-    void EPICorrGadget::process_phase_correction_data(mrd::AcquisitionHeader &hdr,
-                                                      arma::cx_fmat &adata) {// Increment the navigator counter
+    void EPICorrGadget::process_phase_correction_data(mrd::AcquisitionHeader &hdr, arma::cx_fmat &adata)
+    {
+        // Increment the navigator counter
         navNumber_ += 1;
-        
 
         // If the number of navigators per shot is exceeded, then
         // we are at the beginning of the next shot
@@ -198,11 +176,11 @@ namespace Gadgetron {
             int p; // counter
 
             // mean of the reference navigator (across RO and channels):
-            std::complex<float> navMean = mean(vectorise(navdata_.slice(referenceNavigatorNumber.value())));
+            std::complex<float> navMean = mean(vectorise(navdata_.slice(referenceNavigatorNumber)));
     
             // for clarity, we'll use the following when filtering navigator parameters:
             size_t set(hdr.idx.set.value_or(0)), slc(hdr.idx.slice.value_or(0)), exc(0);
-            if (navigatorParameterFilterLength.value() > 1) {
+            if (navigatorParameterFilterLength > 1) {
                 // Careful: kspace_encode_step_2 for a navigator is always 0, and at this point we
                 //          don't have access to the kspace_encode_step_2 for the next line.  Instead,
                 //          keep track of the excitation number for this set and slice:
@@ -224,7 +202,7 @@ namespace Gadgetron {
             //////      B0 correction      //////
             /////////////////////////////////////
 
-            if (B0CorrectionMode.value().compare("none") != 0)    // If B0 correction is requested
+            if (B0CorrectionMode.compare("none") != 0)    // If B0 correction is requested
             {
 
                 arma::cx_fvec ctemp = arma::zeros<arma::cx_fvec>(Nx_);    // temp column complex
@@ -237,21 +215,21 @@ namespace Gadgetron {
                 // Perform the fit:
                 float slope = 0.;
                 float intercept = 0.;
-                if ((B0CorrectionMode.value().compare("mean") == 0) ||
-                    (B0CorrectionMode.value().compare("linear") == 0)) {
+                if ((B0CorrectionMode.compare("mean") == 0) ||
+                    (B0CorrectionMode.compare("linear") == 0)) {
                     // If a linear term is requested, compute it first (in the complex domain):
-                    if (B0CorrectionMode.value().compare("linear") == 0) {          // Robust fit to a straight line:
+                    if (B0CorrectionMode.compare("linear") == 0) {          // Robust fit to a straight line:
                         slope = (Nx_ - 1) * std::arg(arma::cdot(ctemp.rows(0, Nx_ - 2), ctemp.rows(1, Nx_ - 1)));
                         //GDEBUG_STREAM("Slope = " << slope << std::endl);
                         // If we need to filter the estimate:
-                        if (navigatorParameterFilterLength.value() > 1) {
+                        if (navigatorParameterFilterLength > 1) {
                             // (Because to estimate the intercept (constant term) we need to use the slope estimate,
                             //   we want to filter it first):
                             //   - Store the value in the corresponding array (we want to store it before filtering)
                             B0_slope_(exc, set, slc) = slope;
                             //   - Filter parameter:
                             slope = filter_nav_correction_parameter(B0_slope_, Nav_mag_, exc, set, slc,
-                                                                    navigatorParameterFilterLength.value());
+                                                                    navigatorParameterFilterLength);
                         }
 
                         // Correct for the slope, to be able to compute the average phase:
@@ -261,13 +239,13 @@ namespace Gadgetron {
                     // Now, compute the mean phase:
                     intercept = arg(sum(ctemp));
                     //GDEBUG_STREAM("Intercept = " << intercept << std::endl);
-                    if (navigatorParameterFilterLength.value() > 1) {
+                    if (navigatorParameterFilterLength > 1) {
                         //   - Store the value found in the corresponding array:
                         B0_intercept_(exc, set, slc) = intercept;
                         //   - Filter parameters:
                         // Filter in the complex domain (last arg:"true"), to avoid smoothing across phase wraps:
                         intercept = filter_nav_correction_parameter(B0_intercept_, Nav_mag_, exc, set, slc,
-                                                                    navigatorParameterFilterLength.value(), true);
+                                                                    navigatorParameterFilterLength, true);
                     }
 
                     // Then, our estimate of the phase:
@@ -289,7 +267,7 @@ namespace Gadgetron {
             //////      Odd-Even correction -- Phase      //////
             ////////////////////////////////////////////////////
 
-            if (OEPhaseCorrectionMode.value().compare("none") != 0)    // If Odd-Even phase correction is requested
+            if (OEPhaseCorrectionMode.compare("none") != 0)    // If Odd-Even phase correction is requested
             {
                 // Accumulate over navigator triplets and sum over coils
                 // this is the average phase difference between odd and even navigators
@@ -303,25 +281,25 @@ namespace Gadgetron {
 
                 float slope = 0.;
                 float intercept = 0.;
-                if ((OEPhaseCorrectionMode.value().compare("mean") == 0) ||
-                    (OEPhaseCorrectionMode.value().compare("linear") == 0) ||
-                    (OEPhaseCorrectionMode.value().compare("polynomial") == 0)) {
+                if ((OEPhaseCorrectionMode.compare("mean") == 0) ||
+                    (OEPhaseCorrectionMode.compare("linear") == 0) ||
+                    (OEPhaseCorrectionMode.compare("polynomial") == 0)) {
                     // If a linear term is requested, compute it first (in the complex domain):
                     // (This is important in case there are -pi/+pi phase wraps, since a polynomial
                     //  fit to the phase will not work)
-                    if ((OEPhaseCorrectionMode.value().compare("linear") == 0) ||
-                        (OEPhaseCorrectionMode.value().compare("polynomial") ==
+                    if ((OEPhaseCorrectionMode.compare("linear") == 0) ||
+                        (OEPhaseCorrectionMode.compare("polynomial") ==
                          0)) {          // Robust fit to a straight line:
                         slope = (Nx_ - 1) * std::arg(arma::cdot(ctemp.rows(0, Nx_ - 2), ctemp.rows(1, Nx_ - 1)));
                         // If we need to filter the estimate:
-                        if (navigatorParameterFilterLength.value() > 1) {
+                        if (navigatorParameterFilterLength > 1) {
                             // (Because to estimate the intercept (constant term) we need to use the slope estimate,
                             //   we want to filter it first):
                             //   - Store the value in the corresponding array (we want to store it before filtering)
                             OE_phi_slope_(exc, set, slc) = slope;
                             //   - Filter parameter:
                             slope = filter_nav_correction_parameter(OE_phi_slope_, Nav_mag_, exc, set, slc,
-                                                                    navigatorParameterFilterLength.value());
+                                                                    navigatorParameterFilterLength);
                         }
 
                         // Now correct for the slope, to be able to compute the average phase:
@@ -332,20 +310,20 @@ namespace Gadgetron {
                     // Now, compute the mean phase:
                     intercept = arg(sum(ctemp));
                     //GDEBUG_STREAM("Intercept = " << intercept << std::endl);
-                    if (navigatorParameterFilterLength.value() > 1) {
+                    if (navigatorParameterFilterLength > 1) {
                         //   - Store the value found in the corresponding array:
                         OE_phi_intercept_(exc, set, slc) = intercept;
                         //   - Filter parameters:
                         // Filter in the complex domain ("true"), to avoid smoothing across phase wraps:
                         intercept = filter_nav_correction_parameter(OE_phi_intercept_, Nav_mag_, exc, set, slc,
-                                                                    navigatorParameterFilterLength.value(), true);
+                                                                    navigatorParameterFilterLength, true);
                     }
 
                     // Then, our estimate of the phase:
                     tvec = slope * x + intercept;
 
                     // If a polynomial fit is requested:
-                    if (OEPhaseCorrectionMode.value().compare("polynomial") == 0) {
+                    if (OEPhaseCorrectionMode.compare("polynomial") == 0) {
                         tvec += polynomial_correction(Nx_, x, ctemp, set, slc, exc, intercept);
 
                     }   // end of OEPhaseCorrectionMode == "polynomial"
@@ -367,7 +345,7 @@ namespace Gadgetron {
             corrComputed_ = true;
 
             // Increase the excitation number for this slice and set (to be used for the next shot)
-            if (navigatorParameterFilterLength.value() > 1) {
+            if (navigatorParameterFilterLength > 1) {
                 excitNo_[slc][set]++;
             }
         }
@@ -375,11 +353,13 @@ namespace Gadgetron {
 
     arma::fvec
     EPICorrGadget::polynomial_correction(int Nx_, const arma::fvec &x, const arma::cx_fvec &ctemp_in, size_t set, size_t slc, size_t exc,
-                                             float intercept) {// Fit the residuals (i.e., after removing the linear trend) to a polynomial.
-// You cannot fit the phase directly to the polynomial because it doesn't work
-//   in cases that the phase wraps across the image.
-// Since we have already removed the slope (in the if OEPhaseCorrectionMode
-//   == "linear" or "polynomial" step), just remove the constant phase:
+                                             float intercept)
+    {
+        // Fit the residuals (i.e., after removing the linear trend) to a polynomial.
+        // You cannot fit the phase directly to the polynomial because it doesn't work
+        //   in cases that the phase wraps across the image.
+        // Since we have already removed the slope (in the if OEPhaseCorrectionMode
+        //   == "linear" or "polynomial" step), just remove the constant phase:
         arma::cx_fvec ctemp = ctemp_in % exp(
                                 arma::cx_fvec(arma::zeros<arma::fvec>(Nx_), -intercept * arma::ones<arma::fvec>(Nx_)));
 
@@ -392,7 +372,7 @@ namespace Gadgetron {
                         }
         arma::fmat X;
 
-        if (OEPhaseCorrectionMode.value().compare("polynomial") == 0) {
+        if (OEPhaseCorrectionMode.compare("polynomial") == 0) {
 
                 X = arma::zeros<arma::fmat>(Nx_, OE_PHASE_CORR_POLY_ORDER + 1);
                 X.col(0) = arma::ones<arma::fvec>(Nx_);
@@ -409,7 +389,7 @@ namespace Gadgetron {
 
         // Solve for the polynomial coefficients:
         arma::fvec phase_poly_coef = solve(WX, Wctemp);
-        if (navigatorParameterFilterLength.value() > 1) {
+        if (navigatorParameterFilterLength > 1) {
                             for (size_t i = 0; i < OE_phi_poly_coef_.size(); ++i) {
                                 //   - Store the value found in the corresponding array:
                                 OE_phi_poly_coef_[i](exc, set, slc) = phase_poly_coef(i);
@@ -417,7 +397,7 @@ namespace Gadgetron {
                                 //   - Filter parameters:
                                 phase_poly_coef(i) = filter_nav_correction_parameter(OE_phi_poly_coef_[i], Nav_mag_,
                                                                                      exc, set, slc,
-                                                                                     navigatorParameterFilterLength.value());
+                                                                                     navigatorParameterFilterLength);
                             }
                             //GDEBUG_STREAM("OE_phi_poly_coef size: " << OE_phi_poly_coef_.size());
                         }
@@ -459,14 +439,14 @@ namespace Gadgetron {
         //   to do it also through e2.  Bottom line: e2 and repetition are equivalent.
         Nav_mag_.create(E2_ * REP, SET, SLC);
         B0_intercept_.create(E2_ * REP, SET, SLC);
-        if (B0CorrectionMode.value().compare("linear") == 0) {
+        if (B0CorrectionMode.compare("linear") == 0) {
             B0_slope_.create(E2_ * REP, SET, SLC);
         }
         OE_phi_intercept_.create(E2_ * REP, SET, SLC);
-        if ((OEPhaseCorrectionMode.value().compare("linear") == 0) ||
-            (OEPhaseCorrectionMode.value().compare("polynomial") == 0)) {
+        if ((OEPhaseCorrectionMode.compare("linear") == 0) ||
+            (OEPhaseCorrectionMode.compare("polynomial") == 0)) {
             OE_phi_slope_.create(E2_ * REP, SET, SLC);
-            if (OEPhaseCorrectionMode.value().compare("polynomial") == 0) {
+            if (OEPhaseCorrectionMode.compare("polynomial") == 0) {
                 OE_phi_poly_coef_.resize(OE_PHASE_CORR_POLY_ORDER + 1);
                 for (size_t i = 0; i < OE_phi_poly_coef_.size(); ++i) {
                     OE_phi_poly_coef_[i].create(E2_ * REP, SET, SLC);
@@ -475,8 +455,8 @@ namespace Gadgetron {
         }
 
         // Armadillo vector of evenly-spaced timepoints to filter navigator parameters:
-        t_ = arma::linspace<arma::fvec>(0, navigatorParameterFilterLength.value() - 1,
-                                        navigatorParameterFilterLength.value());
+        t_ = arma::linspace<arma::fvec>(0, navigatorParameterFilterLength - 1,
+                                        navigatorParameterFilterLength);
 
     }
 
@@ -516,7 +496,7 @@ namespace Gadgetron {
         }
 
         // If this repetition number is less than then number of repetitions to exclude...
-        if (exc < navigatorParameterFilterExcludeVols.value() * E2_) {
+        if (exc < navigatorParameterFilterExcludeVols * E2_) {
             //   no filtering is needed, just return the corresponding value:
             return nav_corr_param_array(exc, set, slc);
         }
@@ -531,7 +511,7 @@ namespace Gadgetron {
         // make sure we don't use more timepoints (e2 phase encoding steps and repetitions)
         //    that the currently acquired (minus the ones we have been asked to exclude
         //    from the beginning of the run):
-        Nt = std::min(Nt, exc - (navigatorParameterFilterExcludeVols.value() * E2_) + 1);
+        Nt = std::min(Nt, exc - (navigatorParameterFilterExcludeVols * E2_) + 1);
 
         // create armadillo vectors, and stuff them in reverse order (from the
         // current timepoint, looking backwards). This way, the filtered value
@@ -612,7 +592,7 @@ namespace Gadgetron {
         B0_intercept_ = tmpArray;
 
         // B0_slope_ :
-        if (B0CorrectionMode.value().compare("linear") == 0) {
+        if (B0CorrectionMode.compare("linear") == 0) {
             for (size_t slc = 0; slc < SLC; ++slc) {
                 for (size_t set = 0; set < SET; ++set) {
                     memcpy(&tmpArray(0, set, slc), &B0_slope_(0, set, slc),
@@ -632,8 +612,8 @@ namespace Gadgetron {
         OE_phi_intercept_ = tmpArray;
 
         // OE_phi_slope_ :
-        if ((OEPhaseCorrectionMode.value().compare("linear") == 0) ||
-            (OEPhaseCorrectionMode.value().compare("polynomial") == 0)) {
+        if ((OEPhaseCorrectionMode.compare("linear") == 0) ||
+            (OEPhaseCorrectionMode.compare("polynomial") == 0)) {
             for (size_t slc = 0; slc < SLC; ++slc) {
                 for (size_t set = 0; set < SET; ++set) {
                     memcpy(&tmpArray(0, set, slc), &OE_phi_slope_(0, set, slc),
@@ -643,7 +623,7 @@ namespace Gadgetron {
             OE_phi_slope_ = tmpArray;
 
             // OE_phi_poly_coef_ :
-            if (OEPhaseCorrectionMode.value().compare("polynomial") == 0) {
+            if (OEPhaseCorrectionMode.compare("polynomial") == 0) {
                 for (size_t i = 0; i < OE_phi_poly_coef_.size(); ++i) {
                     for (size_t slc = 0; slc < SLC; ++slc) {
                         for (size_t set = 0; set < SET; ++set) {
@@ -658,6 +638,5 @@ namespace Gadgetron {
 
     }
 
-
-    GADGET_FACTORY_DECLARE(EPICorrGadget)
+    GADGETRON_GADGET_EXPORT(EPICorrGadget)
 }

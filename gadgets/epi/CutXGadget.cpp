@@ -4,86 +4,66 @@
 
 namespace Gadgetron{
 
-    CutXGadget::CutXGadget() {}
-    CutXGadget::~CutXGadget() {}
-
-    int CutXGadget::process_config(const mrd::Header& header)
+    CutXGadget::CutXGadget(const Core::Context& context, const Core::GadgetProperties& props)
+        : ChannelGadget(context, props)
     {
-        auto& h = header;
+        auto& h = context.header;
 
-      if (h.encoding.size() == 0) {
-	GDEBUG("Number of encoding spaces: %d\n", h.encoding.size());
-	GDEBUG("This Gadget needs an encoding description\n");
-	return GADGET_FAIL;
-      }
+        if (h.encoding.empty()) {
+            GDEBUG("This Gadget needs an encoding description\n");
+            GADGET_THROW("No encoding spaces found in header");
+        }
 
-      // Get the encoding space and trajectory description
-      mrd::EncodingSpaceType e_space = h.encoding[0].encoded_space;
-      mrd::EncodingSpaceType r_space = h.encoding[0].recon_space;
-      mrd::EncodingLimitsType e_limits = h.encoding[0].encoding_limits;
-      mrd::TrajectoryDescriptionType traj_desc;
+        GDEBUG("Number of encoding spaces = %d\n", h.encoding.size());
 
-      // Primary encoding space is for EPI
-      encodeNx_  = e_space.matrix_size.x;
-      encodeFOV_ = e_space.field_of_view_mm.x;
-      reconNx_   = r_space.matrix_size.x;
-      reconFOV_  = r_space.field_of_view_mm.x;
+        // Get the encoding space and trajectory description
+        mrd::EncodingSpaceType e_space = h.encoding[0].encoded_space;
+        mrd::EncodingSpaceType r_space = h.encoding[0].recon_space;
 
-      cutNx_ = encodeNx_;
+        // Primary encoding space is for EPI
+        encodeNx_  = e_space.matrix_size.x;
+        encodeFOV_ = e_space.field_of_view_mm.x;
+        reconNx_   = r_space.matrix_size.x;
+        reconFOV_  = r_space.field_of_view_mm.x;
 
-      return 0;
+        cutNx_ = encodeNx_;
     }
 
-    int CutXGadget::process( GadgetContainerMessage< mrd::Acquisition>* m1)
+    void CutXGadget::process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& out)
     {
-        try
-        {
-            // cut the central half from the kspace line
-            if ( m1->getObjectPtr()->Samples() > cutNx_ )
-            {
-                size_t RO = m1->getObjectPtr()->Samples();
+        for (auto acq : input) {
+            try {
+                auto& data = acq.data;
+                size_t RO = data.get_size(0);
 
-                auto& head = m1->getObjectPtr()->head;
+                if (RO > cutNx_) {
+                    auto& head = acq.head;
 
-                uint32_t center_sample = head.center_sample.value_or(RO/2);
-                uint16_t startX = center_sample - cutNx_/2;
-                uint16_t endX = startX + cutNx_ - 1;
+                    uint32_t center_sample = head.center_sample.value_or(RO / 2);
+                    uint16_t startX = center_sample - cutNx_ / 2;
+                    uint16_t endX = startX + cutNx_ - 1;
 
-                float ratio = RO / (float)cutNx_;
-                head.center_sample = (uint16_t)(center_sample / ratio );
+                    float ratio = RO / static_cast<float>(cutNx_);
+                    head.center_sample = static_cast<uint16_t>(center_sample / ratio);
 
-                GadgetContainerMessage< hoNDArray< std::complex<float> > >* m3 = new GadgetContainerMessage< hoNDArray< std::complex<float> > >();
+                    hoNDArray<std::complex<float>> data_out(cutNx_, data.get_size(1));
 
-                auto& data = m1->getObjectPtr()->data;
-                std::vector<size_t> dim(2);
-                dim[0] = cutNx_;
-                dim[1] = data.get_size(1);
+                    for (size_t cha = 0; cha < data.get_size(1); cha++) {
+                        memcpy(data_out.begin() + cha * cutNx_,
+                               data.begin() + cha * RO + startX,
+                               sizeof(std::complex<float>) * cutNx_);
+                    }
 
-                m3->getObjectPtr()->create(dim);
-
-                size_t cha;
-                for ( cha=0; cha<dim[1]; cha++ )
-                {
-                    memcpy(m3->getObjectPtr()->begin()+cha*cutNx_,
-                            data.begin()+cha*RO+startX,
-                            sizeof( std::complex<float> )*cutNx_);
+                    acq.data = std::move(data_out);
                 }
 
-                m1->cont(m3);
-            }
-
-            if (this->next()->putq(m1) < 0)
-            {
-                return GADGET_FAIL;
+                out.push(std::move(acq));
+            } catch (...) {
+                GERROR("Errors in CutXGadget::process(...) ... ");
+                throw;
             }
         }
-        catch(...)
-        {
-            return GADGET_FAIL;
-        }
-
-        return GADGET_OK;
     }
 
-    GADGET_FACTORY_DECLARE(CutXGadget)
+    GADGETRON_GADGET_EXPORT(CutXGadget)
 }

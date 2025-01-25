@@ -1,7 +1,6 @@
-#ifndef EPICORRGADGET_H
-#define EPICORRGADGET_H
+#pragma once
 
-#include "Gadget.h"
+#include "Node.h"
 #include "hoNDArray.h"
 #include "hoArmadillo.h"
 
@@ -13,42 +12,24 @@
 
 namespace Gadgetron {
 
-    class EPICorrGadget :
-            public Gadget1<mrd::Acquisition> {
+    class EPICorrGadget : public Core::ChannelGadget<mrd::Acquisition> {
     public:
-        EPICorrGadget();
-
-        virtual ~EPICorrGadget();
+        EPICorrGadget(const Core::Context& context, const Core::GadgetProperties& props);
 
     protected:
-        GADGET_PROPERTY(verboseMode, bool, "Verbose output", false);
-        GADGET_PROPERTY(referenceNavigatorNumber, size_t,
+        NODE_PROPERTY(referenceNavigatorNumber, size_t,
                         "Navigator number to be used as reference, both for phase correction and weights for filtering (default=1 -- second navigator)",
                         1);
-        GADGET_PROPERTY_LIMITS(B0CorrectionMode, std::string, "B0 correction mode", "mean",
-                               GadgetPropertyLimitsEnumeration,
-                               "none",
-                               "mean",
-                               "linear");
-        GADGET_PROPERTY_LIMITS(OEPhaseCorrectionMode, std::string, "Odd-Even phase-correction mode", "polynomial",
-                               GadgetPropertyLimitsEnumeration,
-                               "none",
-                               "mean",
-                               "linear",
-                               "polynomial");
-        GADGET_PROPERTY(navigatorParameterFilterLength, int,
+        NODE_PROPERTY(B0CorrectionMode, std::string, "B0 correction mode (none, mean, linear)", "mean");
+        NODE_PROPERTY(OEPhaseCorrectionMode, std::string, "Odd-Even phase-correction mode (none, mean, linear, polynomial)", "polynomial");
+        NODE_PROPERTY(navigatorParameterFilterLength, int,
                         "Number of repetitions to use to filter the navigator parameters (set to 0 or negative for no filtering)",
                         0);
-        GADGET_PROPERTY(navigatorParameterFilterExcludeVols, size_t,
+        NODE_PROPERTY(navigatorParameterFilterExcludeVols, size_t,
                         "Number of volumes/repetitions to exclude from the beginning of the run when filtering the navigator parameters (e.g., to take into account dummy acquisitions. Default: 0)",
                         0);
 
-        virtual int process_config(const mrd::Header& header);
-
-        virtual int process(GadgetContainerMessage<mrd::Acquisition> *m1);
-
-        // in verbose mode, more info is printed out
-        bool verboseMode_;
+        void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& out) override;
 
         void init_arrays_for_nav_parameter_filtering(mrd::EncodingLimitsType e_limits);
 
@@ -83,9 +64,6 @@ namespace Gadgetron {
         int epiEchoNumber_;
         bool startNegative_;
 
-
-        std::vector<GadgetContainerMessage<mrd::Acquisition> *> unprocessed_messages_;
-
         // --------------------------------------------------
         // variables for navigator parameter filtering
         // --------------------------------------------------
@@ -114,4 +92,3 @@ namespace Gadgetron {
         void apply_epi_correction(mrd::AcquisitionHeader &hdr, arma::cx_fmat &adata);
     };
 }
-#endif //EPICORRGADGET_H

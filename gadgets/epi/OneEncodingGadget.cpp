@@ -2,25 +2,12 @@
 
 namespace Gadgetron {
 
-    OneEncodingGadget::OneEncodingGadget()
-    {
-    }
-
-    OneEncodingGadget::~OneEncodingGadget()
-    {
-    }
-
-    int OneEncodingGadget::process(GadgetContainerMessage< mrd::Acquisition>* m1)
-    {
-        m1->getObjectPtr()->head.encoding_space_ref = 0;
-
-        if (this->next()->putq(m1) < 0)
-        {
-            return GADGET_FAIL;
+    void OneEncodingGadget::process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& out) {
+        for (auto acq : input) {
+            acq.head.encoding_space_ref = 0;
+            out.push(std::move(acq));
         }
-
-        return GADGET_OK;
     }
 
-    GADGET_FACTORY_DECLARE(OneEncodingGadget)
+    GADGETRON_GADGET_EXPORT(OneEncodingGadget)
 }

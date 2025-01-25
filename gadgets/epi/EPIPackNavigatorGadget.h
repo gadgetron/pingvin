@@ -1,42 +1,22 @@
-#ifndef EPIPACKNAVIGATORGADGET_H
-#define EPIPACKNAVIGATORGADGET_H
+#pragma once
 
-#include "Gadget.h"
+#include "Node.h"
 #include "hoNDArray.h"
 #include "hoArmadillo.h"
 
 #include <complex>
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-
 namespace Gadgetron{
 
-  class  EPIPackNavigatorGadget :
-  public Gadget1<mrd::Acquisition>
-    {
+  class EPIPackNavigatorGadget : public Core::ChannelGadget<mrd::Acquisition> {
     public:
-      EPIPackNavigatorGadget();
-      virtual ~EPIPackNavigatorGadget();
+      EPIPackNavigatorGadget(const Core::Context& context, const Core::GadgetProperties& props);
 
     protected:
-      GADGET_PROPERTY(verboseMode, bool, "Verbose output", false);
-
-      virtual int process_config(const mrd::Header& header);
-      virtual int process(GadgetContainerMessage<mrd::Acquisition>* m1);
-
-      // in verbose mode, more info is printed out
-      bool verboseMode_;
-
-      arma::cx_fcube navdata_;
+      void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& out) override;
 
       // epi parameters
       int numNavigators_;
+  };
 
-      // for a given shot
-      int navNumber_;
-      int epiEchoNumber_;
-
-    };
 }
-#endif //EPIPACKNAVIGATORGADGET_H

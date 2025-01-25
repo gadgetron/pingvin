@@ -3,26 +3,19 @@
     \author Hui Xue
 */
 
-#ifndef ONEENCODINGGADGET_H
-#define ONEENCODINGGADGET_H
+#pragma once
 
-#include "Gadget.h"
-#include "hoNDArray.h"
-
-#include <complex>
+#include "Node.h"
 
 namespace Gadgetron {
 
-    class OneEncodingGadget :
-        public Gadget1<mrd::Acquisition>
-    {
+    class OneEncodingGadget : public Core::ChannelGadget<mrd::Acquisition> {
     public:
-        OneEncodingGadget();
-        virtual ~OneEncodingGadget();
+        OneEncodingGadget(const Core::Context& context, const Core::GadgetProperties& props)
+            : ChannelGadget(context, props) {}
 
     protected:
-        virtual int process(GadgetContainerMessage< mrd::Acquisition>* m1);
+        void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& out) override;
     };
-}
 
-#endif // ONEENCODINGGADGET_H
+} // namespace Gadgetron

@@ -1,23 +1,22 @@
 #ifndef CutXGADGET_H
 #define CutXGADGET_H
 
-#include "Gadget.h"
+#include "Node.h"
 #include "hoNDArray.h"
 
 #include <complex>
 
 namespace Gadgetron{
 
-  class   CutXGadget :
-  public Gadget1<mrd::Acquisition>
+  class CutXGadget : public Core::ChannelGadget<mrd::Acquisition>
   {
     public:
-      CutXGadget();
-      virtual ~CutXGadget();
+      CutXGadget(const Core::Context& context, const Core::GadgetProperties& props);
 
     protected:
-      virtual int process_config(const mrd::Header& header);
-      virtual int process( GadgetContainerMessage< mrd::Acquisition>* m1);
+      NODE_PROPERTY(verbose_mode_, bool, "Verbose output", false);
+
+      void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& out) override;
 
       size_t encodeNx_;
       float encodeFOV_;
