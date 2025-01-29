@@ -18,42 +18,38 @@
 
 namespace Gadgetron {
 
-    class GenericReconKSpaceFilteringGadget : public GenericReconImageBase
+    class GenericReconKSpaceFilteringGadget : public GenericReconImageArrayBase
     {
     public:
-        typedef GenericReconImageBase BaseClass;
+        typedef GenericReconImageArrayBase BaseClass;
 
-        GenericReconKSpaceFilteringGadget();
-        ~GenericReconKSpaceFilteringGadget();
+        GenericReconKSpaceFilteringGadget(const Core::Context &context, const Core::GadgetProperties &properties);
 
         /// ------------------------------------------------------------------------------------
         /// parameters to control the reconstruction
         /// ------------------------------------------------------------------------------------
-        GADGET_PROPERTY(skip_processing_meta_field, std::string, "If this meta field exists, pass the incoming image array to next gadget without processing", "Skip_processing_after_recon");
+        NODE_PROPERTY(skip_processing_meta_field, std::string, "If this meta field exists, pass the incoming image array to next gadget without processing", "Skip_processing_after_recon");
 
         /// ------------------------------------------------------------------------------------
         /// kspace filter parameters
-        GADGET_PROPERTY_LIMITS(filterRO, std::string, "Kspace filter for RO dimension", "Gaussian",
-            GadgetPropertyLimitsEnumeration, "Gaussian", "Hanning", "TaperedHanning", "None");
+        NODE_PROPERTY(filterRO, std::string, "Kspace filter for RO dimension (Gaussian, Hanning, TaperedHanning, None)", "Gaussian");
 
-        GADGET_PROPERTY(filterRO_sigma, double, "Filter sigma for gaussian for RO dimension", 1.0);
-        GADGET_PROPERTY(filterRO_width, double, "Filter width for tapered hanning for RO dimension", 0.15);
-
-        // ------------------------------------------------------------------------------------
-
-        GADGET_PROPERTY_LIMITS(filterE1, std::string, "Kspace filter for E1 dimension", "Gaussian",
-            GadgetPropertyLimitsEnumeration, "Gaussian", "Hanning", "TaperedHanning", "None");
-
-        GADGET_PROPERTY(filterE1_sigma, double, "Filter sigma for gaussian for E1 dimension", 1.0);
-        GADGET_PROPERTY(filterE1_width, double, "Filter width for tapered hanning for E1 dimension", 0.15);
+        NODE_PROPERTY(filterRO_sigma, double, "Filter sigma for gaussian for RO dimension", 1.0);
+        NODE_PROPERTY(filterRO_width, double, "Filter width for tapered hanning for RO dimension", 0.15);
 
         // ------------------------------------------------------------------------------------
 
-        GADGET_PROPERTY_LIMITS(filterE2, std::string, "Kspace filter for E2 dimension", "Gaussian",
-            GadgetPropertyLimitsEnumeration, "Gaussian", "Hanning", "TaperedHanning", "None");
+        NODE_PROPERTY(filterE1, std::string, "Kspace filter for E1 dimension (Gaussian, Hanning, TaperedHanning, None)", "Gaussian");
 
-        GADGET_PROPERTY(filterE2_sigma, double, "Filter sigma for gaussian for E2 dimension", 1.0);
-        GADGET_PROPERTY(filterE2_width, double, "Filter width for tapered hanning for E2 dimension", 0.15);
+        NODE_PROPERTY(filterE1_sigma, double, "Filter sigma for gaussian for E1 dimension", 1.0);
+        NODE_PROPERTY(filterE1_width, double, "Filter width for tapered hanning for E1 dimension", 0.15);
+
+        // ------------------------------------------------------------------------------------
+
+        NODE_PROPERTY(filterE2, std::string, "Kspace filter for E2 dimension (Gaussian, Hanning, TaperedHanning, None)", "Gaussian");
+
+        NODE_PROPERTY(filterE2_sigma, double, "Filter sigma for gaussian for E2 dimension", 1.0);
+        NODE_PROPERTY(filterE2_width, double, "Filter width for tapered hanning for E2 dimension", 0.15);
 
         // ------------------------------------------------------------------------------------
 
@@ -87,8 +83,7 @@ namespace Gadgetron {
         // --------------------------------------------------
 
         // default interface function
-        virtual int process_config(const mrd::Header& header);
-        virtual int process(Gadgetron::GadgetContainerMessage< mrd::ImageArray >* m1);
+        virtual void process(Core::InputChannel< mrd::ImageArray >& in, Core::OutputChannel& out) override;
 
 
         // find kspace sampled range

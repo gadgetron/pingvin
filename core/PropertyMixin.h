@@ -31,4 +31,5 @@ namespace Gadgetron::Core {
     }
 }
 
-#define NODE_PROPERTY(NAME,TYPE, DESCRIPTION, DEFAULT) const TYPE NAME = this->get_property<TYPE>(#NAME,DEFAULT,DESCRIPTION)
+#define NODE_PROPERTY(NAME, TYPE, DESCRIPTION, DEFAULT) const TYPE NAME = this->template get_property<TYPE>(#NAME, DEFAULT, DESCRIPTION)
+#define NODE_PROPERTY_NON_CONST(NAME, TYPE, DESCRIPTION, DEFAULT) TYPE NAME = this->template get_property<TYPE>(#NAME, DEFAULT, DESCRIPTION)

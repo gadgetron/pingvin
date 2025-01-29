@@ -9,6 +9,9 @@
 #include "hoNDKLT.h"
 #include "cmr_image_container_util.h"
 
+static const int GADGET_FAIL = -1;
+static const int GADGET_OK = 0;
+
 namespace Gadgetron {
 
     // a singleton class to load model
@@ -76,26 +79,19 @@ namespace Gadgetron {
 
     // ----------------------------------------------------
 
-    CmrRealTimeLAXCineAIAnalysisGadget::CmrRealTimeLAXCineAIAnalysisGadget() : BaseClass()
-    {
-    }
-
-    CmrRealTimeLAXCineAIAnalysisGadget::~CmrRealTimeLAXCineAIAnalysisGadget()
-    {
-    }
-
-    int CmrRealTimeLAXCineAIAnalysisGadget::process_config(const mrd::Header& header)
+    CmrRealTimeLAXCineAIAnalysisGadget::CmrRealTimeLAXCineAIAnalysisGadget(const Core::Context& context, const Core::GadgetProperties& properties)
+        : BaseClass(context, properties)
     {
         try
         {
-            std::string gadgetron_home = this->context.paths.gadgetron_home.generic_string();
-            boost::filesystem::path gadgetron_python_path = this->context.paths.gadgetron_home / "share" / "gadgetron" / "python";
+            std::string gadgetron_home = context.paths.gadgetron_home.generic_string();
+            boost::filesystem::path gadgetron_python_path = context.paths.gadgetron_home / "share" / "gadgetron" / "python";
 
             Gadgetron::initialize_python();
             Gadgetron::add_python_path(gadgetron_python_path.generic_string());
             this->gt_home_ = gadgetron_python_path.generic_string();
 
-            boost::filesystem::path model_path = this->context.paths.gadgetron_home / "share" / "gadgetron" / "python" / this->model_dest.value();
+            boost::filesystem::path model_path = context.paths.gadgetron_home / "share" / "gadgetron" / "python" / this->model_dest;
             Gadgetron::add_python_path(model_path.generic_string());
             this->gt_model_home_ = model_path.generic_string();
 
@@ -105,16 +101,13 @@ namespace Gadgetron {
         catch (...)
         {
             GERROR_STREAM("Exception happened when adding  path to python ... ");
-            return GADGET_FAIL;
+            throw;
         }
 
-        GADGET_CHECK_RETURN(BaseClass::process_config(header) == GADGET_OK, GADGET_FAIL);
-
-        auto& h = header;
+        auto& h = context.header;
         if (h.encoding.size() == 0)
         {
-            GDEBUG("Missing encoding section");
-            return GADGET_FAIL;
+            GADGET_THROW("Missing encoding section");
         }
 
         mrd::EncodingSpaceType e_space = h.encoding[0].encoded_space;
@@ -141,9 +134,9 @@ namespace Gadgetron {
         GDEBUG_STREAM("meas_max_idx_.slice is " << meas_max_idx_.slice.value_or(0));
 
         // load the model
-        if (this->perform_AI.value())
+        if (this->perform_AI)
         {
-            std::string model_file_name = this->gt_model_home_ + "/" + this->model_file.value();
+            std::string model_file_name = this->gt_model_home_ + "/" + this->model_file;
             boost::filesystem::path p(model_file_name);
 
             if (boost::filesystem::exists(p) && boost::filesystem::is_regular_file(p))
@@ -158,109 +151,84 @@ namespace Gadgetron {
             // check the model file, if not exists or invalid, download it
             gt_timer_.start("gadgetron_cmr_landmark_detection_util, check_and_get_model");
             PythonFunction<> check_and_get_model("gadgetron_cmr_landmark_detection_util", "check_and_get_model");
-            check_and_get_model(this->model_url.value(), this->model_file.value(), this->gt_model_home_, this->model_file_sha256.value());
+            check_and_get_model(this->model_url, this->model_file, this->gt_model_home_, this->model_file_sha256);
             gt_timer_.stop();
 
             // load model using the singleton
             gt_timer_.start("CmrRealTimeLAXCineAIModel, load model");
-            model_ = CmrRealTimeLAXCineAIModel::instance()->get_model(this->gt_model_home_, this->model_file.value());
+            model_ = CmrRealTimeLAXCineAIModel::instance()->get_model(this->gt_model_home_, this->model_file);
             gt_timer_.stop();
         }
-
-        return GADGET_OK;
     }
 
-    int CmrRealTimeLAXCineAIAnalysisGadget::process(Gadgetron::GadgetContainerMessage< mrd::ImageArray >* m1)
+    // int CmrRealTimeLAXCineAIAnalysisGadget::process(Gadgetron::GadgetContainerMessage< mrd::ImageArray >* m1)
+    void CmrRealTimeLAXCineAIAnalysisGadget::process(Core::InputChannel<mrd::ImageArray>& in, Core::OutputChannel& out)
     {
-        if (perform_timing.value()) { gt_timer_local_.start("CmrRealTimeLAXCineAIAnalysisGadget::process"); }
+        for (auto m1 : in) {
+            if (perform_timing) { gt_timer_local_.start("CmrRealTimeLAXCineAIAnalysisGadget::process"); }
 
-        GDEBUG_CONDITION_STREAM(verbose.value(), "CmrRealTimeLAXCineAIAnalysisGadget::process(...) starts ... ");
+            GDEBUG_CONDITION_STREAM(verbose, "CmrRealTimeLAXCineAIAnalysisGadget::process(...) starts ... ");
 
-        // -------------------------------------------------------------
+            // -------------------------------------------------------------
 
-        process_called_times_++;
+            process_called_times_++;
 
-        // -------------------------------------------------------------
+            // -------------------------------------------------------------
 
-        mrd::ImageArray lax = *m1->getObjectPtr();
+            mrd::ImageArray& lax = m1;
 
-        // print out data info
-        if (verbose.value())
-        {
-            GDEBUG_STREAM("----> CmrRealTimeLAXCineAIAnalysisGadget::process(...) has been called " << process_called_times_ << " times ...");
-            std::stringstream os;
-            lax.data.print(os);
-            GDEBUG_STREAM(os.str());
-        }
-
-        // -------------------------------------------------------------
-
-        size_t encoding = (size_t)std::get<long>(lax.meta[0]["encoding"].front());
-        GADGET_CHECK_RETURN(encoding < num_encoding_spaces_, GADGET_FAIL);
-
-        size_t RO = lax.data.get_size(0);
-        size_t E1 = lax.data.get_size(1);
-        size_t E2 = lax.data.get_size(2);
-        size_t CHA = lax.data.get_size(3);
-        size_t N = lax.data.get_size(4);
-        size_t S = lax.data.get_size(5);
-        size_t PHS = lax.data.get_size(6);
-
-        std::stringstream os;
-        os << "_encoding_" << encoding << "_processing_" << process_called_times_;
-        std::string str = os.str();
-
-        // -------------------------------------------------------------
-
-        if (!this->debug_folder_full_path_.empty())
-        {
-            gt_exporter_.export_array_complex(lax.data, this->debug_folder_full_path_ + "data" + str);
-        }
-
-        // -------------------------------------------------------------
-
-        // send out the incoming images first
-        if (this->next()->putq(m1) == -1)
-        {
-            GERROR("CmrRealTimeLAXCineAIAnalysisGadget::process, passing incoming image array on to next gadget");
-            m1->release();
-            return GADGET_FAIL;
-        }
-
-
-        // call the AI analysis
-        mrd::ImageArray lax_ai;
-        int status = this->perform_LAX_detection_AI(lax, lax_ai);
-
-        // send out AI analysis results
-        if(status==GADGET_OK)
-        {
-            Gadgetron::GadgetContainerMessage< mrd::ImageArray >* cm1 = new Gadgetron::GadgetContainerMessage< mrd::ImageArray >();
-            *cm1->getObjectPtr() = lax_ai;
-            if (this->next()->putq(cm1) == -1)
+            // print out data info
+            if (verbose)
             {
-                GERROR("CmrRealTimeLAXCineAIAnalysisGadget::process, passing lax_ai image array on to next gadget");
-                cm1->release();
+                GDEBUG_STREAM("----> CmrRealTimeLAXCineAIAnalysisGadget::process(...) has been called " << process_called_times_ << " times ...");
+                std::stringstream os;
+                lax.data.print(os);
+                GDEBUG_STREAM(os.str());
             }
+
+            // -------------------------------------------------------------
+
+            size_t encoding = (size_t)std::get<long>(lax.meta[0]["encoding"].front());
+            GADGET_CHECK_THROW(encoding < num_encoding_spaces_);
+
+            size_t RO = lax.data.get_size(0);
+            size_t E1 = lax.data.get_size(1);
+            size_t E2 = lax.data.get_size(2);
+            size_t CHA = lax.data.get_size(3);
+            size_t N = lax.data.get_size(4);
+            size_t S = lax.data.get_size(5);
+            size_t PHS = lax.data.get_size(6);
+
+            std::stringstream os;
+            os << "_encoding_" << encoding << "_processing_" << process_called_times_;
+            std::string str = os.str();
+
+            // -------------------------------------------------------------
+
+            if (!this->debug_folder_full_path_.empty())
+            {
+                gt_exporter_.export_array_complex(lax.data, this->debug_folder_full_path_ + "data" + str);
+            }
+
+            // -------------------------------------------------------------
+
+            // send out the incoming images first
+            out.push(m1);
+
+            // call the AI analysis
+            mrd::ImageArray lax_ai;
+            int status = this->perform_LAX_detection_AI(lax, lax_ai);
+
+            // send out AI analysis results
+            if(status==GADGET_OK)
+            {
+                out.push(std::move(lax_ai));
+            }
+
+            // -------------------------------------------------------------
+
+            if (perform_timing) { gt_timer_local_.stop(); }
         }
-
-        // -------------------------------------------------------------
-
-        if (perform_timing.value()) { gt_timer_local_.stop(); }
-
-        return GADGET_OK;
-    }
-
-    int CmrRealTimeLAXCineAIAnalysisGadget::close(unsigned long flags)
-    {
-        GDEBUG_CONDITION_STREAM(true, "CmrRealTimeLAXCineAIAnalysisGadget - close(flags) : " << flags);
-        if (BaseClass::close(flags) != GADGET_OK) return GADGET_FAIL;
-
-        if (flags != 0)
-        {
-        }
-
-        return GADGET_OK;
     }
 
     void CmrRealTimeLAXCineAIAnalysisGadget::convert_array_to_image_container(mrd::ImageArray& lax, hoNDImageContainer2D < hoMRImage<float, 2> >& lax_container)
@@ -442,7 +410,7 @@ namespace Gadgetron {
             double FOV_RO = lax_container(0, 0).header_.field_of_view[0];
             double FOV_E1 = lax_container(0, 0).header_.field_of_view[1];
 
-            double pixel_size = this->pixel_size_send.value();
+            double pixel_size = this->pixel_size_send;
 
             size_t new_RO = (size_t)(FOV_RO / pixel_size + 0.5);
             size_t new_E1 = (size_t)(FOV_E1 / pixel_size + 0.5);
@@ -522,7 +490,7 @@ namespace Gadgetron {
                 gt_timer_.start("gadgetron_cmr_landmark_detection_util, perform_cmr_landmark_detection");
                 PythonFunction< hoNDArray<float>, hoNDArray<float> > perform_cmr_landmark_detection("gadgetron_cmr_landmark_detection", "perform_cmr_landmark_detection");
                 float p_thresh=0.1;
-                std::tie(pts, probs) = perform_cmr_landmark_detection(lax_images, this->model_, p_thresh, this->oper_RO.value(), this->oper_E1.value());
+                std::tie(pts, probs) = perform_cmr_landmark_detection(lax_images, this->model_, p_thresh, this->oper_RO, this->oper_E1);
                 gt_timer_.stop();
 
                 std::stringstream pts_stream;
@@ -589,5 +557,5 @@ namespace Gadgetron {
 
     // ----------------------------------------------------------------------------------------
 
-    GADGET_FACTORY_DECLARE(CmrRealTimeLAXCineAIAnalysisGadget)
+    GADGETRON_GADGET_EXPORT(CmrRealTimeLAXCineAIAnalysisGadget)
 }

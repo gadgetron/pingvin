@@ -56,7 +56,7 @@ namespace Gadgetron {
         typedef GenericReconGadget BaseClass;
         typedef Gadgetron::GenericReconCartesianGrappaObj< std::complex<float> > ReconObjType;
 
-        GenericReconCartesianGrappaGadget();
+        GenericReconCartesianGrappaGadget(const Core::Context &context, const Core::GadgetProperties &properties);
         ~GenericReconCartesianGrappaGadget() override;
 
         /// ------------------------------------------------------------------------------------
@@ -65,25 +65,25 @@ namespace Gadgetron {
 
         /// ------------------------------------------------------------------------------------
         /// image sending
-        GADGET_PROPERTY(send_out_gfactor, bool, "Whether to send out gfactor map", false);
-        GADGET_PROPERTY(send_out_snr_map, bool, "Whether to send out SNR map", false);
+        NODE_PROPERTY(send_out_gfactor, bool, "Whether to send out gfactor map", false);
+        NODE_PROPERTY(send_out_snr_map, bool, "Whether to send out SNR map", false);
 
         /// ------------------------------------------------------------------------------------
         /// Grappa parameters
-        GADGET_PROPERTY(grappa_kSize_RO, int, "Grappa kernel size RO", 5);
-        GADGET_PROPERTY(grappa_kSize_E1, int, "Grappa kernel size E1", 4);
-        GADGET_PROPERTY(grappa_kSize_E2, int, "Grappa kernel size E2", 4);
-        GADGET_PROPERTY(grappa_reg_lamda, double, "Grappa regularization threshold", 0.0005);
-        GADGET_PROPERTY(grappa_calib_over_determine_ratio, double, "Grappa calibration overdermination ratio", 45);
+        NODE_PROPERTY(grappa_kSize_RO, int, "Grappa kernel size RO", 5);
+        NODE_PROPERTY(grappa_kSize_E1, int, "Grappa kernel size E1", 4);
+        NODE_PROPERTY(grappa_kSize_E2, int, "Grappa kernel size E2", 4);
+        NODE_PROPERTY(grappa_reg_lamda, double, "Grappa regularization threshold", 0.0005);
+        NODE_PROPERTY(grappa_calib_over_determine_ratio, double, "Grappa calibration overdermination ratio", 45);
 
         /// ------------------------------------------------------------------------------------
         /// down stream coil compression
         /// if downstream_coil_compression==true, down stream coil compression is used
         /// if downstream_coil_compression_num_modesKept > 0, this number of channels will be used as the dst channels
         /// if downstream_coil_compression_num_modesKept==0 and downstream_coil_compression_thres>0, the number of dst channels will be determined  by this threshold
-        GADGET_PROPERTY(downstream_coil_compression, bool, "Whether to perform downstream coil compression", true);
-        GADGET_PROPERTY(downstream_coil_compression_thres, double, "Threadhold for downstream coil compression", 0.002);
-        GADGET_PROPERTY(downstream_coil_compression_num_modesKept, size_t, "Number of modes to keep for downstream coil compression", 0);
+        NODE_PROPERTY(downstream_coil_compression, bool, "Whether to perform downstream coil compression", true);
+        NODE_PROPERTY(downstream_coil_compression_thres, double, "Threadhold for downstream coil compression", 0.002);
+        NODE_PROPERTY(downstream_coil_compression_num_modesKept, size_t, "Number of modes to keep for downstream coil compression", 0);
 
     protected:
 
@@ -97,9 +97,12 @@ namespace Gadgetron {
         // gadget functions
         // --------------------------------------------------
         // default interface function
-        virtual int process_config(const mrd::Header& header) override;
-        virtual int process(Gadgetron::GadgetContainerMessage< mrd::ReconData >* m1) override;
-        virtual int close(unsigned long flags) override;
+        virtual void process(Core::InputChannel< mrd::ReconData > &in, Core::OutputChannel &out) override;
+
+        /*** TODO: Delete */
+        // virtual int process_config(const mrd::Header& header) override;
+        // virtual int process(Gadgetron::GadgetContainerMessage< mrd::ReconData >* m1) override;
+        // virtual int close(unsigned long flags) override;
 
         // --------------------------------------------------
         // recon step functions

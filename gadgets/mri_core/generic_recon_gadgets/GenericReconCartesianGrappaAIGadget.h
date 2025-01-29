@@ -17,8 +17,7 @@ namespace Gadgetron {
         typedef typename BaseClass::ReconObjType ReconObjType;
         typedef std::complex<float> T;
 
-        GenericReconCartesianGrappaAIGadget();
-        ~GenericReconCartesianGrappaAIGadget();
+        GenericReconCartesianGrappaAIGadget(const Core::Context& context, const Core::GadgetProperties& properties);
 
     protected:
 
@@ -35,15 +34,12 @@ namespace Gadgetron {
         std::string gt_home_;
 
         // default interface function
-        virtual int process_config(const mrd::Header& header);
-        virtual int process(Gadgetron::GadgetContainerMessage< mrd::ReconData >* m1);
+        void process(Core::InputChannel<mrd::ReconData>& in, Core::OutputChannel& out) override;
 
         // calibration, if only one dst channel is prescribed, the GrappaOne is used
         virtual void perform_calib(mrd::ReconAssembly& recon_bit, ReconObjType& recon_obj, size_t encoding);
 
         // unwrapping or coil combination
         virtual void perform_unwrapping(mrd::ReconAssembly& recon_bit, ReconObjType& recon_obj, size_t encoding);
-
-        virtual int close(unsigned long flags);
     };
 }

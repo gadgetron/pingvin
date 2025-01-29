@@ -89,6 +89,8 @@ namespace Gadgetron {
                 else
                 {
                     // GDEBUG_STREAM("Sending out ReconData buffers with waveforms ...");
+                    /// NOTE: For ChannelGadgets to receive the waveforms, they must accept a `std::optional<std::vector<mrd::WaveformUint32>>`
+                    ///     as well as the `mrd::ReconData` message. For "old" Gadgets, this is not a problem, because they will be "attached". 
                     out.push(recon_data_buffer.second, acq_bucket.waveforms);
                 }
             }

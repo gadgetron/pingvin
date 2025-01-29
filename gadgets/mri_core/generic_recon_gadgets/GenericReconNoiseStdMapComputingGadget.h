@@ -12,17 +12,16 @@
 
 namespace Gadgetron {
 
-    class GenericReconNoiseStdMapComputingGadget : public GenericReconImageBase
+    class GenericReconNoiseStdMapComputingGadget : public GenericReconImageArrayBase
     {
     public:
         typedef float real_value_type;
         typedef std::complex<real_value_type> ValueType;
         typedef ValueType T;
 
-        typedef GenericReconImageBase BaseClass;
+        typedef GenericReconImageArrayBase BaseClass;
 
-        GenericReconNoiseStdMapComputingGadget();
-        ~GenericReconNoiseStdMapComputingGadget();
+        GenericReconNoiseStdMapComputingGadget(const Core::Context& context, const Core::GadgetProperties& properties);
 
         /// ------------------------------------------------------------------------------------
         /// parameters to control the reconstruction
@@ -30,7 +29,7 @@ namespace Gadgetron {
 
         /// ------------------------------------------------------------------------------------
         /// start N index to compute std map
-        GADGET_PROPERTY(start_N_for_std_map, int, "Start N index to compute std map", 5);
+        NODE_PROPERTY(start_N_for_std_map, int, "Start N index to compute std map", 5);
 
         // ------------------------------------------------------------------------------------
 
@@ -41,8 +40,7 @@ namespace Gadgetron {
         // --------------------------------------------------
 
         // default interface function
-        virtual int process_config(const mrd::Header& header);
-        virtual int process(Gadgetron::GadgetContainerMessage< mrd::ImageArray >* m1);
+        void process(Core::InputChannel<mrd::ImageArray>& in, Core::OutputChannel& out) override;
 
     };
 }

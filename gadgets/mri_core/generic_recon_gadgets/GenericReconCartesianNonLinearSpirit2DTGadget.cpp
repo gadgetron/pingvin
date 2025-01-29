@@ -11,79 +11,66 @@
 
 namespace Gadgetron {
 
-    GenericReconCartesianNonLinearSpirit2DTGadget::GenericReconCartesianNonLinearSpirit2DTGadget() : BaseClass()
+    GenericReconCartesianNonLinearSpirit2DTGadget::GenericReconCartesianNonLinearSpirit2DTGadget(const Core::Context& context, const Core::GadgetProperties& properties)
+        : BaseClass(context, properties)
     {
-    }
-
-    GenericReconCartesianNonLinearSpirit2DTGadget::~GenericReconCartesianNonLinearSpirit2DTGadget()
-    {
-    }
-
-    int GenericReconCartesianNonLinearSpirit2DTGadget::process_config(const mrd::Header& header)
-    {
-        GADGET_CHECK_RETURN(BaseClass::process_config(header) == GADGET_OK, GADGET_FAIL);
-
-        // -------------------------------------------------
-
-        auto& h = header;
+        auto& h = context.header;
 
         // -------------------------------------------------
         // check the parameters
-        if(this->spirit_nl_iter_max.value()==0)
+        if(this->spirit_nl_iter_max==0)
         {
-            this->spirit_nl_iter_max.value(15);
-            GDEBUG_STREAM("spirit_iter_max: " << this->spirit_nl_iter_max.value());
+            this->spirit_nl_iter_max = 15;
+            GDEBUG_STREAM("spirit_iter_max: " << this->spirit_nl_iter_max);
         }
 
-        if (this->spirit_nl_iter_thres.value()<FLT_EPSILON)
+        if (this->spirit_nl_iter_thres<FLT_EPSILON)
         {
-            this->spirit_nl_iter_thres.value(0.004);
-            GDEBUG_STREAM("spirit_nl_iter_thres: " << this->spirit_nl_iter_thres.value());
+            this->spirit_nl_iter_thres = 0.004;
+            GDEBUG_STREAM("spirit_nl_iter_thres: " << this->spirit_nl_iter_thres);
         }
 
-        if (this->spirit_image_reg_lamda.value() < FLT_EPSILON)
+        if (this->spirit_image_reg_lamda < FLT_EPSILON)
         {
-            if(this->spirit_reg_proximity_across_cha.value())
+            if(this->spirit_reg_proximity_across_cha)
             {
-                if(spirit_reg_estimate_noise_floor.value())
+                if(spirit_reg_estimate_noise_floor)
                 {
-                    this->spirit_image_reg_lamda.value(0.001);
+                    this->spirit_image_reg_lamda = 0.001;
                 }
                 else
                 {
-                    this->spirit_image_reg_lamda.value(0.0002);
+                    this->spirit_image_reg_lamda = 0.0002;
                 }
             }
             else
             {
-                if(spirit_reg_estimate_noise_floor.value())
+                if(spirit_reg_estimate_noise_floor)
                 {
-                    this->spirit_image_reg_lamda.value(0.002);
+                    this->spirit_image_reg_lamda = 0.002;
                 }
                 else
                 {
-                    this->spirit_image_reg_lamda.value(0.00005);
+                    this->spirit_image_reg_lamda = 0.00005;
                 }
             }
 
-            GDEBUG_STREAM("spirit_image_reg_lamda: " << this->spirit_image_reg_lamda.value());
+            GDEBUG_STREAM("spirit_image_reg_lamda: " << this->spirit_image_reg_lamda);
         }
 
-        if (this->spirit_reg_N_weighting_ratio.value() < FLT_EPSILON)
+        if (this->spirit_reg_N_weighting_ratio < FLT_EPSILON)
         {
             if(acceFactorE1_[0]<=5)
             {
-                this->spirit_reg_N_weighting_ratio.value(10.0);
+                this->spirit_reg_N_weighting_ratio = 10.0;
             }
             else
             {
-                this->spirit_reg_N_weighting_ratio.value(20.0);
+                this->spirit_reg_N_weighting_ratio = 20.0;
             }
 
-            GDEBUG_STREAM("spirit_reg_N_weighting_ratio: " << this->spirit_reg_N_weighting_ratio.value());
+            GDEBUG_STREAM("spirit_reg_N_weighting_ratio: " << this->spirit_reg_N_weighting_ratio);
         }
-
-        return GADGET_OK;
     }
 
     void GenericReconCartesianNonLinearSpirit2DTGadget::perform_unwrapping(mrd::ReconAssembly& recon_bit, ReconObjType& recon_obj, size_t e)
@@ -148,20 +135,20 @@ namespace Gadgetron {
                 hoNDArray< std::complex<float> >& res = recon_obj.full_kspace_;
                 hoNDArray< std::complex<float> >& ref = recon_obj.ref_calib_;
 
-                GDEBUG_CONDITION_STREAM(this->verbose.value(), "spirit_parallel_imaging_lamda             : " << this->spirit_parallel_imaging_lamda.value());
-                GDEBUG_CONDITION_STREAM(this->verbose.value(), "spirit_image_reg_lamda                    : " << this->spirit_image_reg_lamda.value());
-                GDEBUG_CONDITION_STREAM(this->verbose.value(), "spirit_data_fidelity_lamda                : " << this->spirit_data_fidelity_lamda.value());
-                GDEBUG_CONDITION_STREAM(this->verbose.value(), "spirit_nl_iter_max                        : " << this->spirit_nl_iter_max.value());
-                GDEBUG_CONDITION_STREAM(this->verbose.value(), "spirit_nl_iter_thres                      : " << this->spirit_nl_iter_thres.value());
-                GDEBUG_CONDITION_STREAM(this->verbose.value(), "spirit_reg_name                           : " << this->spirit_reg_name.value());
-                GDEBUG_CONDITION_STREAM(this->verbose.value(), "spirit_reg_level                          : " << this->spirit_reg_level.value());
-                GDEBUG_CONDITION_STREAM(this->verbose.value(), "spirit_reg_keep_approx_coeff              : " << this->spirit_reg_keep_approx_coeff.value());
-                GDEBUG_CONDITION_STREAM(this->verbose.value(), "spirit_reg_keep_redundant_dimension_coeff : " << this->spirit_reg_keep_redundant_dimension_coeff.value());
-                GDEBUG_CONDITION_STREAM(this->verbose.value(), "spirit_reg_proximity_across_cha           : " << this->spirit_reg_proximity_across_cha.value());
-                GDEBUG_CONDITION_STREAM(this->verbose.value(), "spirit_reg_use_coil_sen_map               : " << this->spirit_reg_use_coil_sen_map.value());
-                GDEBUG_CONDITION_STREAM(this->verbose.value(), "spirit_reg_RO_weighting_ratio             : " << this->spirit_reg_RO_weighting_ratio.value());
-                GDEBUG_CONDITION_STREAM(this->verbose.value(), "spirit_reg_E1_weighting_ratio             : " << this->spirit_reg_E1_weighting_ratio.value());
-                GDEBUG_CONDITION_STREAM(this->verbose.value(), "spirit_reg_N_weighting_ratio              : " << this->spirit_reg_N_weighting_ratio.value());
+                GDEBUG_CONDITION_STREAM(this->verbose, "spirit_parallel_imaging_lamda             : " << this->spirit_parallel_imaging_lamda);
+                GDEBUG_CONDITION_STREAM(this->verbose, "spirit_image_reg_lamda                    : " << this->spirit_image_reg_lamda);
+                GDEBUG_CONDITION_STREAM(this->verbose, "spirit_data_fidelity_lamda                : " << this->spirit_data_fidelity_lamda);
+                GDEBUG_CONDITION_STREAM(this->verbose, "spirit_nl_iter_max                        : " << this->spirit_nl_iter_max);
+                GDEBUG_CONDITION_STREAM(this->verbose, "spirit_nl_iter_thres                      : " << this->spirit_nl_iter_thres);
+                GDEBUG_CONDITION_STREAM(this->verbose, "spirit_reg_name                           : " << this->spirit_reg_name);
+                GDEBUG_CONDITION_STREAM(this->verbose, "spirit_reg_level                          : " << this->spirit_reg_level);
+                GDEBUG_CONDITION_STREAM(this->verbose, "spirit_reg_keep_approx_coeff              : " << this->spirit_reg_keep_approx_coeff);
+                GDEBUG_CONDITION_STREAM(this->verbose, "spirit_reg_keep_redundant_dimension_coeff : " << this->spirit_reg_keep_redundant_dimension_coeff);
+                GDEBUG_CONDITION_STREAM(this->verbose, "spirit_reg_proximity_across_cha           : " << this->spirit_reg_proximity_across_cha);
+                GDEBUG_CONDITION_STREAM(this->verbose, "spirit_reg_use_coil_sen_map               : " << this->spirit_reg_use_coil_sen_map);
+                GDEBUG_CONDITION_STREAM(this->verbose, "spirit_reg_RO_weighting_ratio             : " << this->spirit_reg_RO_weighting_ratio);
+                GDEBUG_CONDITION_STREAM(this->verbose, "spirit_reg_E1_weighting_ratio             : " << this->spirit_reg_E1_weighting_ratio);
+                GDEBUG_CONDITION_STREAM(this->verbose, "spirit_reg_N_weighting_ratio              : " << this->spirit_reg_N_weighting_ratio);
 
                 size_t slc, s;
 
@@ -215,9 +202,9 @@ namespace Gadgetron {
                         // ------------------------------
 
                         std::string timing_str = "SPIRIT, Non-linear unwrapping, 2DT_" + suffix_2DT;
-                        if (this->perform_timing.value()) timer.start(timing_str.c_str());
+                        if (this->perform_timing) timer.start(timing_str.c_str());
                         this->perform_nonlinear_spirit_unwrapping(kspace2DT, kIm2DT, ref2DT, coilMap2DT, res2DT, e);
-                        if (this->perform_timing.value()) timer.stop();
+                        if (this->perform_timing) timer.stop();
 
                         if (!debug_folder_full_path_.empty()) { gt_exporter_.export_array_complex(res2DT, debug_folder_full_path_ + "res_nl_spirit_2DT_" + suffix_2DT); }
                     }
@@ -227,9 +214,9 @@ namespace Gadgetron {
             // ---------------------------------------------------------------------
             // compute coil combined images
             // ---------------------------------------------------------------------
-            if (this->perform_timing.value()) timer.start("SPIRIT Non linear, coil combination ... ");
+            if (this->perform_timing) timer.start("SPIRIT Non linear, coil combination ... ");
             this->perform_spirit_coil_combine(recon_obj);
-            if (this->perform_timing.value()) timer.stop();
+            if (this->perform_timing) timer.stop();
 
             if (!debug_folder_full_path_.empty()) { gt_exporter_.export_array_complex(recon_obj.recon_res_.data, debug_folder_full_path_ + "unwrappedIm_" + suffix); }
         }
@@ -260,7 +247,7 @@ namespace Gadgetron {
     {
         try
         {
-            bool print_iter = this->spirit_print_iter.value();
+            bool print_iter = this->spirit_print_iter;
 
             size_t RO = kspace.get_size(0);
             size_t E1 = kspace.get_size(1);
@@ -392,13 +379,13 @@ namespace Gadgetron {
             // compute linear solution as the initialization
             if(use_random_sampling)
             {
-                if (this->perform_timing.value()) timer.start("SPIRIT Non linear, perform linear spirit recon ... ");
+                if (this->perform_timing) timer.start("SPIRIT Non linear, perform linear spirit recon ... ");
                 this->perform_spirit_unwrapping(kspace, kerIm, kspaceLinear);
-                if (this->perform_timing.value()) timer.stop();
+                if (this->perform_timing) timer.stop();
             }
             else
             {
-                if (this->perform_timing.value()) timer.start("SPIRIT Non linear, perform linear recon ... ");
+                if (this->perform_timing) timer.start("SPIRIT Non linear, perform linear recon ... ");
 
                 //size_t ref2DT_RO = ref2DT.get_size(0);
                 //size_t ref2DT_E1 = ref2DT.get_size(1);
@@ -439,14 +426,14 @@ namespace Gadgetron {
 
                 Gadgetron::apply_unmix_coeff_aliased_image(aliasedImage, unmixC, complexIm);
 
-                if (this->perform_timing.value()) timer.stop();
+                if (this->perform_timing) timer.stop();
             }
 
             if (!debug_folder_full_path_.empty()) gt_exporter_.export_array_complex(kspaceLinear, debug_folder_full_path_ + "spirit_nl_2DT_kspaceLinear");
 
             if(hasCoilMap)
             {
-                if(N>=spirit_reg_minimal_num_images_for_noise_floor.value())
+                if(N>=spirit_reg_minimal_num_images_for_noise_floor)
                 {
                     // estimate the noise level
 
@@ -472,7 +459,7 @@ namespace Gadgetron {
                     klt.prepare(data, (size_t)1, (size_t)0);
                     klt.eigen_value(eigenValues);
 
-                    if (this->verbose.value())
+                    if (this->verbose)
                     {
                         GDEBUG_STREAM("SPIRIT Non linear, computes eigen values for all 2D kspaces ... ");
                         std::stringstream stream;
@@ -497,33 +484,33 @@ namespace Gadgetron {
                 hoNDArray< std::complex<float> > kspaceInitial(RO, E1, CHA, N, kspaceLinear.begin());
                 hoNDArray< std::complex<float> > res2DT(RO, E1, CHA, N, res.begin());
 
-                if (this->spirit_data_fidelity_lamda.value() > 0)
+                if (this->spirit_data_fidelity_lamda > 0)
                 {
-                    GDEBUG_STREAM("Start the NL SPIRIT data fidelity iteration - regularization strength : " << this->spirit_image_reg_lamda.value()
-                                    << " - number of iteration : "                      << this->spirit_nl_iter_max.value()
-                                    << " - proximity across cha : "                     << this->spirit_reg_proximity_across_cha.value()
-                                    << " - redundant dimension weighting ratio : "      << this->spirit_reg_N_weighting_ratio.value()
-                                    << " - using coil sen map : "                       << this->spirit_reg_use_coil_sen_map.value()
-                                    << " - iter thres : "                               << this->spirit_nl_iter_thres.value()
-                                    << " - wavelet name : "                             << this->spirit_reg_name.value()
+                    GDEBUG_STREAM("Start the NL SPIRIT data fidelity iteration - regularization strength : " << this->spirit_image_reg_lamda
+                                    << " - number of iteration : "                      << this->spirit_nl_iter_max
+                                    << " - proximity across cha : "                     << this->spirit_reg_proximity_across_cha
+                                    << " - redundant dimension weighting ratio : "      << this->spirit_reg_N_weighting_ratio
+                                    << " - using coil sen map : "                       << this->spirit_reg_use_coil_sen_map
+                                    << " - iter thres : "                               << this->spirit_nl_iter_thres
+                                    << " - wavelet name : "                             << this->spirit_reg_name
                                     );
 
                     typedef hoGdSolver< hoNDArray< std::complex<float> >, hoWavelet2DTOperator< std::complex<float> > > SolverType;
                     SolverType solver;
-                    solver.iterations_ = this->spirit_nl_iter_max.value();
-                    solver.set_output_mode(this->spirit_print_iter.value() ? SolverType::OUTPUT_VERBOSE : SolverType::OUTPUT_SILENT);
-                    solver.grad_thres_ = this->spirit_nl_iter_thres.value();
+                    solver.iterations_ = this->spirit_nl_iter_max;
+                    solver.set_output_mode(this->spirit_print_iter ? SolverType::OUTPUT_VERBOSE : SolverType::OUTPUT_SILENT);
+                    solver.grad_thres_ = this->spirit_nl_iter_thres;
 
-                    if(spirit_reg_estimate_noise_floor.value() && std::abs(smallest_eigen_value)>0)
+                    if(spirit_reg_estimate_noise_floor && std::abs(smallest_eigen_value)>0)
                     {
                         solver.scale_factor_ = smallest_eigen_value;
-                        solver.proximal_strength_ratio_ = this->spirit_image_reg_lamda.value() * gfactorMedian;
+                        solver.proximal_strength_ratio_ = this->spirit_image_reg_lamda * gfactorMedian;
 
                         GDEBUG_STREAM("SPIRIT Non linear, eigen value is used to derive the regularization strength : " << solver.proximal_strength_ratio_ << " - smallest eigen value : " << solver.scale_factor_);
                     }
                     else
                     {
-                        solver.proximal_strength_ratio_ = this->spirit_image_reg_lamda.value();
+                        solver.proximal_strength_ratio_ = this->spirit_image_reg_lamda;
                     }
 
                     boost::shared_ptr< hoNDArray< std::complex<float> > > x0 = boost::make_shared< hoNDArray< std::complex<float> > >(kspaceInitial);
@@ -539,17 +526,17 @@ namespace Gadgetron {
                     // image reg term
                     hoWavelet2DTOperator< std::complex<float> > wav3DOperator(dims);
                     wav3DOperator.set_acquired_points(*acq);
-                    wav3DOperator.scale_factor_first_dimension_ = this->spirit_reg_RO_weighting_ratio.value();
-                    wav3DOperator.scale_factor_second_dimension_ = this->spirit_reg_E1_weighting_ratio.value();
-                    wav3DOperator.scale_factor_third_dimension_ = this->spirit_reg_N_weighting_ratio.value();
-                    wav3DOperator.with_approx_coeff_ = !this->spirit_reg_keep_approx_coeff.value();
-                    wav3DOperator.change_coeffcients_third_dimension_boundary_ = !this->spirit_reg_keep_redundant_dimension_coeff.value();
-                    wav3DOperator.proximity_across_cha_ = this->spirit_reg_proximity_across_cha.value();
+                    wav3DOperator.scale_factor_first_dimension_ = this->spirit_reg_RO_weighting_ratio;
+                    wav3DOperator.scale_factor_second_dimension_ = this->spirit_reg_E1_weighting_ratio;
+                    wav3DOperator.scale_factor_third_dimension_ = this->spirit_reg_N_weighting_ratio;
+                    wav3DOperator.with_approx_coeff_ = !this->spirit_reg_keep_approx_coeff;
+                    wav3DOperator.change_coeffcients_third_dimension_boundary_ = !this->spirit_reg_keep_redundant_dimension_coeff;
+                    wav3DOperator.proximity_across_cha_ = this->spirit_reg_proximity_across_cha;
                     wav3DOperator.no_null_space_ = true;
                     wav3DOperator.input_in_kspace_ = true;
-                    wav3DOperator.select_wavelet(this->spirit_reg_name.value());
+                    wav3DOperator.select_wavelet(this->spirit_reg_name);
 
-                    if (this->spirit_reg_use_coil_sen_map.value() && hasCoilMap)
+                    if (this->spirit_reg_use_coil_sen_map && hasCoilMap)
                     {
                         wav3DOperator.coil_map_ = *coilMap;
                     }
@@ -559,39 +546,39 @@ namespace Gadgetron {
                     solver.oper_system_ = &spirit;
                     solver.oper_reg_ = &wav3DOperator;
 
-                    if (this->perform_timing.value()) timer.start("NonLinear SPIRIT solver for 2DT with data fidelity ... ");
+                    if (this->perform_timing) timer.start("NonLinear SPIRIT solver for 2DT with data fidelity ... ");
                     solver.solve(*acq, res2DT);
-                    if (this->perform_timing.value()) timer.stop();
+                    if (this->perform_timing) timer.stop();
 
                     if (!debug_folder_full_path_.empty()) gt_exporter_.export_array_complex(res2DT, debug_folder_full_path_ + "spirit_nl_2DT_data_fidelity_res");
                 }
                 else
                 {
-                    GDEBUG_STREAM("Start the NL SPIRIT iteration with regularization strength : "<< this->spirit_image_reg_lamda.value()
-                                    << " - number of iteration : " << this->spirit_nl_iter_max.value()
-                                    << " - proximity across cha : " << this->spirit_reg_proximity_across_cha.value()
-                                    << " - redundant dimension weighting ratio : " << this->spirit_reg_N_weighting_ratio.value()
-                                    << " - using coil sen map : " << this->spirit_reg_use_coil_sen_map.value()
-                                    << " - iter thres : " << this->spirit_nl_iter_thres.value()
-                                    << " - wavelet name : " << this->spirit_reg_name.value()
+                    GDEBUG_STREAM("Start the NL SPIRIT iteration with regularization strength : "<< this->spirit_image_reg_lamda
+                                    << " - number of iteration : " << this->spirit_nl_iter_max
+                                    << " - proximity across cha : " << this->spirit_reg_proximity_across_cha
+                                    << " - redundant dimension weighting ratio : " << this->spirit_reg_N_weighting_ratio
+                                    << " - using coil sen map : " << this->spirit_reg_use_coil_sen_map
+                                    << " - iter thres : " << this->spirit_nl_iter_thres
+                                    << " - wavelet name : " << this->spirit_reg_name
                                     );
 
                     typedef hoGdSolver< hoNDArray< std::complex<float> >, hoWavelet2DTOperator< std::complex<float> > > SolverType;
                     SolverType solver;
-                    solver.iterations_ = this->spirit_nl_iter_max.value();
-                    solver.set_output_mode(this->spirit_print_iter.value() ? SolverType::OUTPUT_VERBOSE : SolverType::OUTPUT_SILENT);
-                    solver.grad_thres_ = this->spirit_nl_iter_thres.value();
+                    solver.iterations_ = this->spirit_nl_iter_max;
+                    solver.set_output_mode(this->spirit_print_iter ? SolverType::OUTPUT_VERBOSE : SolverType::OUTPUT_SILENT);
+                    solver.grad_thres_ = this->spirit_nl_iter_thres;
 
-                    if(spirit_reg_estimate_noise_floor.value() && std::abs(smallest_eigen_value)>0)
+                    if(spirit_reg_estimate_noise_floor && std::abs(smallest_eigen_value)>0)
                     {
                         solver.scale_factor_ = smallest_eigen_value;
-                        solver.proximal_strength_ratio_ = this->spirit_image_reg_lamda.value() * gfactorMedian;
+                        solver.proximal_strength_ratio_ = this->spirit_image_reg_lamda * gfactorMedian;
 
                         GDEBUG_STREAM("SPIRIT Non linear, eigen value is used to derive the regularization strength : " << solver.proximal_strength_ratio_ << " - smallest eigen value : " << solver.scale_factor_);
                     }
                     else
                     {
-                        solver.proximal_strength_ratio_ = this->spirit_image_reg_lamda.value();
+                        solver.proximal_strength_ratio_ = this->spirit_image_reg_lamda;
                     }
 
                     boost::shared_ptr< hoNDArray< std::complex<float> > > x0 = boost::make_shared< hoNDArray< std::complex<float> > >(kspaceInitial);
@@ -613,17 +600,17 @@ namespace Gadgetron {
 
                     hoWavelet2DTOperator< std::complex<float> > wav3DOperator(dim);
                     wav3DOperator.set_acquired_points(*acq);
-                    wav3DOperator.scale_factor_first_dimension_ = this->spirit_reg_RO_weighting_ratio.value();
-                    wav3DOperator.scale_factor_second_dimension_ = this->spirit_reg_E1_weighting_ratio.value();
-                    wav3DOperator.scale_factor_third_dimension_ = this->spirit_reg_N_weighting_ratio.value();
-                    wav3DOperator.with_approx_coeff_ = !this->spirit_reg_keep_approx_coeff.value();
-                    wav3DOperator.change_coeffcients_third_dimension_boundary_ = !this->spirit_reg_keep_redundant_dimension_coeff.value();
-                    wav3DOperator.proximity_across_cha_ = this->spirit_reg_proximity_across_cha.value();
+                    wav3DOperator.scale_factor_first_dimension_ = this->spirit_reg_RO_weighting_ratio;
+                    wav3DOperator.scale_factor_second_dimension_ = this->spirit_reg_E1_weighting_ratio;
+                    wav3DOperator.scale_factor_third_dimension_ = this->spirit_reg_N_weighting_ratio;
+                    wav3DOperator.with_approx_coeff_ = !this->spirit_reg_keep_approx_coeff;
+                    wav3DOperator.change_coeffcients_third_dimension_boundary_ = !this->spirit_reg_keep_redundant_dimension_coeff;
+                    wav3DOperator.proximity_across_cha_ = this->spirit_reg_proximity_across_cha;
                     wav3DOperator.no_null_space_ = true;
                     wav3DOperator.input_in_kspace_ = true;
-                    wav3DOperator.select_wavelet(this->spirit_reg_name.value());
+                    wav3DOperator.select_wavelet(this->spirit_reg_name);
 
-                    if (this->spirit_reg_use_coil_sen_map.value() && hasCoilMap)
+                    if (this->spirit_reg_use_coil_sen_map && hasCoilMap)
                     {
                         wav3DOperator.coil_map_ = *coilMap;
                     }
@@ -640,9 +627,9 @@ namespace Gadgetron {
                     hoNDArray< std::complex<float> > b(kspaceInitial);
                     Gadgetron::clear(b);
 
-                    if (this->perform_timing.value()) timer.start("NonLinear SPIRIT solver for 2DT ... ");
+                    if (this->perform_timing) timer.start("NonLinear SPIRIT solver for 2DT ... ");
                     solver.solve(b, res2DT);
-                    if (this->perform_timing.value()) timer.stop();
+                    if (this->perform_timing) timer.stop();
 
                     if (!debug_folder_full_path_.empty()) gt_exporter_.export_array_complex(res2DT, debug_folder_full_path_ + "spirit_nl_2DT_res");
 
@@ -658,5 +645,5 @@ namespace Gadgetron {
         }
     }
 
-    GADGET_FACTORY_DECLARE(GenericReconCartesianNonLinearSpirit2DTGadget)
+    GADGETRON_GADGET_EXPORT(GenericReconCartesianNonLinearSpirit2DTGadget)
 }

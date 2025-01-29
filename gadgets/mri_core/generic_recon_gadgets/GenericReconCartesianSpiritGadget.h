@@ -65,19 +65,18 @@ namespace Gadgetron {
         typedef GenericReconGadget BaseClass;
         typedef Gadgetron::GenericReconCartesianSpiritObj< std::complex<float> > ReconObjType;
 
-        GenericReconCartesianSpiritGadget();
-        ~GenericReconCartesianSpiritGadget();
+        GenericReconCartesianSpiritGadget(const Core::Context& context, const Core::GadgetProperties& properties);
 
         /// ------------------------------------------------------------------------------------
         /// Spirit parameters
-        GADGET_PROPERTY(spirit_kSize_RO, int, "Spirit kernel size RO", 7);
-        GADGET_PROPERTY(spirit_kSize_E1, int, "Spirit kernel size E1", 7);
-        GADGET_PROPERTY(spirit_kSize_E2, int, "Spirit kernel size E2", 5);
-        GADGET_PROPERTY(spirit_reg_lamda, double, "Spirit regularization threshold", 0);
-        GADGET_PROPERTY(spirit_calib_over_determine_ratio, double, "Spirit calibration overdermination ratio", 45);
-        GADGET_PROPERTY(spirit_iter_max, int, "Spirit maximal number of iterations", 0);
-        GADGET_PROPERTY(spirit_iter_thres, double, "Spirit threshold to stop iteration", 0);
-        GADGET_PROPERTY(spirit_print_iter, bool, "Spirit print out iterations", false);
+        NODE_PROPERTY(spirit_kSize_RO, int, "Spirit kernel size RO", 7);
+        NODE_PROPERTY(spirit_kSize_E1, int, "Spirit kernel size E1", 7);
+        NODE_PROPERTY(spirit_kSize_E2, int, "Spirit kernel size E2", 5);
+        NODE_PROPERTY_NON_CONST(spirit_reg_lamda, double, "Spirit regularization threshold", 0);
+        NODE_PROPERTY(spirit_calib_over_determine_ratio, double, "Spirit calibration overdermination ratio", 45);
+        NODE_PROPERTY_NON_CONST(spirit_iter_max, int, "Spirit maximal number of iterations", 0);
+        NODE_PROPERTY_NON_CONST(spirit_iter_thres, double, "Spirit threshold to stop iteration", 0);
+        NODE_PROPERTY(spirit_print_iter, bool, "Spirit print out iterations", false);
 
     protected:
 
@@ -91,8 +90,7 @@ namespace Gadgetron {
         // gadget functions
         // --------------------------------------------------
         // default interface function
-        virtual int process_config(const mrd::Header& header);
-        virtual int process(Gadgetron::GadgetContainerMessage< mrd::ReconData >* m1);
+        void process(Core::InputChannel<mrd::ReconData>& in, Core::OutputChannel& out) override;
 
         // --------------------------------------------------
         // recon step functions

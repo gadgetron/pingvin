@@ -115,7 +115,6 @@ set(pingvin_mricore_generic_recon_gadgets_header_files
 )
 
 set(pingvin_mricore_generic_recon_gadgets_src_files
-        generic_recon_gadgets/GenericReconBase.cpp
         generic_recon_gadgets/GenericReconGadget.cpp
         generic_recon_gadgets/GenericReconCartesianGrappaGadget.cpp
         generic_recon_gadgets/GenericReconCartesianSpiritGadget.cpp

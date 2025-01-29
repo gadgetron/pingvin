@@ -12,27 +12,17 @@
 
 namespace Gadgetron {
 
-    CmrParametricT1SRMappingGadget::CmrParametricT1SRMappingGadget() : BaseClass()
+    CmrParametricT1SRMappingGadget::CmrParametricT1SRMappingGadget(const Core::Context& context, const Core::GadgetProperties& properties)
+        : BaseClass(context, properties)
     {
-    }
-
-    CmrParametricT1SRMappingGadget::~CmrParametricT1SRMappingGadget()
-    {
-    }
-
-    int CmrParametricT1SRMappingGadget::process_config(const mrd::Header& header)
-    {
-        GADGET_CHECK_RETURN(BaseClass::process_config(header) == GADGET_OK, GADGET_FAIL);
-
-        auto& h = header;
+        auto& h = context.header;
 
         if (!h.acquisition_system_information)
         {
-            GDEBUG("acquisitionSystemInformation not found in header. Bailing out");
-            return GADGET_FAIL;
+            GADGET_THROW("acquisitionSystemInformation not found in header. Bailing out");
         }
 
-        if (this->imaging_prep_time_from_protocol.value())
+        if (this->imaging_prep_time_from_protocol)
         {
             this->prep_times_ = h.sequence_parameters->t_i; // TI is in the unit of seconds
             GDEBUG_STREAM("Read prep times from from protocol : " << this->prep_times_.size() << " [ ");
@@ -43,19 +33,15 @@ namespace Gadgetron {
             }
             GDEBUG_STREAM(" ] ");
         }
-
-        // -------------------------------------------------
-
-        return GADGET_OK;
     }
 
     int CmrParametricT1SRMappingGadget::perform_mapping(mrd::ImageArray& data, mrd::ImageArray& map, mrd::ImageArray& para, mrd::ImageArray& map_sd, mrd::ImageArray& para_sd)
     {
         try
         {
-            if (perform_timing.value()) { gt_timer_.start("CmrParametricT1SRMappingGadget::perform_mapping"); }
+            if (perform_timing) { gt_timer_.start("CmrParametricT1SRMappingGadget::perform_mapping"); }
 
-            GDEBUG_CONDITION_STREAM(verbose.value(), "CmrParametricT1SRMappingGadget::perform_mapping(...) starts ... ");
+            GDEBUG_CONDITION_STREAM(verbose, "CmrParametricT1SRMappingGadget::perform_mapping(...) starts ... ");
 
             size_t RO = data.data.get_size(0);
             size_t E1 = data.data.get_size(1);
@@ -79,7 +65,7 @@ namespace Gadgetron {
                 gt_exporter_.export_array(mag, debug_folder_full_path_ + "CmrParametricT1SRMapping_data_mag");
             }
 
-            bool need_sd_map = send_sd_map.value();
+            bool need_sd_map = send_sd_map;
 
             Gadgetron::GadgetronTimer gt_timer(false);
 
@@ -88,33 +74,33 @@ namespace Gadgetron {
 
             Gadgetron::CmrT1SRMapping<float> t1_sr;
 
-            t1_sr.fill_holes_in_maps_ = perform_hole_filling.value();
-            t1_sr.max_size_of_holes_ = max_size_hole.value();
+            t1_sr.fill_holes_in_maps_ = perform_hole_filling;
+            t1_sr.max_size_of_holes_ = max_size_hole;
             t1_sr.compute_SD_maps_ = need_sd_map;
 
             t1_sr.ti_.resize(N, 0);
             memcpy(&(t1_sr.ti_)[0], &this->prep_times_[0], sizeof(float)*N);
 
             // set the anchor image TS
-            size_t anchor_ind = this->anchor_image_index.value();
+            size_t anchor_ind = this->anchor_image_index;
             if (anchor_ind < N)
             {
-                t1_sr.ti_[anchor_ind] = this->anchor_TS.value();
+                t1_sr.ti_[anchor_ind] = this->anchor_TS;
             }
 
             t1_sr.data_.create(RO, E1, N, S, SLC, mag.begin());
 
-            t1_sr.max_iter_ = max_iter.value();
-            t1_sr.thres_fun_ = thres_func.value();
-            t1_sr.max_map_value_ = max_T1.value();
+            t1_sr.max_iter_ = max_iter;
+            t1_sr.thres_fun_ = thres_func;
+            t1_sr.max_map_value_ = max_T1;
 
-            t1_sr.verbose_ = verbose.value();
+            t1_sr.verbose_ = verbose;
             t1_sr.debug_folder_ = debug_folder_full_path_;
-            t1_sr.perform_timing_ = perform_timing.value();
+            t1_sr.perform_timing_ = perform_timing;
 
             // -------------------------------------------------------------
             // compute mask if needed
-            if (mapping_with_masking.value())
+            if (mapping_with_masking)
             {
                 t1_sr.mask_for_mapping_.create(RO, E1, SLC);
 
@@ -158,9 +144,9 @@ namespace Gadgetron {
 
                 GDEBUG_STREAM("CmrParametricT1SRMappingGadget, find incoming image has scale factor of " << scale_factor);
 
-                if (perform_timing.value()) { gt_timer.start("CmrParametricT1SRMappingGadget::compute_mask_for_mapping"); }
+                if (perform_timing) { gt_timer.start("CmrParametricT1SRMappingGadget::compute_mask_for_mapping"); }
                 this->compute_mask_for_mapping(mag, t1_sr.mask_for_mapping_, (float)scale_factor);
-                if (perform_timing.value()) { gt_timer.stop(); }
+                if (perform_timing) { gt_timer.stop(); }
 
                 if (!debug_folder_full_path_.empty())
                 {
@@ -171,9 +157,9 @@ namespace Gadgetron {
             // -------------------------------------------------------------
             // perform mapping
 
-            if (perform_timing.value()) { gt_timer.start("CmrParametricT1SRMappingGadget, t1_sr.perform_parametric_mapping"); }
+            if (perform_timing) { gt_timer.start("CmrParametricT1SRMappingGadget, t1_sr.perform_parametric_mapping"); }
             t1_sr.perform_parametric_mapping();
-            if (perform_timing.value()) { gt_timer.stop(); }
+            if (perform_timing) { gt_timer.stop(); }
 
             size_t num_para = t1_sr.get_num_of_paras();
 
@@ -270,7 +256,7 @@ namespace Gadgetron {
 
             // -------------------------------------------------------------
 
-            if (perform_timing.value()) { gt_timer_.stop(); }
+            if (perform_timing) { gt_timer_.stop(); }
         }
         catch (...)
         {
@@ -281,21 +267,8 @@ namespace Gadgetron {
         return GADGET_OK;
     }
 
-    int CmrParametricT1SRMappingGadget::close(unsigned long flags)
-    {
-        GDEBUG_CONDITION_STREAM(true, "CmrParametricT1SRMappingGadget - close(flags) : " << flags);
-
-        if (BaseClass::close(flags) != GADGET_OK) return GADGET_FAIL;
-
-        if (flags != 0)
-        {
-        }
-
-        return GADGET_OK;
-    }
-
     // ----------------------------------------------------------------------------------------
 
-    GADGET_FACTORY_DECLARE(CmrParametricT1SRMappingGadget)
+    GADGETRON_GADGET_EXPORT(CmrParametricT1SRMappingGadget)
 
 }

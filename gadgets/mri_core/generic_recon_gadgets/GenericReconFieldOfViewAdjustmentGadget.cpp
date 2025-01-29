@@ -11,44 +11,32 @@
 #include "hoNDArray_reductions.h"
 #include "mri_core_def.h"
 
+static const int GADGET_FAIL = -1;
+static const int GADGET_OK = 0;
 namespace Gadgetron {
 
-    GenericReconFieldOfViewAdjustmentGadget::GenericReconFieldOfViewAdjustmentGadget() : BaseClass()
+    GenericReconFieldOfViewAdjustmentGadget::GenericReconFieldOfViewAdjustmentGadget(const Core::Context& context, const Core::GadgetProperties& properties)
+        : BaseClass(context, properties)
     {
-    }
-
-    GenericReconFieldOfViewAdjustmentGadget::~GenericReconFieldOfViewAdjustmentGadget()
-    {
-    }
-
-    int GenericReconFieldOfViewAdjustmentGadget::process_config(const mrd::Header& header)
-    {
-        GADGET_CHECK_RETURN(BaseClass::process_config(header) == GADGET_OK, GADGET_FAIL);
-
-        auto& h = header;
+        auto& h = context.header;
 
         if (!h.acquisition_system_information)
         {
-            GDEBUG("acquisitionSystemInformation not found in header. Bailing out");
-            return GADGET_FAIL;
+            GADGET_THROW("acquisitionSystemInformation not found in header. Bailing out");
         }
 
         // -------------------------------------------------
 
-        size_t NE = h.encoding.size();
-
-        num_encoding_spaces_ = NE;
-
-        GDEBUG_CONDITION_STREAM(verbose.value(), "Number of encoding spaces: " << NE);
+        GDEBUG_CONDITION_STREAM(verbose, "Number of encoding spaces: " << num_encoding_spaces_);
 
         // get the encoding FOV and recon FOV
 
-        encoding_FOV_.resize(NE);
-        recon_FOV_.resize(NE);
-        recon_size_.resize(NE);
+        encoding_FOV_.resize(num_encoding_spaces_);
+        recon_FOV_.resize(num_encoding_spaces_);
+        recon_size_.resize(num_encoding_spaces_);
 
         size_t e;
-        for (e = 0; e < NE; e++)
+        for (e = 0; e < num_encoding_spaces_; e++)
         {
             encoding_FOV_[e].resize(3, 0);
             encoding_FOV_[e][0] = h.encoding[e].encoded_space.field_of_view_mm.x;
@@ -65,59 +53,54 @@ namespace Gadgetron {
             recon_size_[e][1] = h.encoding[e].recon_space.matrix_size.y;
             recon_size_[e][2] = h.encoding[e].recon_space.matrix_size.z;
 
-            GDEBUG_CONDITION_STREAM(verbose.value(), "Encoding space : " << e << " - encoding FOV : [" << encoding_FOV_[e][0] << " " << encoding_FOV_[e][1] << " " << encoding_FOV_[e][2] << " ]");
-            GDEBUG_CONDITION_STREAM(verbose.value(), "Encoding space : " << e << " - recon    FOV : [" << recon_FOV_[e][0]    << " " << recon_FOV_[e][1]    << " " << recon_FOV_[e][2] << " ]");
-            GDEBUG_CONDITION_STREAM(verbose.value(), "Encoding space : " << e << " - recon    size : [" << recon_size_[e][0] << " " << recon_size_[e][1] << " " << recon_size_[e][2] << " ]");
+            GDEBUG_CONDITION_STREAM(verbose, "Encoding space : " << e << " - encoding FOV : [" << encoding_FOV_[e][0] << " " << encoding_FOV_[e][1] << " " << encoding_FOV_[e][2] << " ]");
+            GDEBUG_CONDITION_STREAM(verbose, "Encoding space : " << e << " - recon    FOV : [" << recon_FOV_[e][0]    << " " << recon_FOV_[e][1]    << " " << recon_FOV_[e][2] << " ]");
+            GDEBUG_CONDITION_STREAM(verbose, "Encoding space : " << e << " - recon    size : [" << recon_size_[e][0] << " " << recon_size_[e][1] << " " << recon_size_[e][2] << " ]");
         }
-
-        return GADGET_OK;
     }
 
-    int GenericReconFieldOfViewAdjustmentGadget::process(Gadgetron::GadgetContainerMessage< mrd::ImageArray >* m1)
+    void GenericReconFieldOfViewAdjustmentGadget::process(Core::InputChannel< mrd::ImageArray >& in, Core::OutputChannel& out)
     {
-        if (perform_timing.value()) { gt_timer_.start("GenericReconFieldOfViewAdjustmentGadget::process"); }
-
-        GDEBUG_CONDITION_STREAM(verbose.value(), "GenericReconFieldOfViewAdjustmentGadget::process(...) starts ... ");
-
-        process_called_times_++;
-
-        mrd::ImageArray* recon_res_ = m1->getObjectPtr();
-
-        // print out recon info
-        if (verbose.value())
+        for (auto m1 : in)
         {
-            GDEBUG_STREAM("----> GenericReconFieldOfViewAdjustmentGadget::process(...) has been called " << process_called_times_ << " times ...");
-            std::stringstream os;
-            recon_res_->data.print(os);
-            GDEBUG_STREAM(os.str());
+            if (perform_timing) { gt_timer_.start("GenericReconFieldOfViewAdjustmentGadget::process"); }
+
+            GDEBUG_CONDITION_STREAM(verbose, "GenericReconFieldOfViewAdjustmentGadget::process(...) starts ... ");
+
+            process_called_times_++;
+
+            mrd::ImageArray* recon_res_ = &m1;
+
+            // print out recon info
+            if (verbose)
+            {
+                GDEBUG_STREAM("----> GenericReconFieldOfViewAdjustmentGadget::process(...) has been called " << process_called_times_ << " times ...");
+                std::stringstream os;
+                recon_res_->data.print(os);
+                GDEBUG_STREAM(os.str());
+            }
+
+            if (!debug_folder_full_path_.empty()) { gt_exporter_.export_array_complex(recon_res_->data, debug_folder_full_path_ + "data_before_FOV_adjustment"); }
+
+            // ----------------------------------------------------------
+            // FOV adjustment
+            // ----------------------------------------------------------
+
+            GADGET_CHECK_THROW(this->adjust_FOV(*recon_res_) == GADGET_OK);
+
+            if (!debug_folder_full_path_.empty()) { gt_exporter_.export_array_complex(recon_res_->data, debug_folder_full_path_ + "data_after_FOV_adjustment"); }
+
+            this->gt_streamer_.stream_to_mrd_image_buffer(GENERIC_RECON_STREAM_RECONED_COMPLEX_IMAGE_AFTER_POSTPROCESSING, recon_res_->data, recon_res_->headers, recon_res_->meta);
+
+            GDEBUG_CONDITION_STREAM(verbose, "GenericReconFieldOfViewAdjustmentGadget::process(...) ends ... ");
+
+            // ----------------------------------------------------------
+            // send out results
+            // ----------------------------------------------------------
+            out.push(std::move(m1));
+
+            if (perform_timing) { gt_timer_.stop(); }
         }
-
-        if (!debug_folder_full_path_.empty()) { gt_exporter_.export_array_complex(recon_res_->data, debug_folder_full_path_ + "data_before_FOV_adjustment"); }
-
-        // ----------------------------------------------------------
-        // FOV adjustment
-        // ----------------------------------------------------------
-
-        GADGET_CHECK_RETURN(this->adjust_FOV(*recon_res_) == GADGET_OK, GADGET_FAIL);
-
-        if (!debug_folder_full_path_.empty()) { gt_exporter_.export_array_complex(recon_res_->data, debug_folder_full_path_ + "data_after_FOV_adjustment"); }
-
-        this->gt_streamer_.stream_to_mrd_image_buffer(GENERIC_RECON_STREAM_RECONED_COMPLEX_IMAGE_AFTER_POSTPROCESSING, recon_res_->data, recon_res_->headers, recon_res_->meta);
-
-        GDEBUG_CONDITION_STREAM(verbose.value(), "GenericReconFieldOfViewAdjustmentGadget::process(...) ends ... ");
-
-        // ----------------------------------------------------------
-        // send out results
-        // ----------------------------------------------------------
-        if (this->next()->putq(m1) == -1)
-        {
-            GERROR("GenericReconFieldOfViewAdjustmentGadget::process, passing data on to next gadget");
-            return GADGET_FAIL;
-        }
-
-        if (perform_timing.value()) { gt_timer_.stop(); }
-
-        return GADGET_OK;
     }
 
     void GenericReconFieldOfViewAdjustmentGadget::perform_fft(size_t E2, const hoNDArray< std::complex<float> >& input, hoNDArray< std::complex<float> >& output)
@@ -293,17 +276,14 @@ namespace Gadgetron {
         return GADGET_OK;
     }
 
-
-    int GenericReconFieldOfViewAdjustmentGadget::close(unsigned long flags)
+    GenericReconFieldOfViewAdjustmentGadget::~GenericReconFieldOfViewAdjustmentGadget()
     {
-        GDEBUG_CONDITION_STREAM(this->verbose.value(), "GenericReconFieldOfViewAdjustmentGadget - close(flags) : " << flags);
-        if (BaseClass::close(flags) != GADGET_OK) return GADGET_FAIL;
         this->gt_streamer_.close_stream_buffer();
-        return GADGET_OK;
     }
+
 
     // ----------------------------------------------------------------------------------------
 
-    GADGET_FACTORY_DECLARE(GenericReconFieldOfViewAdjustmentGadget)
+    GADGETRON_GADGET_EXPORT(GenericReconFieldOfViewAdjustmentGadget)
 
 }

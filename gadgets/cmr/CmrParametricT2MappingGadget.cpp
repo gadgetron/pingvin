@@ -12,24 +12,14 @@
 
 namespace Gadgetron {
 
-    CmrParametricT2MappingGadget::CmrParametricT2MappingGadget() : BaseClass()
+    CmrParametricT2MappingGadget::CmrParametricT2MappingGadget(const Core::Context& context, const Core::GadgetProperties& properties)
+        : BaseClass(context, properties)
     {
-    }
-
-    CmrParametricT2MappingGadget::~CmrParametricT2MappingGadget()
-    {
-    }
-
-    int CmrParametricT2MappingGadget::process_config(const mrd::Header& header)
-    {
-        GADGET_CHECK_RETURN(BaseClass::process_config(header) == GADGET_OK, GADGET_FAIL);
-
-        auto& h = header;
+        auto& h = context.header;
 
         if (!h.acquisition_system_information)
         {
-            GDEBUG("acquisitionSystemInformation not found in header. Bailing out");
-            return GADGET_FAIL;
+            GADGET_THROW("acquisitionSystemInformation not found in header. Bailing out");
         }
 
         GDEBUG_STREAM("Read prep times from from protocol : " << this->prep_times_.size() << " [ ");
@@ -61,19 +51,15 @@ namespace Gadgetron {
                 }
             }
         }
-
-        // -------------------------------------------------
-
-        return GADGET_OK;
     }
 
     int CmrParametricT2MappingGadget::perform_mapping(mrd::ImageArray& data, mrd::ImageArray& map, mrd::ImageArray& para, mrd::ImageArray& map_sd, mrd::ImageArray& para_sd)
     {
         try
         {
-            if (perform_timing.value()) { gt_timer_.start("CmrParametricT2MappingGadget::perform_mapping"); }
+            if (perform_timing) { gt_timer_.start("CmrParametricT2MappingGadget::perform_mapping"); }
 
-            GDEBUG_CONDITION_STREAM(verbose.value(), "CmrParametricT2MappingGadget::perform_mapping(...) starts ... ");
+            GDEBUG_CONDITION_STREAM(verbose, "CmrParametricT2MappingGadget::perform_mapping(...) starts ... ");
 
             size_t RO = data.data.get_size(0);
             size_t E1 = data.data.get_size(1);
@@ -97,7 +83,7 @@ namespace Gadgetron {
                 gt_exporter_.export_array(mag, debug_folder_full_path_ + "CmrParametricT2Mapping_data_mag");
             }
 
-            bool need_sd_map = send_sd_map.value();
+            bool need_sd_map = send_sd_map;
 
             Gadgetron::GadgetronTimer gt_timer(false);
 
@@ -106,8 +92,8 @@ namespace Gadgetron {
 
             Gadgetron::CmrT2Mapping<float> t2_mapper;
 
-            t2_mapper.fill_holes_in_maps_ = perform_hole_filling.value();
-            t2_mapper.max_size_of_holes_ = max_size_hole.value();
+            t2_mapper.fill_holes_in_maps_ = perform_hole_filling;
+            t2_mapper.max_size_of_holes_ = max_size_hole;
             t2_mapper.compute_SD_maps_ = need_sd_map;
 
             t2_mapper.ti_.resize(N, 0);
@@ -115,17 +101,17 @@ namespace Gadgetron {
 
             t2_mapper.data_.create(RO, E1, N, S, SLC, mag.begin());
 
-            t2_mapper.max_iter_ = max_iter.value();
-            t2_mapper.thres_fun_ = thres_func.value();
-            t2_mapper.max_map_value_ = max_T2.value();
+            t2_mapper.max_iter_ = max_iter;
+            t2_mapper.thres_fun_ = thres_func;
+            t2_mapper.max_map_value_ = max_T2;
 
-            t2_mapper.verbose_ = verbose.value();
+            t2_mapper.verbose_ = verbose;
             t2_mapper.debug_folder_ = debug_folder_full_path_;
-            t2_mapper.perform_timing_ = perform_timing.value();
+            t2_mapper.perform_timing_ = perform_timing;
 
             // -------------------------------------------------------------
             // compute mask if needed
-            if (mapping_with_masking.value())
+            if (mapping_with_masking)
             {
                 t2_mapper.mask_for_mapping_.create(RO, E1, SLC);
 
@@ -163,9 +149,9 @@ namespace Gadgetron {
 
                 GDEBUG_STREAM("CmrParametricT2MappingGadget, find incoming image has scale factor of " << scale_factor);
 
-                if (perform_timing.value()) { gt_timer.start("CmrParametricT2MappingGadget::compute_mask_for_mapping"); }
+                if (perform_timing) { gt_timer.start("CmrParametricT2MappingGadget::compute_mask_for_mapping"); }
                 this->compute_mask_for_mapping(mag, t2_mapper.mask_for_mapping_, (float)scale_factor);
-                if (perform_timing.value()) { gt_timer.stop(); }
+                if (perform_timing) { gt_timer.stop(); }
 
                 if (!debug_folder_full_path_.empty())
                 {
@@ -176,9 +162,9 @@ namespace Gadgetron {
             // -------------------------------------------------------------
             // perform mapping
 
-            if (perform_timing.value()) { gt_timer.start("CmrParametricT2MappingGadget, t2_mapper.perform_parametric_mapping"); }
+            if (perform_timing) { gt_timer.start("CmrParametricT2MappingGadget, t2_mapper.perform_parametric_mapping"); }
             t2_mapper.perform_parametric_mapping();
-            if (perform_timing.value()) { gt_timer.stop(); }
+            if (perform_timing) { gt_timer.stop(); }
 
             size_t num_para = t2_mapper.get_num_of_paras();
 
@@ -275,7 +261,7 @@ namespace Gadgetron {
 
             // -------------------------------------------------------------
 
-            if (perform_timing.value()) { gt_timer_.stop(); }
+            if (perform_timing) { gt_timer_.stop(); }
         }
         catch (...)
         {
@@ -285,22 +271,8 @@ namespace Gadgetron {
 
         return GADGET_OK;
     }
-
-    int CmrParametricT2MappingGadget::close(unsigned long flags)
-    {
-        GDEBUG_CONDITION_STREAM(true, "CmrParametricT2MappingGadget - close(flags) : " << flags);
-
-        if (BaseClass::close(flags) != GADGET_OK) return GADGET_FAIL;
-
-        if (flags != 0)
-        {
-        }
-
-        return GADGET_OK;
-    }
-
     // ----------------------------------------------------------------------------------------
 
-    GADGET_FACTORY_DECLARE(CmrParametricT2MappingGadget)
+    GADGETRON_GADGET_EXPORT(CmrParametricT2MappingGadget)
 
 }

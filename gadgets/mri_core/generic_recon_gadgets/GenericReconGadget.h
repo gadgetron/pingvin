@@ -21,28 +21,26 @@ namespace Gadgetron {
     public:
         typedef GenericReconDataBase BaseClass;
 
-        GenericReconGadget();
-        ~GenericReconGadget();
+        GenericReconGadget(const Core::Context& context, const Core::GadgetProperties& properties);
 
         /// ------------------------------------------------------------------------------------
         /// parameters to control the reconstruction
         /// ------------------------------------------------------------------------------------
 
         /// image series
-        GADGET_PROPERTY(image_series, int, "Image series number", 0);
+        NODE_PROPERTY(image_series, int, "Image series number", 0);
 
         /// coil map estimation method
-        GADGET_PROPERTY_LIMITS(coil_map_algorithm, std::string, "Method for coil map estimation", "Inati",
-            GadgetPropertyLimitsEnumeration, "Inati", "Inati_Iter");
+        NODE_PROPERTY(coil_map_algorithm, std::string, "Method for coil map estimation (Inati, Inati_Iter)", "Inati");
 
-        GADGET_PROPERTY(coil_map_kernel_size_readout, size_t, "Coil map estimation, kernel size along read out", 7);
-        GADGET_PROPERTY(coil_map_kernel_size_phase, size_t, "Coil map estimation, kernel size along phase/slice encoding", 5);
-        GADGET_PROPERTY(coil_map_num_iter, size_t, "Coil map estimation, number of iterations", 10);
-        GADGET_PROPERTY(coil_map_thres_iter, double, "Coil map estimation, threshold to stop iteration", 1e-4);
+        NODE_PROPERTY(coil_map_kernel_size_readout, size_t, "Coil map estimation, kernel size along read out", 7);
+        NODE_PROPERTY(coil_map_kernel_size_phase, size_t, "Coil map estimation, kernel size along phase/slice encoding", 5);
+        NODE_PROPERTY(coil_map_num_iter, size_t, "Coil map estimation, number of iterations", 10);
+        NODE_PROPERTY(coil_map_thres_iter, double, "Coil map estimation, threshold to stop iteration", 1e-4);
 
     protected:
 
-        void send_out_image_array(mrd::ImageArray& res, size_t encoding, int series_num, const std::string& data_role);
+        void send_out_image_array(mrd::ImageArray& res, size_t encoding, int series_num, const std::string& data_role, Core::OutputChannel& out);
         // --------------------------------------------------
         // variables for protocol
         // --------------------------------------------------
@@ -77,9 +75,7 @@ namespace Gadgetron {
         // gadget functions
         // --------------------------------------------------
         // default interface function
-        virtual int process_config(const mrd::Header& header);
-        virtual int process(Gadgetron::GadgetContainerMessage< mrd::ReconData >* m1);
-        virtual int close(unsigned long flags) { return BaseClass::close(flags); }
+        virtual void process(Core::InputChannel< mrd::ReconData >& in, Core::OutputChannel& out) override;
 
         // --------------------------------------------------
         // recon step functions

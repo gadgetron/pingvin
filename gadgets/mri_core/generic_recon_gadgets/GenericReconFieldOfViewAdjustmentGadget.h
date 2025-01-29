@@ -13,13 +13,13 @@
 
 namespace Gadgetron {
 
-    class GenericReconFieldOfViewAdjustmentGadget : public GenericReconImageBase
+    class GenericReconFieldOfViewAdjustmentGadget : public GenericReconImageArrayBase
     {
     public:
-        typedef GenericReconImageBase BaseClass;
+        typedef GenericReconImageArrayBase BaseClass;
 
-        GenericReconFieldOfViewAdjustmentGadget();
-        ~GenericReconFieldOfViewAdjustmentGadget();
+        GenericReconFieldOfViewAdjustmentGadget(const Core::Context &context, const Core::GadgetProperties &properties);
+        ~GenericReconFieldOfViewAdjustmentGadget() override;
 
     protected:
 
@@ -48,17 +48,12 @@ namespace Gadgetron {
         // results of filtering
         hoNDArray< std::complex<float> > res_;
 
-        // number of times the process function is called
-        size_t process_called_times_;
-
         // --------------------------------------------------
         // functional functions
         // --------------------------------------------------
 
         // default interface function
-        virtual int process_config(const mrd::Header& header);
-        virtual int process(Gadgetron::GadgetContainerMessage< mrd::ImageArray >* m1);
-        virtual int close(unsigned long flags=1);
+        void process(Core::InputChannel< mrd::ImageArray >& in, Core::OutputChannel& out) override;
 
         // adjust FOV
         int adjust_FOV(mrd::ImageArray& data);

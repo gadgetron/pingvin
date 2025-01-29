@@ -3,24 +3,16 @@
 
 namespace Gadgetron {
 
-    CmrCartesianKSpaceBinningCineGadget::CmrCartesianKSpaceBinningCineGadget() : BaseClass()
+    static const int GADGET_FAIL = -1;
+    static const int GADGET_OK = 0;
+
+    CmrCartesianKSpaceBinningCineGadget::CmrCartesianKSpaceBinningCineGadget(const Core::Context &context, const Core::GadgetProperties &properties)
+        : BaseClass(context, properties)
+        , send_out_multiple_series_by_slice_(false)
     {
-        send_out_multiple_series_by_slice_ = false;
-    }
+        this->send_out_multiple_series_by_slice_ = this->send_out_multiple_series_by_slice;
 
-    CmrCartesianKSpaceBinningCineGadget::~CmrCartesianKSpaceBinningCineGadget()
-    {
-    }
-
-    int CmrCartesianKSpaceBinningCineGadget::process_config(const mrd::Header& header)
-    {
-        GADGET_CHECK_RETURN(BaseClass::process_config(header) == GADGET_OK, GADGET_FAIL);
-
-        this->send_out_multiple_series_by_slice_ = this->send_out_multiple_series_by_slice.value();
-
-        // -------------------------------------------------
-
-        auto& h = header;
+        auto& h = context.header;
 
         if (h.user_parameters)
         {
@@ -38,185 +30,184 @@ namespace Gadgetron {
         // -------------------------------------------------
 
         binning_reconer_.debug_folder_                                   = this->debug_folder_full_path_;
-        binning_reconer_.perform_timing_                                 = this->perform_timing.value();
-        binning_reconer_.verbose_                                        = this->verbose.value();
+        binning_reconer_.perform_timing_                                 = this->perform_timing;
+        binning_reconer_.verbose_                                        = this->verbose;
 
-        binning_reconer_.use_multiple_channel_recon_                     = this->use_multiple_channel_recon.value();
+        binning_reconer_.use_multiple_channel_recon_                     = this->use_multiple_channel_recon;
         binning_reconer_.use_paralell_imaging_binning_recon_             = true;
-        binning_reconer_.use_nonlinear_binning_recon_                    = this->use_nonlinear_binning_recon.value();
+        binning_reconer_.use_nonlinear_binning_recon_                    = this->use_nonlinear_binning_recon;
 
         binning_reconer_.estimate_respiratory_navigator_                 = true;
-        binning_reconer_.respiratory_navigator_moco_reg_strength_        = this->respiratory_navigator_moco_reg_strength.value();
-        binning_reconer_.respiratory_navigator_moco_iters_               = this->respiratory_navigator_moco_iters.value();
+        binning_reconer_.respiratory_navigator_moco_reg_strength_        = this->respiratory_navigator_moco_reg_strength;
+        binning_reconer_.respiratory_navigator_moco_iters_               = this->respiratory_navigator_moco_iters;
 
-        binning_reconer_.time_tick_                                      = this->time_tick.value();
+        binning_reconer_.time_tick_                                      = this->time_tick;
         binning_reconer_.trigger_time_index_                             = 0;
-        binning_reconer_.arrhythmia_rejector_factor_                     = this->arrhythmia_rejector_factor.value();
+        binning_reconer_.arrhythmia_rejector_factor_                     = this->arrhythmia_rejector_factor;
 
-        binning_reconer_.grappa_kSize_RO_                                = this->grappa_kSize_RO.value();
-        binning_reconer_.grappa_kSize_E1_                                = this->grappa_kSize_E1.value();
-        binning_reconer_.grappa_reg_lamda_                               = this->grappa_reg_lamda.value();
-        binning_reconer_.downstream_coil_compression_num_modesKept_      = this->downstream_coil_compression_num_modesKept.value();
-        binning_reconer_.downstream_coil_compression_thres_              = this->downstream_coil_compression_thres.value();
+        binning_reconer_.grappa_kSize_RO_                                = this->grappa_kSize_RO;
+        binning_reconer_.grappa_kSize_E1_                                = this->grappa_kSize_E1;
+        binning_reconer_.grappa_reg_lamda_                               = this->grappa_reg_lamda;
+        binning_reconer_.downstream_coil_compression_num_modesKept_      = this->downstream_coil_compression_num_modesKept;
+        binning_reconer_.downstream_coil_compression_thres_              = this->downstream_coil_compression_thres;
 
-        binning_reconer_.kspace_binning_interpolate_heart_beat_images_   = this->kspace_binning_interpolate_heart_beat_images.value();
-        binning_reconer_.kspace_binning_navigator_acceptance_window_     = this->kspace_binning_navigator_acceptance_window.value();
+        binning_reconer_.kspace_binning_interpolate_heart_beat_images_   = this->kspace_binning_interpolate_heart_beat_images;
+        binning_reconer_.kspace_binning_navigator_acceptance_window_     = this->kspace_binning_navigator_acceptance_window;
 
-        binning_reconer_.kspace_binning_moco_reg_strength_               = this->kspace_binning_moco_reg_strength.value();
-        binning_reconer_.kspace_binning_moco_iters_                      = this->kspace_binning_moco_iters.value();
+        binning_reconer_.kspace_binning_moco_reg_strength_               = this->kspace_binning_moco_reg_strength;
+        binning_reconer_.kspace_binning_moco_iters_                      = this->kspace_binning_moco_iters;
 
-        binning_reconer_.kspace_binning_max_temporal_window_             = this->kspace_binning_max_temporal_window.value();
-        binning_reconer_.kspace_binning_minimal_cardiac_phase_width_     = this->kspace_binning_minimal_cardiac_phase_width.value();
-        binning_reconer_.kspace_binning_kSize_RO_                        = this->kspace_binning_kSize_RO.value();
-        binning_reconer_.kspace_binning_kSize_E1_                        = this->kspace_binning_kSize_E1.value();
-        binning_reconer_.kspace_binning_reg_lamda_                       = this->kspace_binning_reg_lamda.value();
-        binning_reconer_.kspace_binning_linear_iter_max_                 = this->kspace_binning_linear_iter_max.value();
-        binning_reconer_.kspace_binning_linear_iter_thres_               = this->kspace_binning_linear_iter_thres.value();
-        binning_reconer_.kspace_binning_nonlinear_iter_max_              = this->kspace_binning_nonlinear_iter_max.value();
-        binning_reconer_.kspace_binning_nonlinear_iter_thres_            = this->kspace_binning_nonlinear_iter_thres.value();
-        binning_reconer_.kspace_binning_nonlinear_data_fidelity_lamda_   = this->kspace_binning_nonlinear_data_fidelity_lamda.value();
-        binning_reconer_.kspace_binning_nonlinear_image_reg_lamda_       = this->kspace_binning_nonlinear_image_reg_lamda.value();
-        binning_reconer_.kspace_binning_nonlinear_reg_N_weighting_ratio_ = this->kspace_binning_nonlinear_reg_N_weighting_ratio.value();
-        binning_reconer_.kspace_binning_nonlinear_reg_use_coil_sen_map_  = this->kspace_binning_nonlinear_reg_use_coil_sen_map.value();
-        binning_reconer_.kspace_binning_nonlinear_reg_with_approx_coeff_ = this->kspace_binning_nonlinear_reg_with_approx_coeff.value();
-        binning_reconer_.kspace_binning_nonlinear_reg_wav_name_          = this->kspace_binning_nonlinear_reg_wav_name.value();
-
-        return GADGET_OK;
+        binning_reconer_.kspace_binning_max_temporal_window_             = this->kspace_binning_max_temporal_window;
+        binning_reconer_.kspace_binning_minimal_cardiac_phase_width_     = this->kspace_binning_minimal_cardiac_phase_width;
+        binning_reconer_.kspace_binning_kSize_RO_                        = this->kspace_binning_kSize_RO;
+        binning_reconer_.kspace_binning_kSize_E1_                        = this->kspace_binning_kSize_E1;
+        binning_reconer_.kspace_binning_reg_lamda_                       = this->kspace_binning_reg_lamda;
+        binning_reconer_.kspace_binning_linear_iter_max_                 = this->kspace_binning_linear_iter_max;
+        binning_reconer_.kspace_binning_linear_iter_thres_               = this->kspace_binning_linear_iter_thres;
+        binning_reconer_.kspace_binning_nonlinear_iter_max_              = this->kspace_binning_nonlinear_iter_max;
+        binning_reconer_.kspace_binning_nonlinear_iter_thres_            = this->kspace_binning_nonlinear_iter_thres;
+        binning_reconer_.kspace_binning_nonlinear_data_fidelity_lamda_   = this->kspace_binning_nonlinear_data_fidelity_lamda;
+        binning_reconer_.kspace_binning_nonlinear_image_reg_lamda_       = this->kspace_binning_nonlinear_image_reg_lamda;
+        binning_reconer_.kspace_binning_nonlinear_reg_N_weighting_ratio_ = this->kspace_binning_nonlinear_reg_N_weighting_ratio;
+        binning_reconer_.kspace_binning_nonlinear_reg_use_coil_sen_map_  = this->kspace_binning_nonlinear_reg_use_coil_sen_map;
+        binning_reconer_.kspace_binning_nonlinear_reg_with_approx_coeff_ = this->kspace_binning_nonlinear_reg_with_approx_coeff;
+        binning_reconer_.kspace_binning_nonlinear_reg_wav_name_          = this->kspace_binning_nonlinear_reg_wav_name;
     }
 
-    int CmrCartesianKSpaceBinningCineGadget::process(Gadgetron::GadgetContainerMessage< mrd::ReconData >* m1)
+    void CmrCartesianKSpaceBinningCineGadget::process(Core::InputChannel<mrd::ReconData>& in, Core::OutputChannel& out)
     {
-        if (perform_timing.value()) { gt_timer_local_.start("CmrCartesianKSpaceBinningCineGadget::process"); }
+        for (auto m1: in) {
+            if (perform_timing) { gt_timer_local_.start("CmrCartesianKSpaceBinningCineGadget::process"); }
 
-        process_called_times_++;
+            process_called_times_++;
 
-        mrd::ReconData* recon_bit_ = m1->getObjectPtr();
-        if (recon_bit_->buffers.size() > num_encoding_spaces_)
-        {
-            GWARN_STREAM("Incoming recon_bit has more encoding spaces than the protocol : " << recon_bit_->buffers.size() << " instead of " << num_encoding_spaces_);
-        }
-
-        std::vector<unsigned int> processed_slices = kspace_binning_processed_slices.value();
-        if(processed_slices.size()>0)
-        {
-            size_t ii;
-            for (ii=0; ii<recon_bit_->buffers[0].data.headers.get_number_of_elements(); ii++)
+            mrd::ReconData* recon_bit_ = &m1;
+            if (recon_bit_->buffers.size() > num_encoding_spaces_)
             {
-                if( recon_bit_->buffers[0].data.headers(ii).acquisition_time_stamp>0 ) break;
+                GWARN_STREAM("Incoming recon_bit has more encoding spaces than the protocol : " << recon_bit_->buffers.size() << " instead of " << num_encoding_spaces_);
             }
 
-            size_t curr_slc = recon_bit_->buffers[0].data.headers(ii).idx.slice.value_or(0);
-
-            GDEBUG_STREAM("Incoming slice : " << curr_slc);
-
-            bool do_processing = false;
-            for (size_t k=0; k<processed_slices.size(); k++)
+            std::vector<unsigned int> processed_slices = kspace_binning_processed_slices;
+            if(processed_slices.size()>0)
             {
-                if(curr_slc==processed_slices[k])
+                size_t ii;
+                for (ii=0; ii<recon_bit_->buffers[0].data.headers.get_number_of_elements(); ii++)
                 {
-                    do_processing = true;
-                    break;
+                    if( recon_bit_->buffers[0].data.headers(ii).acquisition_time_stamp>0 ) break;
+                }
+
+                size_t curr_slc = recon_bit_->buffers[0].data.headers(ii).idx.slice.value_or(0);
+
+                GDEBUG_STREAM("Incoming slice : " << curr_slc);
+
+                bool do_processing = false;
+                for (size_t k=0; k<processed_slices.size(); k++)
+                {
+                    if(curr_slc==processed_slices[k])
+                    {
+                        do_processing = true;
+                        break;
+                    }
+                }
+
+                if(!do_processing)
+                {
+                    GDEBUG_STREAM("Ignore incoming slice : " << curr_slc);
+                    continue;
                 }
             }
 
-            if(!do_processing)
+            // for every encoding space
+            for (size_t e = 0; e < recon_bit_->buffers.size(); e++)
             {
-                GDEBUG_STREAM("Ignore incoming slice : " << curr_slc);
-                m1->release();
-                return GADGET_OK;
-            }
-        }
+                std::stringstream os;
+                os << "_encoding_" << e;
 
-        // for every encoding space
-        for (size_t e = 0; e < recon_bit_->buffers.size(); e++)
-        {
-            std::stringstream os;
-            os << "_encoding_" << e;
+                GDEBUG_CONDITION_STREAM(verbose, "Calling " << process_called_times_ << " , encoding space : " << e);
+                GDEBUG_CONDITION_STREAM(verbose, "======================================================================");
 
-            GDEBUG_CONDITION_STREAM(verbose.value(), "Calling " << process_called_times_ << " , encoding space : " << e);
-            GDEBUG_CONDITION_STREAM(verbose.value(), "======================================================================");
+                // ---------------------------------------------------------------
+                // export incoming data
 
-            // ---------------------------------------------------------------
-            // export incoming data
-
-            /*if (!debug_folder_full_path_.empty())
-            {
-                gt_exporter_.export_array_complex(recon_bit_->buffers[e].data.data, debug_folder_full_path_ + "data" + os.str());
-            }
-
-            if (!debug_folder_full_path_.empty() && recon_bit_->buffers[e].data.trajectory_)
-            {
-                if (recon_bit_->buffers[e].ref_->trajectory_->get_number_of_elements() > 0)
-                {
-                    gt_exporter_.export_array(*(recon_bit_->buffers[e].data.trajectory_), debug_folder_full_path_ + "data_traj" + os.str());
-                }
-            }*/
-
-            // ---------------------------------------------------------------
-
-            if (recon_bit_->buffers[e].data.data.get_number_of_elements() > 0)
-            {
                 /*if (!debug_folder_full_path_.empty())
                 {
-                    gt_exporter_.export_array_complex(recon_bit_->buffers[e].data.data, debug_folder_full_path_ + "data_before_unwrapping" + os.str());
+                    gt_exporter_.export_array_complex(recon_bit_->buffers[e].data.data, debug_folder_full_path_ + "data" + os.str());
                 }
 
                 if (!debug_folder_full_path_.empty() && recon_bit_->buffers[e].data.trajectory_)
                 {
-                    if (recon_bit_->buffers[e].data.trajectory_->get_number_of_elements() > 0)
+                    if (recon_bit_->buffers[e].ref_->trajectory_->get_number_of_elements() > 0)
                     {
-                        gt_exporter_.export_array(*(recon_bit_->buffers[e].data.trajectory_), debug_folder_full_path_ + "data_before_unwrapping_traj" + os.str());
+                        gt_exporter_.export_array(*(recon_bit_->buffers[e].data.trajectory_), debug_folder_full_path_ + "data_traj" + os.str());
                     }
                 }*/
 
                 // ---------------------------------------------------------------
 
-                if (perform_timing.value()) { gt_timer_.start("CmrCartesianKSpaceBinningCineGadget::perform_binning"); }
-                this->perform_binning(recon_bit_->buffers[e], e);
-                if (perform_timing.value()) { gt_timer_.stop(); }
-
-                // ---------------------------------------------------------------
-
-                if (perform_timing.value()) { gt_timer_.start("CmrCartesianKSpaceBinningCineGadget::compute_image_header, raw images"); }
-                this->compute_image_header(recon_bit_->buffers[e], res_raw_, e);
-                if (perform_timing.value()) { gt_timer_.stop(); }
-
-                this->set_time_stamps(res_raw_, acq_time_raw_, cpt_time_raw_);
-
-                // ---------------------------------------------------------------
-
-                if (!debug_folder_full_path_.empty())
+                if (recon_bit_->buffers[e].data.data.get_number_of_elements() > 0)
                 {
-                    this->gt_exporter_.export_array_complex(res_raw_.data, debug_folder_full_path_ + "recon_res_raw" + os.str());
+                    /*if (!debug_folder_full_path_.empty())
+                    {
+                        gt_exporter_.export_array_complex(recon_bit_->buffers[e].data.data, debug_folder_full_path_ + "data_before_unwrapping" + os.str());
+                    }
+
+                    if (!debug_folder_full_path_.empty() && recon_bit_->buffers[e].data.trajectory_)
+                    {
+                        if (recon_bit_->buffers[e].data.trajectory_->get_number_of_elements() > 0)
+                        {
+                            gt_exporter_.export_array(*(recon_bit_->buffers[e].data.trajectory_), debug_folder_full_path_ + "data_before_unwrapping_traj" + os.str());
+                        }
+                    }*/
+
+                    // ---------------------------------------------------------------
+
+                    if (perform_timing) { gt_timer_.start("CmrCartesianKSpaceBinningCineGadget::perform_binning"); }
+                    this->perform_binning(recon_bit_->buffers[e], e);
+                    if (perform_timing) { gt_timer_.stop(); }
+
+                    // ---------------------------------------------------------------
+
+                    if (perform_timing) { gt_timer_.start("CmrCartesianKSpaceBinningCineGadget::compute_image_header, raw images"); }
+                    this->compute_image_header(recon_bit_->buffers[e], res_raw_, e);
+                    if (perform_timing) { gt_timer_.stop(); }
+
+                    this->set_time_stamps(res_raw_, acq_time_raw_, cpt_time_raw_);
+
+                    // ---------------------------------------------------------------
+
+                    if (!debug_folder_full_path_.empty())
+                    {
+                        this->gt_exporter_.export_array_complex(res_raw_.data, debug_folder_full_path_ + "recon_res_raw" + os.str());
+                    }
+
+                    if(this->send_out_raw)
+                    {
+                        if (perform_timing) { gt_timer_.start("CmrCartesianKSpaceBinningCineGadget::send_out_image_array, raw"); }
+                        // Copy the image array before sending so we can reuse it on the next encoding space
+                        auto copy = res_raw_;
+                        this->send_out_image_array(copy, e, image_series + ((int)e + 1), GADGETRON_IMAGE_REGULAR, out);
+                        if (perform_timing) { gt_timer_.stop(); }
+                    }
+
+                    // ---------------------------------------------------------------
+                    this->create_binning_image_headers_from_raw();
+                    this->set_time_stamps(res_binning_, acq_time_binning_, cpt_time_binning_);
+
+                    if (!debug_folder_full_path_.empty())
+                    {
+                        this->gt_exporter_.export_array_complex(res_binning_.data, debug_folder_full_path_ + "recon_res_binning" + os.str());
+                    }
+
+                    if (perform_timing) { gt_timer_.start("CmrCartesianKSpaceBinningCineGadget::send_out_image_array, binning"); }
+                    // Copy the image array before sending so we can reuse it on the next encoding space
+                    auto copy = res_binning_;
+                    this->send_out_image_array(copy, e, image_series + (int)e + 2, GADGETRON_IMAGE_RETRO, out);
+                    if (perform_timing) { gt_timer_.stop(); }
                 }
-
-                if(this->send_out_raw.value())
-                {
-                    if (perform_timing.value()) { gt_timer_.start("CmrCartesianKSpaceBinningCineGadget::send_out_image_array, raw"); }
-                    this->send_out_image_array(res_raw_, e, image_series.value() + ((int)e + 1), GADGETRON_IMAGE_REGULAR);
-                    if (perform_timing.value()) { gt_timer_.stop(); }
-                }
-
-                // ---------------------------------------------------------------
-                this->create_binning_image_headers_from_raw();
-                this->set_time_stamps(res_binning_, acq_time_binning_, cpt_time_binning_);
-
-                if (!debug_folder_full_path_.empty())
-                {
-                    this->gt_exporter_.export_array_complex(res_binning_.data, debug_folder_full_path_ + "recon_res_binning" + os.str());
-                }
-
-                if (perform_timing.value()) { gt_timer_.start("CmrCartesianKSpaceBinningCineGadget::send_out_image_array, binning"); }
-                this->send_out_image_array(res_binning_, e, image_series.value() + (int)e + 2, GADGETRON_IMAGE_RETRO);
-                if (perform_timing.value()) { gt_timer_.stop(); }
             }
+
+            if (perform_timing) { gt_timer_local_.stop(); }
         }
-
-        m1->release();
-
-        if (perform_timing.value()) { gt_timer_local_.stop(); }
-
-        return GADGET_OK;
     }
 
     void CmrCartesianKSpaceBinningCineGadget::perform_binning(mrd::ReconAssembly& recon_bit, size_t encoding)
@@ -231,7 +222,7 @@ namespace Gadgetron {
             size_t S   = recon_bit.data.data.get_size(5);
             size_t SLC = recon_bit.data.data.get_size(6);
 
-            size_t binned_N = this->number_of_output_phases.value();
+            size_t binned_N = this->number_of_output_phases;
 
             GADGET_CHECK_THROW(E2==1);
             GADGET_CHECK_THROW(N>binned_N);
@@ -282,7 +273,7 @@ namespace Gadgetron {
                 // if (!debug_folder_full_path_.empty()) { gt_exporter_.export_array_complex(binning_reconer_.binning_obj_.data, debug_folder_full_path_ + "binning_obj_data" + os.str()); }
 
                 // compute the binning
-                if (perform_timing.value()) { timer.start("compute binning ... "); }
+                if (perform_timing) { timer.start("compute binning ... "); }
                 try
                 {
                     binning_reconer_.process_binning_recon();
@@ -292,7 +283,7 @@ namespace Gadgetron {
                     GERROR_STREAM("Exceptions happened in binning_reconer_.process_binning_recon() for slice " << slc);
                     continue;
                 }
-                if (perform_timing.value()) { timer.stop(); }
+                if (perform_timing) { timer.stop(); }
 
                 if (!debug_folder_full_path_.empty()) { gt_exporter_.export_array_complex(binning_reconer_.binning_obj_.complex_image_raw_, debug_folder_full_path_ + "binning_obj_complex_image_raw" + os.str()); }
                 if (!debug_folder_full_path_.empty()) { gt_exporter_.export_array_complex(binning_reconer_.binning_obj_.complex_image_binning_, debug_folder_full_path_ + "binning_obj_complex_image_binning" + os.str()); }
@@ -348,7 +339,7 @@ namespace Gadgetron {
             size_t S = res_raw_.headers.get_size(1);
             size_t SLC = res_raw_.headers.get_size(2);
 
-            size_t binned_N = this->number_of_output_phases.value();
+            size_t binned_N = this->number_of_output_phases;
 
             res_binning_.headers.create(binned_N, S, SLC);
             res_binning_.meta.create(binned_N, S, SLC);
@@ -387,8 +378,8 @@ namespace Gadgetron {
                 {
                     for (n=0; n<N; n++)
                     {
-                        res.headers(n, s, slc).acquisition_time_stamp = (uint32_t)(acq_time(n, s, slc)/ this->time_tick.value() + 0.5);
-                        res.headers(n, s, slc).physiology_time_stamp[0] = (uint32_t)(cpt_time(n, s, slc)/ this->time_tick.value() + 0.5);
+                        res.headers(n, s, slc).acquisition_time_stamp = (uint32_t)(acq_time(n, s, slc)/ this->time_tick + 0.5);
+                        res.headers(n, s, slc).physiology_time_stamp[0] = (uint32_t)(cpt_time(n, s, slc)/ this->time_tick + 0.5);
                     }
                 }
             }
@@ -433,5 +424,5 @@ namespace Gadgetron {
         return GADGET_OK;
     }
 
-    GADGET_FACTORY_DECLARE(CmrCartesianKSpaceBinningCineGadget)
+    GADGETRON_GADGET_EXPORT(CmrCartesianKSpaceBinningCineGadget)
 }

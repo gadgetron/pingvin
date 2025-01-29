@@ -14,14 +14,12 @@ namespace Gadgetron {
     {
         const auto& h = context.header;
 
-        size_t NE = h.encoding.size();
+        num_encoding_spaces = h.encoding.size();
 
-        num_encoding_spaces = NE;
+        GDEBUG_CONDITION_STREAM(verbose, "Number of encoding spaces: " << num_encoding_spaces);
 
-        GDEBUG_CONDITION_STREAM(verbose, "Number of encoding spaces: " << NE);
-
-        acceFactorE1_.resize(NE, 1);
-        acceFactorE2_.resize(NE, 1);
+        acceFactorE1_.resize(num_encoding_spaces, 1);
+        acceFactorE2_.resize(num_encoding_spaces, 1);
 
         size_t e;
         for (e = 0; e < h.encoding.size(); e++) {
