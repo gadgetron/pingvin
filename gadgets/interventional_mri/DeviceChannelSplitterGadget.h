@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Gadget.h"
+#include "Node.h"
 #include "hoNDArray.h"
 
 #include <complex>
@@ -8,25 +8,29 @@
 namespace Gadgetron{
 
   template <typename T> class DeviceChannelSplitterGadget :
-  public Gadget1<mrd::Image<T>>
+  public Core::ChannelGadget<mrd::Image<T>>
   {
+    using Core::ChannelGadget<mrd::Image<T>>::ChannelGadget;
   protected:
-    virtual int process(GadgetContainerMessage<mrd::Image<T>>* m1);
+    void process(Core::InputChannel<mrd::Image<T>>& in, Core::OutputChannel& out) override;
   };
 
   class DeviceChannelSplitterGadgetUSHORT :
   public DeviceChannelSplitterGadget<uint16_t>
   {
+    using DeviceChannelSplitterGadget<uint16_t>::DeviceChannelSplitterGadget;
   };
 
   class DeviceChannelSplitterGadgetFLOAT :
   public DeviceChannelSplitterGadget<float>
   {
+    using DeviceChannelSplitterGadget<float>::DeviceChannelSplitterGadget;
   };
 
   class DeviceChannelSplitterGadgetCPLX :
   public DeviceChannelSplitterGadget< std::complex<float> >
   {
+    using DeviceChannelSplitterGadget< std::complex<float> >::DeviceChannelSplitterGadget;
   };
 }
 

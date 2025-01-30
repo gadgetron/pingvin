@@ -79,37 +79,16 @@ inline void RandNormGenerator<T>::gen(hoNDArray< std::complex<T> >& randNum)
     }
 }
 
-WhiteNoiseInjectorGadget::WhiteNoiseInjectorGadget() : noise_mean_(0), noise_std_(1.0f)
+WhiteNoiseInjectorGadget::WhiteNoiseInjectorGadget(const Core::Context& context, const Core::GadgetProperties& props)
+    : Core::ChannelGadget<mrd::Acquisition>(context, props)
+    , acceFactorE1_(1), acceFactorE2_(1)
+    , is_interleaved_(false), is_embeded_(false), is_seperate_(false), is_external_(false), is_other_(false), is_no_acceleration_(false)
 {
-    add_noise_ref_ = true;
-    randn_ = new RandGenType();
-
-    acceFactorE1_ = 1;
-    acceFactorE2_ = 1;
-
-    is_interleaved_ = false;
-    is_embeded_ = false;
-    is_seperate_ = false;
-    is_external_ = false;
-    is_other_ = false;
-    is_no_acceleration_ = false;
-}
-
-WhiteNoiseInjectorGadget::~WhiteNoiseInjectorGadget()
-{
-    delete randn_;
-}
-
-int WhiteNoiseInjectorGadget::process_config(const mrd::Header& header)
-{
-    noise_mean_ = noise_mean.value();
-    noise_std_ = noise_std.value();
-    add_noise_ref_ = add_noise_ref.value();
-
     GDEBUG_STREAM("noise mean is " << noise_mean_);
     GDEBUG_STREAM("noise std is " << noise_std_);
     GDEBUG_STREAM("add_noise_ref is " << add_noise_ref_);
 
+    randn_ = new RandGenType();
     randn_->setPara(noise_mean_, noise_std_);
 
     // get the current time and generate a seed
@@ -140,15 +119,14 @@ int WhiteNoiseInjectorGadget::process_config(const mrd::Header& header)
     randn_->seed( (unsigned long)seed );
 
     // ---------------------------------------------------------------------------------------------------------
+    auto& header = context.header;
     if( header.encoding.size() != 1)
     {
       GDEBUG("Number of encoding spaces: %d\n", header.encoding.size());
-      GDEBUG("This simple WhiteNoiseInjectorGadget only supports one encoding space\n");
-      return GADGET_FAIL;
+      GADGET_THROW("This simple WhiteNoiseInjectorGadget only supports one encoding space\n");
     }
     if (!header.encoding[0].parallel_imaging) {
-      GDEBUG("Parallel Imaging section not found in header");
-      return GADGET_FAIL;
+      GADGET_THROW("Parallel Imaging section not found in header");
     }
 
     mrd::ParallelImagingType p_imaging = *header.encoding[0].parallel_imaging;
@@ -161,8 +139,7 @@ int WhiteNoiseInjectorGadget::process_config(const mrd::Header& header)
 
     if ( !p_imaging.calibration_mode )
     {
-        GDEBUG("Parallel Imaging calibrationMode not found in header");
-        return GADGET_FAIL;
+        GADGET_THROW("Parallel Imaging calibrationMode not found in header");
     }
 
     auto calib = *p_imaging.calibration_mode;
@@ -182,17 +159,23 @@ int WhiteNoiseInjectorGadget::process_config(const mrd::Header& header)
       is_other_ = true;
       GDEBUG_STREAM("Calibration mode is other");
     } else {
-      GDEBUG("Failed to process parallel imaging calibration mode");
-      return GADGET_FAIL;
+      GADGET_THROW("Failed to process parallel imaging calibration mode");
     }
-
-    return GADGET_OK;
 }
 
-int WhiteNoiseInjectorGadget::process(GadgetContainerMessage<mrd::Acquisition>* m1)
+
+WhiteNoiseInjectorGadget::~WhiteNoiseInjectorGadget()
 {
-    auto& head = m1->getObjectPtr()->head;
-    auto& data = m1->getObjectPtr()->data;
+    delete randn_;
+}
+
+void WhiteNoiseInjectorGadget::process(Core::InputChannel<mrd::Acquisition>& in, Core::OutputChannel& out)
+{
+    for (auto m1 : in)
+    {
+
+    auto& head = m1.head;
+    auto& data = m1.data;
 
     bool is_noise = head.flags.HasFlags(mrd::AcquisitionFlags::kIsNoiseMeasurement);
     bool is_scc_correction = head.flags.HasFlags(mrd::AcquisitionFlags::kIsSurfacecoilcorrectionscanData);
@@ -200,8 +183,8 @@ int WhiteNoiseInjectorGadget::process(GadgetContainerMessage<mrd::Acquisition>* 
     bool is_ref = head.flags.HasFlags(mrd::AcquisitionFlags::kIsParallelCalibration);
     bool is_ref_kspace = head.flags.HasFlags(mrd::AcquisitionFlags::kIsParallelCalibrationAndImaging);
 
-    size_t channels = m1->getObjectPtr()->Coils();
-    size_t samples = m1->getObjectPtr()->Samples();
+    size_t channels = m1.Coils();
+    size_t samples = m1.Samples();
 
     if (!is_noise && !is_scc_correction )
     {
@@ -230,14 +213,12 @@ int WhiteNoiseInjectorGadget::process(GadgetContainerMessage<mrd::Acquisition>* 
             }
             catch(...)
             {
-                GERROR_STREAM("WhiteNoiseInjectorGadget, randn_->gen(noise_) failed ... ");
-                return GADGET_FAIL;
+                GADGET_THROW("WhiteNoiseInjectorGadget, randn_->gen(noise_) failed ... ");
             }
 
             if ( !noise_fl_.copyFrom(noise_) )
             {
-                GERROR_STREAM("WhiteNoiseInjectorGadget, noise_fl_.copyFrom(noise_) failed ... ");
-                return GADGET_FAIL;
+                GADGET_THROW("WhiteNoiseInjectorGadget, noise_fl_.copyFrom(noise_) failed ... ");
             }
 
             try
@@ -246,20 +227,14 @@ int WhiteNoiseInjectorGadget::process(GadgetContainerMessage<mrd::Acquisition>* 
             }
             catch(...)
             {
-                GERROR_STREAM("WhiteNoiseInjectorGadget, Gadgetron::add(*m2->getObjectPtr(), noise_, *m2->getObjectPtr()) failed ... ");
-                return GADGET_FAIL;
+                GADGET_THROW("WhiteNoiseInjectorGadget, Gadgetron::add(*m2->getObjectPtr(), noise_, *m2->getObjectPtr()) failed ... ");
             }
         }
     }
 
-    if (this->next()->putq(m1) == -1)
-    {
-      GERROR("WhiteNoiseInjectorGadget::process, passing data on to next gadget");
-      return -1;
+    out.push(std::move(m1));
     }
-
-    return GADGET_OK;
 }
 
-GADGET_FACTORY_DECLARE(WhiteNoiseInjectorGadget)
+GADGETRON_GADGET_EXPORT(WhiteNoiseInjectorGadget)
 }

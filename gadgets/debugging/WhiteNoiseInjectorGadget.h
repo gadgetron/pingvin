@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "Gadget.h"
+#include "Node.h"
 #include "hoNDArray.h"
 
 #include <random>
@@ -36,29 +36,20 @@ protected:
 };
 
 /// add white noise to the kspace data
-class WhiteNoiseInjectorGadget : public Gadgetron::Gadget1<mrd::Acquisition>
+class WhiteNoiseInjectorGadget : public Core::ChannelGadget<mrd::Acquisition>
 {
 public:
     typedef Gadgetron::RandNormGenerator<double> RandGenType;
 
-    WhiteNoiseInjectorGadget();
-    virtual ~WhiteNoiseInjectorGadget();
+    WhiteNoiseInjectorGadget(const Core::Context& context, const Core::GadgetProperties& props);
+    ~WhiteNoiseInjectorGadget() override;
 
 protected:
-    GADGET_PROPERTY(noise_mean, float, "Noise mean", 0.0);
-    GADGET_PROPERTY(noise_std, float, "Noise standard deviation", 0.0);
-    GADGET_PROPERTY(add_noise_ref, bool, "Add noise to reference scans", false);
+    NODE_PROPERTY(noise_mean_, float, "Noise mean", 0.0);
+    NODE_PROPERTY(noise_std_, float, "Noise standard deviation", 1.0);
+    NODE_PROPERTY(add_noise_ref_, bool, "Add noise to reference scans", false);
 
-    virtual int process_config(const mrd::Header& header);
-
-    virtual int process(Gadgetron::GadgetContainerMessage<mrd::Acquisition>* m1);
-
-    /// whether to add noise to ref acquisition
-    bool add_noise_ref_;
-
-    /// noise mean and standard deviation
-    float noise_mean_;
-    float noise_std_;
+    void process(Core::InputChannel<mrd::Acquisition>& in, Core::OutputChannel& out) override;
 
     /// random noise generator
     RandGenType* randn_;
