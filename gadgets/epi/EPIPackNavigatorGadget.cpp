@@ -2,8 +2,8 @@
 
 namespace Gadgetron {
 
-EPIPackNavigatorGadget::EPIPackNavigatorGadget(const Core::Context& context, const Core::GadgetProperties& props)
-    : ChannelGadget(context, props)
+EPIPackNavigatorGadget::EPIPackNavigatorGadget(const Core::MrdContext& context, const Core::NodeParameters& params)
+    : EPIPackNavigatorGadget::MRChannelGadget(context, params)
 {
     auto& h = context.header;
     if (h.encoding.size() == 0) {

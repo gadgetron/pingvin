@@ -12,23 +12,32 @@
 
 namespace Gadgetron {
 
-    class EPICorrGadget : public Core::ChannelGadget<mrd::Acquisition> {
+    class EPICorrGadget : public Core::MRChannelGadget<mrd::Acquisition> {
     public:
-        EPICorrGadget(const Core::Context& context, const Core::GadgetProperties& props);
+        struct Parameters : public Core::NodeParameters {
+            size_t referenceNavigatorNumber = 1;
+            std::string B0CorrectionMode = "mean";
+            std::string OEPhaseCorrectionMode = "polynomial";
+            int navigatorParameterFilterLength = 0;
+            size_t navigatorParameterFilterExcludeVols = 0;
+
+            Parameters(const std::string& prefix) : Core::NodeParameters(prefix, "EPICorr Options")
+            {
+                register_parameter("referenceNavigatorNumber", &referenceNavigatorNumber,
+                                   "Navigator number to be used as reference, both for phase correction and weights for filtering (default=1 -- second navigator)");
+                register_parameter("B0CorrectionMode", &B0CorrectionMode, "B0 correction mode (none, mean, linear)");
+                register_parameter("OEPhaseCorrectionMode", &OEPhaseCorrectionMode,
+                                   "Odd-Even phase-correction mode (none, mean, linear, polynomial)");
+                register_parameter("navigatorParameterFilterLength", &navigatorParameterFilterLength,
+                                   "Number of repetitions to use to filter the navigator parameters (set to 0 or negative for no filtering)");
+                register_parameter("navigatorParameterFilterExcludeVols", &navigatorParameterFilterExcludeVols,
+                                   "Number of volumes/repetitions to exclude from the beginning of the run when filtering the navigator parameters (e.g., to take into account dummy acquisitions. Default: 0)");
+            }
+        };
+
+        EPICorrGadget(const Core::MrdContext& context, const Parameters& parameters);
 
     protected:
-        NODE_PROPERTY(referenceNavigatorNumber, size_t,
-                        "Navigator number to be used as reference, both for phase correction and weights for filtering (default=1 -- second navigator)",
-                        1);
-        NODE_PROPERTY(B0CorrectionMode, std::string, "B0 correction mode (none, mean, linear)", "mean");
-        NODE_PROPERTY(OEPhaseCorrectionMode, std::string, "Odd-Even phase-correction mode (none, mean, linear, polynomial)", "polynomial");
-        NODE_PROPERTY(navigatorParameterFilterLength, int,
-                        "Number of repetitions to use to filter the navigator parameters (set to 0 or negative for no filtering)",
-                        0);
-        NODE_PROPERTY(navigatorParameterFilterExcludeVols, size_t,
-                        "Number of volumes/repetitions to exclude from the beginning of the run when filtering the navigator parameters (e.g., to take into account dummy acquisitions. Default: 0)",
-                        0);
-
         void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& out) override;
 
         void init_arrays_for_nav_parameter_filtering(mrd::EncodingLimitsType e_limits);
@@ -43,6 +52,7 @@ namespace Gadgetron {
 
         void increase_no_repetitions(size_t delta_rep);
 
+        const Parameters parameters_;
 
         // --------------------------------------------------
         // variables for navigator parameter computation

@@ -8,7 +8,7 @@ set(pingvin_mricore_header_files
         FFTGadget.h
         CombineGadget.h
         ExtractGadget.h
-        FloatToFixPointGadget.h
+        FloatToFixedPointGadget.h
         RemoveROOversamplingGadget.h
         CoilReductionGadget.h
         FlowPhaseSubtractionGadget.h
@@ -59,7 +59,7 @@ set(pingvin_mricore_src_files
         ExtractGadget.cpp
         FFTGadget.cpp
         FlagTriggerGadget.cpp
-        FloatToFixPointGadget.cpp
+        FloatToFixedPointGadget.cpp
         FlowPhaseSubtractionGadget.cpp
         ImageArraySplitGadget.cpp
         MaxwellCorrectionGadget.cpp

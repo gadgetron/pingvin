@@ -7,10 +7,9 @@
 
 namespace Gadgetron{
 
-  class FFTXGadget : public Core::ChannelGadget<mrd::Acquisition> {
+  class FFTXGadget : public Core::MRChannelGadget<mrd::Acquisition> {
     public:
-      FFTXGadget(const Core::Context& context, const Core::GadgetProperties& props)
-        : ChannelGadget(context, props) {}
+      using Core::MRChannelGadget<mrd::Acquisition>::MRChannelGadget;
 
     protected:
       void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& out) override;

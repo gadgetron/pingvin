@@ -8,14 +8,12 @@
 
 namespace Gadgetron{
 
-  class CutXGadget : public Core::ChannelGadget<mrd::Acquisition>
+  class CutXGadget : public Core::MRChannelGadget<mrd::Acquisition>
   {
     public:
-      CutXGadget(const Core::Context& context, const Core::GadgetProperties& props);
+      CutXGadget(const Core::MrdContext& context, const Core::NodeParameters& parameters);
 
     protected:
-      NODE_PROPERTY(verbose_mode_, bool, "Verbose output", false);
-
       void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& out) override;
 
       size_t encodeNx_;

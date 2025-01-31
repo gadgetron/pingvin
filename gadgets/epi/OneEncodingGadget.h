@@ -9,10 +9,9 @@
 
 namespace Gadgetron {
 
-    class OneEncodingGadget : public Core::ChannelGadget<mrd::Acquisition> {
+    class OneEncodingGadget : public Core::MRChannelGadget<mrd::Acquisition> {
     public:
-        OneEncodingGadget(const Core::Context& context, const Core::GadgetProperties& props)
-            : ChannelGadget(context, props) {}
+        using Core::MRChannelGadget<mrd::Acquisition>::MRChannelGadget;
 
     protected:
         void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& out) override;

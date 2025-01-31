@@ -35,7 +35,7 @@ namespace Gadgetron {
             std::string noise_covariance_out = "";
 
             bool skip_noise_adjust = false;
-            bool discard_nonconformant_data = false;
+            bool reject_nonconformant_data = false;
             float noise_dwell_time_us_preset = 0.0;
             std::string scale_only_channels_by_name = "";
 
@@ -43,7 +43,7 @@ namespace Gadgetron {
                 register_parameter("covariance-input", &noise_covariance_in, "Input file containing noise covariance matrix");
                 register_parameter("covariance-output", &noise_covariance_out, "Output file containing noise covariance matrix");
                 register_flag("skip", &skip_noise_adjust, "Skip noise adjustment");
-                register_flag("discard-nonconformant-data", &discard_nonconformant_data, "Discard data that does not conform");
+                register_flag("reject-nonconformant-data", &reject_nonconformant_data, "Reject data that does not conform (i.e. channels mismatch)");
                 register_parameter("dwell-time-us-preset", &noise_dwell_time_us_preset, "Preset dwell time for noise measurement");
                 register_parameter("scale-only-channels-by-name", &scale_only_channels_by_name, "List of named channels that should only be scaled");
             }

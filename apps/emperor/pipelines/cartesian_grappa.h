@@ -9,7 +9,7 @@
 #include "gadgets/mri_core/BucketToBufferGadget.h"
 #include "gadgets/mri_core/ImageArraySplitGadget.h"
 #include "gadgets/mri_core/ComplexToFloatGadget.h"
-#include "gadgets/mri_core/FloatToFixPointGadget.h"
+#include "gadgets/mri_core/FloatToFixedPointGadget.h"
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconCartesianReferencePrepGadget.h"
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconEigenChannelGadget.h"
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconCartesianGrappaGadget.h"

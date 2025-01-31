@@ -6,13 +6,11 @@
 
 namespace Gadgetron {
 
-    class EPIReconXGadget : public Core::ChannelGadget<mrd::Acquisition> {
+    class EPIReconXGadget : public Core::MRChannelGadget<mrd::Acquisition> {
     public:
-        EPIReconXGadget(const Core::Context& context, const Core::GadgetProperties& props);
+        EPIReconXGadget(const Core::MrdContext& context, const Core::NodeParameters& parameters);
 
     protected:
-        NODE_PROPERTY(verbose_mode_, bool, "Verbose output", false);
-
         void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& out) override;
 
         // A set of reconstruction objects

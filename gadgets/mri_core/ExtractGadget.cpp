@@ -43,7 +43,7 @@ namespace Gadgetron {
             case IMTYPE::kImag:
                 return extract(data, [&](auto& val) { return std::imag(val) + offset; });
             default:
-                throw std::runtime_error("Illegal image type encountered in extract_image");
+                GADGET_THROW("Illegal image type encountered in extract_image");
             }
         }
 
@@ -84,7 +84,7 @@ namespace Gadgetron {
             image_types.insert(mrd::ImageType::kPhase);
 
         if (image_types.empty()) {
-            GADGET_THROW("ExtractGadget: No valid extract functions specified");
+            GADGET_THROW("No valid extract functions specified");
         }
     }
 

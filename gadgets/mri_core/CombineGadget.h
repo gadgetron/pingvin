@@ -10,8 +10,8 @@
 
 namespace Gadgetron{
     class CombineGadget : public Core::MRPureGadget<mrd::AnyImage, mrd::AnyImage> {
-        public:
-        using Core::MRPureGadget<mrd::AnyImage, mrd::AnyImage>::PureGadget;
+    public:
+        using MRPureGadget::MRPureGadget;
 
         mrd::AnyImage process_function(mrd::AnyImage image) const override;
     };

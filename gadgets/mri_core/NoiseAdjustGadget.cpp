@@ -189,7 +189,7 @@ namespace Gadgetron {
         , acquisition_system_information_(context.header.acquisition_system_information)
     {
         GDEBUG_STREAM("skip_noise_adjust is " << parameters_.skip_noise_adjust);
-        GDEBUG_STREAM("discard_nonconformant_data is " << parameters_.discard_nonconformant_data);
+        GDEBUG_STREAM("reject_nonconformant_data is " << parameters_.reject_nonconformant_data);
         GDEBUG_STREAM("receiver_noise_bandwidth is " << receiver_noise_bandwidth);
 
         if (parameters_.skip_noise_adjust)
@@ -317,12 +317,11 @@ namespace Gadgetron {
                 os.flush();
                 os.close();
             } else {
-                GERROR_STREAM("Unable to open file " << parameters_.noise_covariance_out << " for writing noise covariance");
-                throw std::runtime_error("Unable to open file for writing noise covariance");
+                GADGET_THROW("Unable to open file " << parameters_.noise_covariance_out << " for writing noise covariance");
             }
         } else {
             GERROR_STREAM("Unable to save noise covariance. Noise covariance output file must be provided as a parameter");
-            // throw std::runtime_error("Noise covariance output file must be provided as a parameter");
+            // GADGET_THROW("Noise covariance output file must be provided as a parameter");
         }
     }
 
@@ -344,8 +343,8 @@ namespace Gadgetron {
             auto dataM = as_arma_matrix(acq.data);
             auto pwm = as_arma_matrix(pw.prewhitening_matrix);
             dataM *= pwm;
-        } else if (!parameters_.discard_nonconformant_data) {
-            throw std::runtime_error("Input data has different number of channels from noise data");
+        } else if (parameters_.reject_nonconformant_data) {
+            GADGET_THROW("Input data has different number of channels from noise data");
         }
         return std::move(pw);
     }
@@ -409,7 +408,6 @@ namespace Gadgetron {
             if (!file) {
                 GERROR_STREAM("Could not open noise covariance file " << parameters_.noise_covariance_in);
                 GWARN("Falling back to noise gathering\n");
-                // throw std::runtime_error("Could not open noise covariance file");
                 return std::nullopt;
             }
             mrd::binary::MrdNoiseCovarianceReader reader(file);
