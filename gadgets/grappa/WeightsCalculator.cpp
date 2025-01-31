@@ -14,7 +14,6 @@
 #include "SliceAccumulator.h"
 #include "Unmixing.h"
 
-#include "Gadget.h"
 
 namespace {
     using namespace Gadgetron;

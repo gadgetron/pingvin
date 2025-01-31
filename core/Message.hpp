@@ -9,12 +9,6 @@ namespace Gadgetron::Core {
 
 
     template<class T>
-    GadgetContainerMessageBase* TypedMessageChunk<T>::to_container_message() {
-        return new GadgetContainerMessage<T>(std::move(data));
-    }
-
-
-    template<class T>
     std::unique_ptr<MessageChunk> TypedMessageChunk<T>::clone() const {
         return std::make_unique<TypedMessageChunk<T>>(data);
     }
@@ -268,16 +262,10 @@ std::optional <T> unpack(Message &&message) {
         return force_unpack<T>(std::move(message));
     }
     return std::nullopt;
-
 }
 
+} // namespace Gadgetron::Core
 
-}
-
-template<class... ARGS>
-Gadgetron::Core::Message::Message(ARGS &&... args) : messages_(
-        gadgetron_message_detail::make_messages<ARGS...>(std::forward<ARGS>(args)...)) {
-
-
-}
-
+template <class... ARGS>
+Gadgetron::Core::Message::Message(ARGS&&... args)
+    : messages_(gadgetron_message_detail::make_messages<ARGS...>(std::forward<ARGS>(args)...)) {}

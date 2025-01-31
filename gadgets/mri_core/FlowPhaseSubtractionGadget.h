@@ -1,5 +1,6 @@
 #pragma once
-#include "Gadget.h"
+
+#include "Node.h"
 #include "hoNDArray.h"
 
 #include <complex>

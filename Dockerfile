@@ -100,7 +100,7 @@ RUN . /opt/conda/etc/profile.d/conda.sh && umask 0002 && conda activate pingvin 
     mkdir build && \
     cd build && \
     cmake ../ -GNinja -DUSE_MKL=ON -DCMAKE_INSTALL_PREFIX=/opt/package && \
-    ninja && \
+    ninja -j6 && \
     ninja install
 
 FROM pingvin_dev_nocuda AS pingvin_build_nocuda
@@ -115,7 +115,7 @@ RUN . /opt/conda/etc/profile.d/conda.sh && umask 0002 && conda activate pingvin 
     mkdir build && \
     cd build && \
     cmake ../ -GNinja -DUSE_MKL=ON -DCMAKE_INSTALL_PREFIX=/opt/package && \
-    ninja && \
+    ninja -j6 && \
     ninja install
 
 FROM pingvin_baseimage AS pingvin_rt_cuda

@@ -3,7 +3,6 @@ add_subdirectory(parallel)
 
 add_library(pingvin_core SHARED
         Channel.cpp
-        Gadget.cpp
         Message.cpp
         Process.cpp
         io/from_string.cpp)
@@ -40,12 +39,10 @@ install(FILES
         Message.h
         Message.hpp
         MPMCChannel.h
-        Gadget.h
         Context.h
         Node.h
         PureGadget.h
         PropertyMixin.h
-        GadgetContainerMessage.h
         ChannelAlgorithms.h
         Process.h
         DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)

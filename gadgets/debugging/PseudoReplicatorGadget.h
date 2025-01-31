@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Gadget.h"
+#include "Node.h"
 
 namespace Gadgetron {
 

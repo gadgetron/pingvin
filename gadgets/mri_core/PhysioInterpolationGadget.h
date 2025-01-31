@@ -1,7 +1,6 @@
-#ifndef PhysioInterpolationGadget_H
-#define PhysioInterpolationGadget_H
+#pragma once
 
-#include "Gadget.h"
+#include "Node.h"
 #include "hoNDArray.h"
 
 #include <complex>
@@ -52,6 +51,5 @@ class PhysioInterpolationGadget : public Core::ChannelGadget<mrd::Image<std::com
         void process(Core::InputChannel<mrd::Image<std::complex<float>>>& in, Core::OutputChannel& out) override;
 
 };
-}
 
-#endif //PhysioInterpolationGadget_H
+}

@@ -161,7 +161,6 @@ namespace Gadgetron {
         }
     }
 
-    // int CmrRealTimeLAXCineAIAnalysisGadget::process(Gadgetron::GadgetContainerMessage< mrd::ImageArray >* m1)
     void CmrRealTimeLAXCineAIAnalysisGadget::process(Core::InputChannel<mrd::ImageArray>& in, Core::OutputChannel& out)
     {
         for (auto m1 : in) {

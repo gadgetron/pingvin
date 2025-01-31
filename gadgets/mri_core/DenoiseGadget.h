@@ -1,8 +1,6 @@
+#pragma once
 
-#ifndef GADGETRON_DENOISEGADGET_H
-#define GADGETRON_DENOISEGADGET_H
-
-#include "Gadget.h"
+#include "Node.h"
 #include "hoNDArray.h"
 
 #include "PureGadget.h"
@@ -33,5 +31,3 @@ namespace Gadgetron {
     };
 
 }
-
-#endif // GADGETRON_DENOISEGADGET_H

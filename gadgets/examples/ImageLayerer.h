@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Node.h"
 #include "parallel/Merge.h"
-#include "Gadget.h"
 
 namespace Gadgetron::Examples {
 

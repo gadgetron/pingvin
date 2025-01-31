@@ -7,8 +7,6 @@
 #include <optional>
 #include <variant>
 
-#include "GadgetContainerMessage.h"
-
 namespace Gadgetron {
 
     namespace Core {
@@ -19,8 +17,6 @@ namespace Gadgetron {
             virtual ~MessageChunk() = default;
             virtual std::unique_ptr<MessageChunk> clone() const = 0;
         protected:
-            virtual GadgetContainerMessageBase *to_container_message() = 0;
-
             friend Message;
         };
 
@@ -40,8 +36,6 @@ namespace Gadgetron {
             const std::vector<std::unique_ptr<MessageChunk>> &messages() const;
 
             std::vector<std::unique_ptr<MessageChunk>> take_messages();
-
-            GadgetContainerMessageBase *to_container_message();
 
             Message clone();
 
@@ -83,8 +77,6 @@ namespace Gadgetron {
             TypedMessageChunk &operator=(const TypedMessageChunk &other) = default;
 
             TypedMessageChunk &operator=(TypedMessageChunk &&other) = default;
-
-            GadgetContainerMessageBase *to_container_message() override;
 
             std::unique_ptr<MessageChunk> clone() const override;
 
