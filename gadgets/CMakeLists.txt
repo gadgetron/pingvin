@@ -1,7 +1,6 @@
 add_subdirectory(examples)
 add_subdirectory(debugging)
 add_subdirectory(mri_core)
-add_subdirectory(interventional_mri)
 add_subdirectory(cmr)
 add_subdirectory(epi)
 add_subdirectory(grappa)

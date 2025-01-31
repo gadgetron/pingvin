@@ -168,8 +168,10 @@ def check_requirements(spec: Spec, pingvin_capabilities: Dict[str,str], ignore_r
     """Checks whether each test case should be run based on Pingvin capabilities and test tags"""
 
     # Check tags first
-    if len(run_tags) > 0 and spec.tags != run_tags:
-        pytest.skip("Test missing required tags")
+    if len(run_tags) > 0:
+        for tag in run_tags:
+            if tag not in spec.tags:
+                pytest.skip(f"Test missing tag: {tag}")
     if 'skip' in spec.tags:
         pytest.skip("Test was marked as skipped")
 
