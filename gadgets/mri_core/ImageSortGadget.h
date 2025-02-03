@@ -16,13 +16,24 @@ namespace Gadgetron{
     int index_;
   };
 
-  class ImageSortGadget : public Core::ChannelGadget<mrd::AnyImage> {
+  class ImageSortGadget : public Core::MRChannelGadget<mrd::AnyImage> {
     public:
-      ImageSortGadget(const Core::Context &, const Core::GadgetProperties &);
+      struct Parameters : public Core::NodeParameters {
+        std::string sorting_dimension = "slice";
+        Parameters(const std::string &prefix) : Core::NodeParameters(prefix, "Image Sorting Options") {
+          register_parameter("sorting_dimension", &sorting_dimension, "Dimension that data will be sorted by (average, slice, contrast, phase, repetition, set)");
+        }
+      };
+
+      ImageSortGadget(const Core::MrdContext& context, const Parameters& params)
+        : ImageSortGadget::MRChannelGadget(context, params)
+        , parameters_(params)
+      {}
+
       void process(Core::InputChannel<mrd::AnyImage> &, Core::OutputChannel &) override;
+
     protected:
-      // { "average", "slice", "contrast", "phase", "repetition", "set" }
-      NODE_PROPERTY(sorting_dimension, std::string, "Dimension that data will be sorted by", "slice");
+      const Parameters parameters_;
       std::vector<ImageEntry> images_;
   };
 }

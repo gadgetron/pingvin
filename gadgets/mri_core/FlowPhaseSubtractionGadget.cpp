@@ -7,8 +7,8 @@
 
 namespace Gadgetron {
 
-FlowPhaseSubtractionGadget::FlowPhaseSubtractionGadget(const Core::Context& context, const Core::GadgetProperties& props)
-    : Core::ChannelGadget<mrd::Image<std::complex<float>>>(context, props)
+FlowPhaseSubtractionGadget::FlowPhaseSubtractionGadget(const Core::MrdContext& context, const Core::NodeParameters& params)
+    : FlowPhaseSubtractionGadget::MRChannelGadget(context, params)
 {
     const auto e_limits = context.header.encoding[0].encoding_limits;
     sets_ = e_limits.set ? e_limits.set->maximum + 1 : 1;

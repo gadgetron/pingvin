@@ -7,12 +7,11 @@
 
 namespace Gadgetron{
 
-    class FlowPhaseSubtractionGadget : public Core::ChannelGadget<mrd::Image<std::complex<float>>>
+    class FlowPhaseSubtractionGadget : public Core::MRChannelGadget<mrd::Image<std::complex<float>>>
     {
 
     public:
-        FlowPhaseSubtractionGadget(const Core::Context& context, const Core::GadgetProperties& props);
-
+        FlowPhaseSubtractionGadget(const Core::MrdContext& context, const Core::NodeParameters& params);
         ~FlowPhaseSubtractionGadget() override = default;
 
         void process(Core::InputChannel<mrd::Image<std::complex<float>>>& in, Core::OutputChannel& out) override;

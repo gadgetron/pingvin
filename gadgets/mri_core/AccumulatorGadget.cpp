@@ -20,12 +20,11 @@ int addPrePostZeros(size_t centre_column, size_t samples) {
 
 namespace Gadgetron {
 
-AccumulatorGadget::AccumulatorGadget(const Core::Context& context, const Core::GadgetProperties& props)
-    : Core::ChannelGadget<mrd::Acquisition>(context, props) {
-    buffer_ = 0;
-    image_counter_ = 0;
-    image_series_ = 0;
-
+AccumulatorGadget::AccumulatorGadget(const Core::MrdContext& context, const Parameters& params)
+    : AccumulatorGadget::MRChannelGadget(context, params)
+    , parameters_(params)
+    , image_counter_(0)
+{
     auto h = (context.header);
     if (h.encoding.size() != 1) {
         GDEBUG("Number of encoding spaces: %d\n", h.encoding.size());
@@ -50,31 +49,13 @@ AccumulatorGadget::AccumulatorGadget(const Core::Context& context, const Core::G
     slices_ = e_limits.slice ? e_limits.slice->maximum + 1 : 1;
 }
 
-AccumulatorGadget::~AccumulatorGadget() {
-    if (buffer_)
-        delete buffer_;
-}
-
 void AccumulatorGadget::process(Core::InputChannel<mrd::Acquisition>& in, Core::OutputChannel& out) {
     mrd::Acquisition ref_acq;
     for (auto acq : in) {
-        if (!buffer_) {
+        if (!(buffer_.size() > 0)) {
             dimensions_.push_back(acq.Coils());
             dimensions_.push_back(slices_);
-
-            if (!(buffer_ = new hoNDArray<std::complex<float>>())) {
-                GDEBUG("Failed create buffer\n");
-              // TODO: How to throw Gadget failures?
-            }
-
-            try {
-                buffer_->create(dimensions_);
-            }
-            catch (std::runtime_error& err) {
-                GEXCEPTION(err, "Failed allocate buffer array\n");
-                // TODO: How to throw Gadget failures?
-            }
-            image_series_ = image_series;
+            buffer_.create(dimensions_);
         }
 
         bool is_first_scan_in_slice = acq.head.flags.HasFlags(mrd::AcquisitionFlags::kFirstInSlice);
@@ -82,7 +63,7 @@ void AccumulatorGadget::process(Core::InputChannel<mrd::Acquisition>& in, Core::
             ref_acq = acq;
         }
 
-        std::complex<float>* buffer_raw = buffer_->get_data_ptr();
+        std::complex<float>* buffer_raw = buffer_.get_data_ptr();
         std::complex<float>* data_raw = acq.data.data();
 
         int samples = acq.Samples();
@@ -92,8 +73,7 @@ void AccumulatorGadget::process(Core::InputChannel<mrd::Acquisition>& in, Core::
         int center_sample = acq.head.center_sample.value_or(samples / 2);
 
         if (samples > dimensions_[0]) {
-            GDEBUG("Wrong number of samples received\n");
-            // TODO: How to throw Gadget failures
+            GADGET_THROW("Wrong number of samples received\n");
         }
 
         size_t offset = 0;
@@ -140,7 +120,7 @@ void AccumulatorGadget::process(Core::InputChannel<mrd::Acquisition>& in, Core::
             img.head.physiology_time_stamp = acq.head.physiology_time_stamp;
             img.head.image_type = mrd::ImageType::kComplex;
             img.head.image_index = ++image_counter_;
-            img.head.image_series_index = image_series_;
+            img.head.image_series_index = parameters_.image_series;
 
             out.push(img);
         }

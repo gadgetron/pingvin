@@ -7,12 +7,12 @@ namespace Gadgetron {
 #endif // M_PI
 #define M_PI 3.14159265358979323846
 
-MaxwellCorrectionGadget::MaxwellCorrectionGadget(const Core::Context& context, const Core::GadgetProperties& props)
-    : Core::ChannelGadget<mrd::Image<std::complex<float>>>(context, props) {
+MaxwellCorrectionGadget::MaxwellCorrectionGadget(const Core::MrdContext& context, const Core::NodeParameters& params)
+    : MaxwellCorrectionGadget::MRChannelGadget(context, params)
+{
     maxwell_coefficients_present_ = false;
     maxwell_coefficients_ = std::vector<double>(4, 0);
-    auto h = (context.header);
-
+    auto h = context.header;
     if (h.user_parameters) {
         for (std::vector<mrd::UserParameterDoubleType>::const_iterator i(h.user_parameters->user_parameter_double.begin());
              i != h.user_parameters->user_parameter_double.end(); i++) {
@@ -29,8 +29,7 @@ MaxwellCorrectionGadget::MaxwellCorrectionGadget(const Core::Context& context, c
             }
         }
     } else {
-        GDEBUG("MaxwellCorrection coefficients are supposed to be in the UserParameters. No user parameter section "
-               "found\n");
+        GDEBUG("MaxwellCorrection coefficients are supposed to be in the UserParameters. No user parameter section found\n");
         return;
     }
 

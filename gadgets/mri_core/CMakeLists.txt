@@ -60,9 +60,7 @@ set(pingvin_mricore_src_files
         FFTGadget.cpp
         FlagTriggerGadget.cpp
         FloatToFixedPointGadget.cpp
-        FlowPhaseSubtractionGadget.cpp
         ImageArraySplitGadget.cpp
-        MaxwellCorrectionGadget.cpp
         NoiseAdjustGadget.cpp
         PCACoilGadget.cpp
         PhysioInterpolationGadget.cpp
@@ -70,10 +68,12 @@ set(pingvin_mricore_src_files
         SimpleReconGadget.cpp
 
         # These Gadgets are NOT TESTED, but they HAVE BEEN upgraded to MRD v2
-        # AccumulatorGadget.cpp
-        # ImageIndexGadget.cpp
-        # ImageSortGadget.cpp
-        # ScaleGadget.cpp
+        AccumulatorGadget.cpp
+        FlowPhaseSubtractionGadget.cpp
+        ImageIndexGadget.cpp
+        ImageSortGadget.cpp
+        MaxwellCorrectionGadget.cpp
+        ScaleGadget.cpp
 
         # These Gadgets are NOT TESTED and have not been upgraded to MRD v2
         # CoilComputationGadget.cpp
