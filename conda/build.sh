@@ -12,4 +12,4 @@ cmake -GNinja \
     -DCMAKE_INSTALL_PREFIX="${PREFIX}" \
     ../
 
-ninja -j6 install
+ninja install
