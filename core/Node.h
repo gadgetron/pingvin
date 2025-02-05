@@ -68,15 +68,4 @@ namespace Gadgetron::Core {
 }
 
 /** TODO: Delete everywhere */
-/*
-#define GADGETRON_GADGET_EXPORT(GadgetClass)                                    \
-    std::unique_ptr<Gadgetron::Core::Node> gadget_factory_##GadgetClass(        \
-            const Gadgetron::Core::Context& context,                            \
-            const std::string& name,                                            \
-            const Gadgetron::Core::GadgetProperties& props) {                   \
-        return std::make_unique<GadgetClass>(context, props);                   \
-    }                                                                           \
-BOOST_DLL_ALIAS(gadget_factory_##GadgetClass, gadget_factory_export_##GadgetClass)
-*/
-
 #define GADGETRON_GADGET_EXPORT(GadgetClass)

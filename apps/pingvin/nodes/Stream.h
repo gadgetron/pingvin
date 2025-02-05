@@ -14,7 +14,7 @@ namespace Gadgetron::Main::Nodes {
     public:
         const std::string key;
 
-        Stream(std::vector<std::shared_ptr<Processable>> nodes): nodes(std::move(nodes)), key("TODO-needed?") {}
+        Stream(std::vector<std::shared_ptr<Processable>> nodes, const std::string key=""): nodes(std::move(nodes)), key(key) {}
 
         void process(
                 Core::GenericInputChannel input,

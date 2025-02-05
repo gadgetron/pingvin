@@ -16,7 +16,7 @@ namespace pingvin {
 
   using namespace Gadgetron;
 
-static auto default_mr = Pipeline::Builder<MrdContext>("default", "Basic Cartesian Reconstruction")
+static auto default_mr = PipelineBuilder<MrdContext>("default", "Basic Cartesian Reconstruction")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<RemoveROOversamplingGadget>("ros")
@@ -27,7 +27,7 @@ static auto default_mr = Pipeline::Builder<MrdContext>("default", "Basic Cartesi
         .withNode<ExtractGadget>("extract")
         ;
 
-static auto default_mr_optimized = Pipeline::Builder<MrdContext>("default-optimized", "Basic Cartesian Reconstruction")
+static auto default_mr_optimized = PipelineBuilder<MrdContext>("default-optimized", "Basic Cartesian Reconstruction")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<NoiseAdjustGadget>("noise-adjust")

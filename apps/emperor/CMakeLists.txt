@@ -22,8 +22,10 @@ add_executable(emperor
 
 target_link_libraries(emperor
         pingvin_core
+        pingvin_core_parallel
         pingvin_mricore
         pingvin_epi
+        pingvin_grappa
         Boost::system
         Boost::program_options
         GTBLAS)

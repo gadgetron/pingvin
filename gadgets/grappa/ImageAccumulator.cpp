@@ -4,7 +4,6 @@
 #include <boost/range/algorithm/copy.hpp>
 
 #include "Unmixing.h"
-#include "common/AcquisitionBuffer.h"
 
 #include "Node.h"
 #include "hoNDArray.h"
@@ -47,14 +46,7 @@ namespace {
 
 namespace Gadgetron::Grappa {
 
-    ImageAccumulator::ImageAccumulator(
-            const Core::Context &context,
-            const std::unordered_map<std::string, std::string> &props
-    ) : ChannelGadget<Slice>(context,props), context(context) {}
-
     void ImageAccumulator::process(Core::InputChannel<Slice> &in, Core::OutputChannel &out) {
-
-        AcquisitionBuffer buffer{context};
 
         for (auto slice : in) {
 

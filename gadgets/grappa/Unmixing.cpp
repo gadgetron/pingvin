@@ -14,9 +14,8 @@ namespace {
 
     class WeightsProvider {
     public:
-        WeightsProvider(
-                const Core::Context &context, Core::InputChannel<Weights> &source
-        ) : weights(number_of_slices(context), std::nullopt), source(source) {}
+        WeightsProvider(const mrd::Header& header, Core::InputChannel<Weights> &source)
+            : weights(number_of_slices(header), std::nullopt), source(source) {}
 
 
         const Weights &operator[](size_t slice) {
@@ -41,8 +40,8 @@ namespace {
             weights[w->meta.slice] = std::move(w);
         }
 
-        static size_t number_of_slices(const Core::Context &context) {
-            auto e_limits = context.header.encoding[0].encoding_limits;
+        static size_t number_of_slices(const mrd::Header& header) {
+            auto e_limits = header.encoding[0].encoding_limits;
             return e_limits.slice ? e_limits.slice->maximum + 1u : 1u;
         }
 
@@ -54,13 +53,6 @@ namespace {
 namespace Gadgetron::Grappa {
     GADGETRON_MERGE_EXPORT(Unmixing);
 
-    Unmixing::Unmixing(
-            const Core::Context &context,
-            const std::unordered_map<std::string, std::string> &props
-    ) : Merge(props), context(context),
-        image_dimensions(create_output_image_dimensions(context)),
-        image_fov(create_output_image_fov(context)) {}
-
     void Unmixing::process(
             std::map<std::string, Core::GenericInputChannel> input,
             Core::OutputChannel output
@@ -68,7 +60,7 @@ namespace Gadgetron::Grappa {
         Core::InputChannel<Image> images(input.at("images"), output);
         Core::InputChannel<Weights> weights(input.at("weights"), output);
 
-        WeightsProvider weights_provider(context, weights);
+        WeightsProvider weights_provider(header_, weights);
 
         for (auto image : images) {
             auto current_weights = weights_provider[image.meta.slice];
@@ -96,7 +88,7 @@ namespace Gadgetron::Grappa {
                     unmixed_image[s * image_elements + p] +=
                             weights.data[s * image_elements * coils + c * image_elements + p] *
                             image.data[c * image_elements + p] *
-                            unmixing_scale;
+                            parameters_.unmixing_scale;
                 }
             }
         }
@@ -120,13 +112,13 @@ namespace Gadgetron::Grappa {
         std::copy(image.meta.table_pos.begin(), image.meta.table_pos.end(), std::begin(header.patient_table_position));
 
         header.image_index = ++image_index_counter;
-        header.image_series_index = image_series;
+        header.image_series_index = parameters_.image_series;
 
         return header;
     }
 
-    std::vector<size_t> Unmixing::create_output_image_dimensions(const Core::Context &context) {
-        auto r_space  = context.header.encoding[0].recon_space;
+    std::vector<size_t> Unmixing::create_output_image_dimensions(const mrd::Header& header) {
+        auto r_space  = header.encoding[0].recon_space;
         return {
                 r_space.matrix_size.x,
                 r_space.matrix_size.y,
@@ -134,8 +126,8 @@ namespace Gadgetron::Grappa {
         };
     }
 
-    std::vector<float> Unmixing::create_output_image_fov(const Core::Context &context) {
-        auto r_space  = context.header.encoding[0].recon_space;
+    std::vector<float> Unmixing::create_output_image_fov(const mrd::Header& header) {
+        auto r_space  = header.encoding[0].recon_space;
         return {
                 r_space.field_of_view_mm.x,
                 r_space.field_of_view_mm.y,

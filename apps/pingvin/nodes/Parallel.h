@@ -19,6 +19,12 @@ namespace Gadgetron::Main::Nodes {
         using Merge  = Core::Parallel::Merge;
 
     public:
+        Parallel(std::unique_ptr<Branch> branch, std::unique_ptr<Merge> merge, std::vector<std::shared_ptr<Stream>> streams)
+            : branch(std::make_unique<DecoratedBranch>(std::move(branch), "branch")),
+              merge(std::make_unique<DecoratedMerge>(std::move(merge), "merge")),
+              streams(std::move(streams))
+        {}
+
         void process(
                 Core::GenericInputChannel input,
                 Core::OutputChannel output,

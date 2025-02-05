@@ -29,12 +29,23 @@ namespace Gadgetron::Grappa {
         hoNDArray<std::complex<float>> data;
     };
 
-    class Unmixing : public Core::Parallel::Merge {
+    class Unmixing : public Core::Parallel::MRMerge {
     public:
-        Unmixing(const Core::Context &context, const std::unordered_map<std::string, std::string> &props);
+        struct Parameters : public Core::NodeParameters {
+            using NodeParameters::NodeParameters;
+            Parameters(const std::string& prefix) : NodeParameters(prefix, "Grappa Unmixing") {
+                register_parameter("image-series", &image_series, "Image series number for output images");
+                register_parameter("unmixing-scale", &unmixing_scale, "");
+            }
+            uint16_t image_series = 0;
+            float unmixing_scale = 1.0;
+        };
 
-        NODE_PROPERTY(image_series, uint16_t, "Image series number for output images", 0);
-        NODE_PROPERTY(unmixing_scale, float, "", 1.0);
+        Unmixing(const Core::MrdContext &context, const Parameters& params)
+            : Core::Parallel::MRMerge(context, params)
+            , header_(context.header)
+            , image_dimensions(create_output_image_dimensions(context.header))
+            , image_fov(create_output_image_fov(context.header)) {}
 
         void process(
                 std::map<std::string, Core::GenericInputChannel> input,
@@ -42,15 +53,17 @@ namespace Gadgetron::Grappa {
         ) override;
 
     private:
+        const Parameters parameters_;
+
         hoNDArray<std::complex<float>> unmix(const Image &image, const Weights &weights);
 
         std::vector<size_t> create_unmixed_image_dimensions(const Weights &weights);
 
-        static std::vector<size_t> create_output_image_dimensions(const Core::Context &context);
-        static std::vector<float> create_output_image_fov(const Core::Context &context);
+        static std::vector<size_t> create_output_image_dimensions(const mrd::Header& header);
+        static std::vector<float> create_output_image_fov(const mrd::Header& header);
         mrd::ImageHeader create_image_header(const Image &image, const Weights &weights);
 
-        const Core::Context context;
+        const mrd::Header header_;
         const std::vector<size_t> image_dimensions;
         const std::vector<float> image_fov;
 

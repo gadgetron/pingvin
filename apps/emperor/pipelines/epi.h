@@ -19,7 +19,7 @@ namespace pingvin {
 
   using namespace Gadgetron;
 
-  static auto epi_2d = Pipeline::Builder<MrdContext>("epi", "Basic EPI Reconstruction")
+  static auto epi_2d = PipelineBuilder<MrdContext>("epi", "Basic EPI Reconstruction")
                            .withSource<MrdSource>()
                            .withSink<MrdSink>()
                            .withNode<NoiseAdjustGadget>("noise-adjust")

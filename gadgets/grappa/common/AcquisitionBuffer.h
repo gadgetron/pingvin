@@ -6,7 +6,6 @@
 
 #include "AnnotatedAcquisition.h"
 
-#include "Context.h"
 #include "Channel.h"
 
 #include "hoNDArray.h"
@@ -15,7 +14,7 @@ namespace Gadgetron::Grappa {
 
     class AcquisitionBuffer {
     public:
-        explicit AcquisitionBuffer(Core::Context);
+        explicit AcquisitionBuffer(const mrd::Header& header);
 
         void add(const AnnotatedAcquisition &acquisition);
 
@@ -43,7 +42,7 @@ namespace Gadgetron::Grappa {
         void add_post_update_callback(std::function<void(const AnnotatedAcquisition &)> fn);
 
     private:
-        const Core::Context context;
+        const mrd::Header header_;
 
         struct {
             std::set<uint32_t> expected_lines;

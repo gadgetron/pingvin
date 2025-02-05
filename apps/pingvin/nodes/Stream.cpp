@@ -6,36 +6,9 @@
 
 #include "Node.h"
 
-namespace {
-    using namespace Gadgetron::Core;
-    using namespace Gadgetron::Main;
-    using namespace Gadgetron::Main::Nodes;
-    // using namespace std::string_literals;
-
-    // class NodeProcessable : public Processable {
-    // public:
-    //     NodeProcessable(std::function<std::unique_ptr<Node>()> factory, std::string name) : factory(std::move(factory)), name_(std::move(name)) {}
-
-    //     void process(GenericInputChannel input,
-    //             OutputChannel output,
-    //             ErrorHandler &
-    //     ) override {
-    //         auto node = factory();
-    //         node->process(input, output);
-    //     }
-
-    //     const std::string& name() override {
-    //         return name_;
-    //     }
-
-    // private:
-    //     std::function<std::unique_ptr<Node>()> factory;
-    //     const std::string name_;
-    // };
-
-}
-
 namespace Gadgetron::Main::Nodes {
+
+    using namespace Gadgetron::Core;
 
     void Stream::process(GenericInputChannel input,
             OutputChannel output,

@@ -9,10 +9,11 @@
 
 namespace Gadgetron::Core::Parallel {
 
+    /** TODO: Move to MR-specific location! */
     template<class ...ARGS>
-    class Fanout : public TypedBranch<ARGS...> {
+    class Fanout : public MRBranch<ARGS...> {
     public:
-        Fanout(const Context &context, const GadgetProperties &props);
+        using MRBranch<ARGS...>::MRBranch;
         void process(InputChannel<ARGS...> &, std::map<std::string, OutputChannel>) override;
     };
 

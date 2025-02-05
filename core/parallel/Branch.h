@@ -6,12 +6,17 @@
 
 #include "Channel.h"
 #include "Context.h"
+#include "Parameters.h"
 #include "PropertyMixin.h"
 
 namespace Gadgetron::Core::Parallel {
 
     class Branch : public PropertyMixin {
     public:
+        struct Parameters : NodeParameters {
+            using NodeParameters::NodeParameters;
+        };
+
         virtual ~Branch() = default;
         virtual void process(
             GenericInputChannel input,
@@ -39,21 +44,18 @@ namespace Gadgetron::Core::Parallel {
         virtual void process(InputChannel<ARGS...> &, std::map<std::string, OutputChannel>) = 0;
     };
 
+    /** TODO: Move to MR-specific location! */
+    template <class... TYPELIST> class MRBranch : public TypedBranch<TYPELIST...> {
+    public:
+        using TypedBranch<TYPELIST...>::TypedBranch;
+
+        MRBranch(const MrdContext& context, const NodeParameters& parameters)
+            : TypedBranch<TYPELIST...>(Core::GadgetProperties{}) {}
+    };
+
 }
 
 #include "Branch.hpp"
 
-#define GADGETRON_BRANCH_EXPORT(BranchClass)                                    \
-std::unique_ptr<Gadgetron::Core::Parallel::Branch>                              \
-branch_factory_##BranchClass(                                                   \
-        const Gadgetron::Core::Context &context,                                \
-        const std::string& name,                                                \
-        const Gadgetron::Core::GadgetProperties &props                          \
-) {                                                                             \
-    return std::make_unique<BranchClass>(context, props);                       \
-}                                                                               \
-                                                                                \
-BOOST_DLL_ALIAS(                                                                \
-        branch_factory_##BranchClass,                                           \
-        branch_factory_export_##BranchClass                                     \
-)
+/** TODO: Delete everywhere */
+#define GADGETRON_BRANCH_EXPORT(BranchClass)

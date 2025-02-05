@@ -1,5 +1,5 @@
 #include "pipelines/noise.h"
-// #include "pipelines/cartesian_grappa.h"
+#include "pipelines/grappa.h"
 #include "pipelines/default.h"
 #include "pipelines/epi.h"
 
@@ -99,8 +99,8 @@ int main(int argc, char** argv)
     }
 
     // "Choose" a Pipeline
-    std::vector<Pipeline::IBuilder*> builders{&epi_2d, &default_mr, &default_mr_optimized, &noise_dependency, &file_search};
-    std::map<std::string, Pipeline::IBuilder*> builder_map;
+    std::vector<IPipelineBuilder*> builders{&epi_2d, &default_mr, &default_mr_optimized, &noise_dependency, &file_search, &grappa};
+    std::map<std::string, IPipelineBuilder*> builder_map;
     for (auto& builder : builders) {
         builder_map[builder->name] = builder;
     }

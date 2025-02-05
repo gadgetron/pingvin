@@ -3,7 +3,6 @@
 #include <map>
 #include <set>
 
-#include "Context.h"
 #include "Channel.h"
 
 #include "hoNDArray.h"
@@ -29,18 +28,19 @@ namespace {
 
 namespace Gadgetron::Grappa {
 
-    AcquisitionBuffer::AcquisitionBuffer(Core::Context ctx) : context(std::move(ctx)) {
-
-        if (context.header.encoding.size() != 1) {
+    AcquisitionBuffer::AcquisitionBuffer(const mrd::Header& header)
+        : header_(std::move(header))
+    {
+        if (header.encoding.size() != 1) {
             throw std::runtime_error(
                     "This gadget only supports one encoding space; found " +
-                    std::to_string(context.header.encoding.size())
+                    std::to_string(header.encoding.size())
             );
         }
 
-        auto r_space  = context.header.encoding[0].recon_space;
-        auto e_space  = context.header.encoding[0].encoded_space;
-        auto e_limits = context.header.encoding[0].encoding_limits;
+        auto r_space  = header.encoding[0].recon_space;
+        auto e_space  = header.encoding[0].encoded_space;
+        auto e_limits = header.encoding[0].encoding_limits;
 
         if (r_space.matrix_size.z != 1) {
             throw std::runtime_error("RT Grappa works only with 2D images. 3D output requested.");
@@ -110,7 +110,7 @@ namespace Gadgetron::Grappa {
 
     std::pair<uint32_t,uint32_t> AcquisitionBuffer::fully_sampled_region(size_t slice) const {
 
-        const auto& e_limits = context.header.encoding[0].encoding_limits;
+        const auto& e_limits = header_.encoding[0].encoding_limits;
         const auto& sampled_lines = buffers.at(slice).sampled_lines;
 
         uint32_t lower_limit;

@@ -80,7 +80,7 @@ namespace pingvin {
       const Parameters parameters_;
   };
 
-  static auto file_search = Pipeline::Builder<TextContext>("text-search", "Search for strings in text")
+  static auto file_search = PipelineBuilder<TextContext>("text-search", "Search for strings in text")
         .withSource<TextSource>()
         .withSink<TextSink>()
         .withNode<TextualSearch>("search")
