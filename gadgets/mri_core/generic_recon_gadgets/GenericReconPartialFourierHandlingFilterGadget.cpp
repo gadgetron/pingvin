@@ -14,7 +14,7 @@ namespace Gadgetron {
     {
 
         std::optional<GadgetronTimer> gt_timer;
-        if (perform_timing) { gt_timer = GadgetronTimer("GenericReconPartialFourierHandlingFilterGadget, partial_fourier_filter"); }
+        if (params_.perform_timing) { gt_timer = GadgetronTimer("GenericReconPartialFourierHandlingFilterGadget, partial_fourier_filter"); }
 
 
         std::lock_guard<std::mutex> guard(filter_mutex);
@@ -23,8 +23,8 @@ namespace Gadgetron {
 
         Gadgetron::partial_fourier_filter(kspace_buf,
             start_RO, end_RO, start_E1, end_E1, start_E2, end_E2,
-            partial_fourier_filter_RO_width, partial_fourier_filter_E1_width,
-            partial_fourier_filter_E2_width, partial_fourier_filter_densityComp,
+            params_.partial_fourier_filter_RO_width, params_.partial_fourier_filter_E1_width,
+            params_.partial_fourier_filter_E2_width, params_.partial_fourier_filter_densityComp,
             filter_pf_RO_, filter_pf_E1_, filter_pf_E2_, pf_res);
 
         return pf_res;

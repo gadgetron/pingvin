@@ -8,34 +8,36 @@
 #include "gadgets/mri_core/AcquisitionAccumulateTriggerGadget.h"
 #include "gadgets/mri_core/BucketToBufferGadget.h"
 #include "gadgets/mri_core/ImageArraySplitGadget.h"
+#include "gadgets/mri_core/PhysioInterpolationGadget.h"
 #include "gadgets/mri_core/ComplexToFloatGadget.h"
 #include "gadgets/mri_core/FloatToFixedPointGadget.h"
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconCartesianReferencePrepGadget.h"
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconEigenChannelGadget.h"
-#include "gadgets/mri_core/generic_recon_gadgets/GenericReconCartesianGrappaGadget.h"
-#include "gadgets/mri_core/generic_recon_gadgets/GenericReconPartialFourierHandlingFilterGadget.h"
+#include "gadgets/mri_core/generic_recon_gadgets/GenericReconCartesianNonLinearSpirit2DTGadget.h"
+#include "gadgets/mri_core/generic_recon_gadgets/GenericReconPartialFourierHandlingPOCSGadget.h"
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconKSpaceFilteringGadget.h"
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconFieldOfViewAdjustmentGadget.h"
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconImageArrayScalingGadget.h"
 
 namespace pingvin {
 
-static auto cartesian_grappa = PipelineBuilder<MrdContext>("cartesian-grappa", "Cartesian Grappa Recon")
+static auto cartesian_spirit_nonlinear = PipelineBuilder<MrdContext>("cartesian-nonlinear-spirit", "Cartesian NonLinear Spirit RealTimeCine")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<NoiseAdjustGadget>("noise")
         .withNode<AsymmetricEchoAdjustROGadget>("asymmetric-echo")
         .withNode<RemoveROOversamplingGadget>("ros")
-        .withNode<AcquisitionAccumulateTriggerGadget>("acquisition-accumulate")
-        .withNode<BucketToBufferGadget>("bucket-to-buffer")
-        .withNode<GenericReconCartesianReferencePrepGadget>("reference-prep")
-        .withNode<GenericReconEigenChannelGadget>("eigen-channel")
-        .withNode<GenericReconCartesianGrappaGadget>("grappa")
-        .withNode<GenericReconPartialFourierHandlingFilterGadget>("pf-handling")
-        .withNode<GenericReconKSpaceFilteringGadget>("kspace-filtering")
-        .withNode<GenericReconFieldOfViewAdjustmentGadget>("fov-adjustment")
-        .withNode<GenericReconImageArrayScalingGadget>("image-array-scaling")
+        .withNode<AcquisitionAccumulateTriggerGadget>("acctrig")
+        .withNode<BucketToBufferGadget>("buffer")
+        .withNode<GenericReconCartesianReferencePrepGadget>("refprep")
+        .withNode<GenericReconEigenChannelGadget>("coil-comp")
+        .withNode<GenericReconCartesianNonLinearSpirit2DTGadget>("spirit")
+        .withNode<GenericReconPartialFourierHandlingPOCSGadget>("partial-fourier")
+        .withNode<GenericReconKSpaceFilteringGadget>("kspace-filter")
+        .withNode<GenericReconFieldOfViewAdjustmentGadget>("fov-adjust")
+        .withNode<GenericReconImageArrayScalingGadget>("scale")
         .withNode<ImageArraySplitGadget>("image-split")
+        .withNode<PhysioInterpolationGadget>("physio-interp")
         .withNode<ComplexToFloatGadget>("complex-to-float")
         .withNode<FloatToFixedPointGadget>("convert")
         ;

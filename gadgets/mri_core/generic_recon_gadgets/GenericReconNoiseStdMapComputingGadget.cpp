@@ -11,8 +11,9 @@
 
 namespace Gadgetron {
 
-    GenericReconNoiseStdMapComputingGadget::GenericReconNoiseStdMapComputingGadget(const Core::Context& context, const Core::GadgetProperties& properties)
-        : BaseClass(context, properties)
+    GenericReconNoiseStdMapComputingGadget::GenericReconNoiseStdMapComputingGadget(const Core::MrdContext& context, const Parameters& params)
+        : BaseClass(context, params)
+        , params_(params)
     {
         auto& h = context.header;
 
@@ -64,9 +65,9 @@ namespace Gadgetron {
             size_t SLC = recon_res_->data.get_size(6);
 
             // perform std map computation
-            if (N < start_N_for_std_map)
+            if (N < params_.start_N_for_std_map)
             {
-                GWARN_STREAM("GenericReconNoiseStdMapComputingGadget, N < start_N_for_std_map - " << N << " - " << start_N_for_std_map);
+                GWARN_STREAM("GenericReconNoiseStdMapComputingGadget, N < start_N_for_std_map - " << N << " - " << params_.start_N_for_std_map);
 
                 continue;
             }
@@ -83,7 +84,7 @@ namespace Gadgetron {
             }
 
             // compute std map
-            size_t startN = start_N_for_std_map;
+            size_t startN = params_.start_N_for_std_map;
 
             hoNDArray<T> repBuf(RO, E1, E2, CHA, N - startN);
             hoNDArray<real_value_type> repBufMag(RO, E1, E2, CHA, N - startN);

@@ -2,6 +2,8 @@
 #include "pipelines/grappa.h"
 #include "pipelines/default.h"
 #include "pipelines/epi.h"
+#include "pipelines/cartesian_grappa.h"
+#include "pipelines/cartesian_spirit.h"
 
 #include "pipelines/file_search.h"
 
@@ -21,17 +23,27 @@ using namespace pingvin;
 
 namespace {
 
+/// Parses a "PINGVIN_*" environment variable into a CLI parameter
 std::string envvar_to_node_parameter(const std::string& env_var)
 {
     static const std::string prefix("PINGVIN_");
 
+    // Only match envvars starting with "PINGVIN_"
     if (env_var.compare(0, prefix.size(), prefix) != 0) {
         return std::string();
     }
 
     std::string option(env_var.substr(prefix.size()));
 
-    option.replace(option.find("_"), 1, ".");
+    // Only match envvars with at least one underscore, which separates the
+    // node name from the parameter name (e.g. "PINGVIN_FOO_BAR" => "foo.bar")
+    size_t first_underscore_loc;
+    if ((first_underscore_loc = option.find("_")) == std::string::npos) {
+        return std::string();
+    } else {
+        option.replace(first_underscore_loc, 1, ".");
+    }
+
     std::replace(option.begin(), option.end(), '_', '-');
     std::transform(option.begin(), option.end(), option.begin(),
         [](unsigned char c){ return std::tolower(c); });
@@ -49,7 +61,7 @@ int main(int argc, char** argv)
         ("help,h", "Prints this help message")
         ("info", "Prints build info about Pingvin")
         ("home",
-            po::value<std::filesystem::path>()->default_value(Gadgetron::Main::Info::default_pingvin_home()),
+            po::value<std::filesystem::path>()->default_value(Gadgetron::Main::Info::get_pingvin_home()),
             "Set the Pingvin home directory")
         ("config,c", po::value<std::string>(), "Pipeline configuration file")
         ("input,i", po::value<std::string>(), "Input stream (default=stdin)")
@@ -98,8 +110,22 @@ int main(int argc, char** argv)
         return 0;
     }
 
+    if (vm.count("home")) {
+        Gadgetron::Main::Info::set_pingvin_home(vm["home"].as<std::filesystem::path>());
+        std::cerr << "Set Pingvin home to: " << Gadgetron::Main::Info::get_pingvin_home() << std::endl;
+    }
+
     // "Choose" a Pipeline
-    std::vector<IPipelineBuilder*> builders{&epi_2d, &default_mr, &default_mr_optimized, &noise_dependency, &file_search, &grappa};
+    std::vector<IPipelineBuilder*> builders{
+        &epi_2d,
+        &default_mr,
+        &default_mr_optimized,
+        &noise_dependency,
+        &file_search,
+        &grappa,
+        &cartesian_grappa,
+        &cartesian_spirit_nonlinear
+    };
     std::map<std::string, IPipelineBuilder*> builder_map;
     for (auto& builder : builders) {
         builder_map[builder->name] = builder;
@@ -144,7 +170,16 @@ int main(int argc, char** argv)
             return 0;
         }
 
-        po::store(po::parse_environment(pipeline_options, envvar_to_node_parameter), vm);
+        po::store(po::parse_environment(pipeline_options, 
+            // This ceremony enables defining PINGVIN_ env vars that don't map directly to CLI options
+            // Otherwise, boost::program_options will complain about unrecognized PINGVIN_ env vars
+            [&pipeline_options](const std::string& var) {
+                auto parsed_option = envvar_to_node_parameter(var);
+                return std::any_of(
+                  pipeline_options.options().cbegin(),
+                  pipeline_options.options().cend(),
+                  [parsed_option](auto opt) { return parsed_option == opt->long_name(); }) ? parsed_option : "";
+            }), vm);
 
         if (vm.count("config")) {
             auto config_filename = vm["config"].as<std::string>();
@@ -169,6 +204,7 @@ int main(int argc, char** argv)
         input_file = std::make_unique<std::ifstream>(vm["input"].as<std::string>());
         if (!input_file->good()) {
             std::cerr << "Could not open input file: " << vm["input"].as<std::string>() << std::endl;
+            return 1;
         }
     }
 
@@ -177,6 +213,7 @@ int main(int argc, char** argv)
         output_file = std::make_unique<std::ofstream>(vm["output"].as<std::string>());
         if (!output_file->good()) {
             std::cerr << "Could not open output file: " << vm["output"].as<std::string>() << std::endl;
+            return 1;
         }
     }
 

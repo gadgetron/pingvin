@@ -26,8 +26,8 @@ namespace Gadgetron {
             using NodeParameters::NodeParameters;
             Parameters(const std::string& prefix) : NodeParameters(prefix, "Bucket To Buffer Options")
             {
-                register_parameter("N-dimensions", &N_dimension, "N-Dimensions");
-                register_parameter("S-dimensions", &S_dimension, "S-Dimensions");
+                register_parameter("N-dimension", &N_dimension, "N-Dimension");
+                register_parameter("S-dimension", &S_dimension, "S-Dimension");
                 register_flag("split-slices", &split_slices, "Split slices");
                 register_flag("ignore-segment", &ignore_segment, "Ignore segment");
                 register_flag("verbose", &verbose, "Whether to print more information");

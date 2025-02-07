@@ -17,7 +17,12 @@ namespace Gadgetron {
         typedef typename BaseClass::ReconObjType ReconObjType;
         typedef std::complex<float> T;
 
-        GenericReconCartesianGrappaAIGadget(const Core::Context& context, const Core::GadgetProperties& properties);
+        struct Parameters : public BaseClass::Parameters {
+            Parameters(const std::string& prefix) : BaseClass::Parameters(prefix, "Cartesian Grappa AI")
+            { }
+        };
+
+        GenericReconCartesianGrappaAIGadget(const Core::MrdContext& context, const Parameters& params);
 
     protected:
 

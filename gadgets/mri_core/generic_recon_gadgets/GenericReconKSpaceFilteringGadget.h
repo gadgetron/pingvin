@@ -23,37 +23,40 @@ namespace Gadgetron {
     public:
         typedef GenericReconImageArrayBase BaseClass;
 
-        GenericReconKSpaceFilteringGadget(const Core::Context &context, const Core::GadgetProperties &properties);
+        struct Parameters : public BaseClass::Parameters {
+            Parameters(const std::string& prefix) : BaseClass::Parameters(prefix, "KSpace Filtering")
+            {
+                register_parameter("skip-processing-meta-field", &skip_processing_meta_field, "If this meta field exists, pass the incoming image array to next gadget without processing");
+                register_parameter("filterRO", &filterRO, "Kspace filter for RO dimension (Gaussian, Hanning, TaperedHanning, None)");
+                register_parameter("filterRO-sigma", &filterRO_sigma, "Filter sigma for gaussian for RO dimension");
+                register_parameter("filterRO-width", &filterRO_width, "Filter width for tapered hanning for RO dimension");
+                register_parameter("filterE1", &filterE1, "Kspace filter for E1 dimension (Gaussian, Hanning, TaperedHanning, None)");
+                register_parameter("filterE1-sigma", &filterE1_sigma, "Filter sigma for gaussian for E1 dimension");
+                register_parameter("filterE1-width", &filterE1_width, "Filter width for tapered hanning for E1 dimension");
+                register_parameter("filterE2", &filterE2, "Kspace filter for E2 dimension (Gaussian, Hanning, TaperedHanning, None)");
+                register_parameter("filterE2-sigma", &filterE2_sigma, "Filter sigma for gaussian for E2 dimension");
+                register_parameter("filterE2-width", &filterE2_width, "Filter width for tapered hanning for E2 dimension");
+            }
 
-        /// ------------------------------------------------------------------------------------
-        /// parameters to control the reconstruction
-        /// ------------------------------------------------------------------------------------
-        NODE_PROPERTY(skip_processing_meta_field, std::string, "If this meta field exists, pass the incoming image array to next gadget without processing", "Skip_processing_after_recon");
+            std::string skip_processing_meta_field = "Skip_processing_after_recon";
 
-        /// ------------------------------------------------------------------------------------
-        /// kspace filter parameters
-        NODE_PROPERTY(filterRO, std::string, "Kspace filter for RO dimension (Gaussian, Hanning, TaperedHanning, None)", "Gaussian");
+            std::string filterRO = "Gaussian";
+            double filterRO_sigma = 1.0;
+            double filterRO_width = 0.15;
 
-        NODE_PROPERTY(filterRO_sigma, double, "Filter sigma for gaussian for RO dimension", 1.0);
-        NODE_PROPERTY(filterRO_width, double, "Filter width for tapered hanning for RO dimension", 0.15);
+            std::string filterE1 = "Gaussian";
+            double filterE1_sigma = 1.0;
+            double filterE1_width = 0.15;
 
-        // ------------------------------------------------------------------------------------
+            std::string filterE2 = "Gaussian";
+            double filterE2_sigma = 1.0;
+            double filterE2_width = 0.15;
+        };
 
-        NODE_PROPERTY(filterE1, std::string, "Kspace filter for E1 dimension (Gaussian, Hanning, TaperedHanning, None)", "Gaussian");
-
-        NODE_PROPERTY(filterE1_sigma, double, "Filter sigma for gaussian for E1 dimension", 1.0);
-        NODE_PROPERTY(filterE1_width, double, "Filter width for tapered hanning for E1 dimension", 0.15);
-
-        // ------------------------------------------------------------------------------------
-
-        NODE_PROPERTY(filterE2, std::string, "Kspace filter for E2 dimension (Gaussian, Hanning, TaperedHanning, None)", "Gaussian");
-
-        NODE_PROPERTY(filterE2_sigma, double, "Filter sigma for gaussian for E2 dimension", 1.0);
-        NODE_PROPERTY(filterE2_width, double, "Filter width for tapered hanning for E2 dimension", 0.15);
-
-        // ------------------------------------------------------------------------------------
+        GenericReconKSpaceFilteringGadget(const Core::MrdContext &context, const Parameters& params);
 
     protected:
+        const Parameters params_;
 
         // --------------------------------------------------
         // variables for protocol

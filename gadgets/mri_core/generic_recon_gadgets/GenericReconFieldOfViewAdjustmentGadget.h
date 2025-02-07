@@ -18,7 +18,13 @@ namespace Gadgetron {
     public:
         typedef GenericReconImageArrayBase BaseClass;
 
-        GenericReconFieldOfViewAdjustmentGadget(const Core::Context &context, const Core::GadgetProperties &properties);
+        struct Parameters : public BaseClass::Parameters {
+            Parameters(const std::string& prefix)
+                : BaseClass::Parameters(prefix, "Field Of View Adjustment")
+            {}
+        };
+
+        GenericReconFieldOfViewAdjustmentGadget(const Core::MrdContext &context, const Parameters& params);
         ~GenericReconFieldOfViewAdjustmentGadget() override;
 
     protected:

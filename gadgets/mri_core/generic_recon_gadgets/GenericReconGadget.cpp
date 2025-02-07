@@ -5,8 +5,9 @@
 
 namespace Gadgetron {
 
-    GenericReconGadget::GenericReconGadget(const Core::Context& context, const Core::GadgetProperties& properties)
-        : BaseClass(context, properties)
+    GenericReconGadget::GenericReconGadget(const Core::MrdContext& context, const Parameters& params)
+        : BaseClass(context, params)
+        , params_(params)
     {
         auto& h = context.header;
 
@@ -17,7 +18,7 @@ namespace Gadgetron {
         this->initialize_encoding_space_limits(h);
         // -------------------------------------------------
 
-        GDEBUG_CONDITION_STREAM(verbose, "Number of encoding spaces: " << num_encoding_spaces_);
+        GDEBUG_CONDITION_STREAM(params_.verbose, "Number of encoding spaces: " << num_encoding_spaces_);
 
         acceFactorE1_.resize(num_encoding_spaces_, 1);
         acceFactorE2_.resize(num_encoding_spaces_, 1);
@@ -39,8 +40,8 @@ namespace Gadgetron {
 
                 acceFactorE1_[e] = p_imaging.acceleration_factor.kspace_encoding_step_1;
                 acceFactorE2_[e] = p_imaging.acceleration_factor.kspace_encoding_step_2;
-                GDEBUG_CONDITION_STREAM(verbose, "acceFactorE1 is " << acceFactorE1_[e]);
-                GDEBUG_CONDITION_STREAM(verbose, "acceFactorE2 is " << acceFactorE2_[e]);
+                GDEBUG_CONDITION_STREAM(params_.verbose, "acceFactorE1 is " << acceFactorE1_[e]);
+                GDEBUG_CONDITION_STREAM(params_.verbose, "acceFactorE2 is " << acceFactorE2_[e]);
 
                 calib_mode_[e] = mrd::CalibrationMode::kNoacceleration;
                 if (acceFactorE1_[e] > 1 || acceFactorE2_[e] > 1) {
@@ -72,13 +73,13 @@ namespace Gadgetron {
 
         if (!h.measurement_information)
         {
-            GDEBUG("measurementInformation not found in header");
+            GDEBUG_STREAM("measurementInformation not found in header");
         }
         else
         {
             if (!h.measurement_information->protocol_name)
             {
-                GDEBUG("measurementInformation->protocolName not found in header");
+                GDEBUG_STREAM("measurementInformation->protocolName not found in header");
             }
             else
             {
@@ -147,9 +148,9 @@ namespace Gadgetron {
                 os << "_encoding_" << e;
 
                 GDEBUG_CONDITION_STREAM(
-                    verbose, "Calling " << process_called_times_ << " , encoding space : " << e);
+                    params_.verbose, "Calling " << process_called_times_ << " , encoding space : " << e);
                 GDEBUG_CONDITION_STREAM(
-                    verbose, "======================================================================");
+                    params_.verbose, "======================================================================");
 
             // ---------------------------------------------------------------
             // export incoming data
@@ -393,17 +394,17 @@ namespace Gadgetron {
                     complex_im_recon_buf_, debug_folder_full_path_ + "complex_im_for_coil_map_" + os.str());
             }
 
-            if (coil_map_algorithm == "Inati") {
-                size_t ks    = this->coil_map_kernel_size_readout;
-                size_t kz    = this->coil_map_kernel_size_phase;
+            if (params_.coil_map_algorithm == "Inati") {
+                size_t ks    = this->params_.coil_map_kernel_size_readout;
+                size_t kz    = this->params_.coil_map_kernel_size_phase;
                 size_t power = 3;
 
                 Gadgetron::coil_map_Inati(complex_im_recon_buf_, coil_map, ks, kz, power);
             } else {
-                size_t ks      = this->coil_map_kernel_size_readout;
-                size_t kz      = this->coil_map_kernel_size_phase;
-                size_t iterNum = this->coil_map_num_iter;
-                float thres    = this->coil_map_thres_iter;
+                size_t ks      = this->params_.coil_map_kernel_size_readout;
+                size_t kz      = this->params_.coil_map_kernel_size_phase;
+                size_t iterNum = this->params_.coil_map_num_iter;
+                float thres    = this->params_.coil_map_thres_iter;
 
                 Gadgetron::coil_map_Inati_Iter(complex_im_recon_buf_, coil_map, ks, kz, iterNum, thres);
             }
@@ -642,18 +643,18 @@ namespace Gadgetron {
             if ((start_RO < RO) && (end_RO < RO) && (end_RO - start_RO + 1 < RO)) {
                 lenRO = (end_RO - start_RO + 1);
             }
-            if (this->verbose)
+            if (this->params_.verbose)
                 GDEBUG_STREAM("length for RO : " << lenRO << " - " << lenRO / RO);
 
             effective_acce_factor = (float)(S * N * E1 * E2) / (num_readout_lines);
-            if (this->verbose)
+            if (this->params_.verbose)
                 GDEBUG_STREAM("effective_acce_factor : " << effective_acce_factor);
 
             float ROScalingFactor = (float)RO / (float)lenRO;
 
             snr_scaling_ratio = (float)(std::sqrt(ROScalingFactor * effective_acce_factor));
 
-            if (this->verbose)
+            if (this->params_.verbose)
                 GDEBUG_STREAM("snr_scaling_ratio : " << snr_scaling_ratio);
         } else {
             GWARN_STREAM("Cannot find any sampled lines ... ");

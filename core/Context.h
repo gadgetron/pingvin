@@ -1,17 +1,34 @@
 #pragma once
+
+#include <mrd/types.h>
+
+#include <filesystem>
+
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
-#include <mrd/types.h>
 
 namespace Gadgetron::Core {
 
     /** TODO: Move to MR-specific location */
     struct MrdContext  {
+
+        /** TODO: This Path is only used in TWO Gadgets, and it is only used to load Python files.
+         * These Gadgets can be updated to read the Python file paths from its own CLI parameters...
+         *
+         * Otherwise, the PINGVIN_HOME path can be queried using the `static get_gadgetron_home()` function.
+         */
+        struct Paths {
+            std::filesystem::path pingvin_home;
+        };
+
         mrd::Header header;
+        std::map<std::string, std::string> env;
+        Paths paths;
     };
 
 
+    /** TODO: Delete */
     struct Context {
         using Header = mrd::Header;
 

@@ -137,14 +137,16 @@ namespace Gadgetron
     #define GADGETRON_PASS_IMMEDIATE                       "GT_PASSIMAGE_IMMEDIATE"
 
     /// data stream key
-    #define GENERIC_RECON_STREAM_MRD_HEADER                 "recon_header"
-    #define GENERIC_RECON_STREAM_UNDERSAMPLED_KSPACE        "undersampled_kspace"
-    #define GENERIC_RECON_STREAM_REF_KSPACE                 "ref_kspace"
-    #define GENERIC_RECON_STREAM_REF_KSPACE_FOR_COILMAP     "ref_kspace_for_coil_map"
-    #define GENERIC_RECON_STREAM_COILMAP                    "coil_map"
-    #define GENERIC_RECON_STREAM_GFACTOR_MAP                "gfactor"
-    #define GENERIC_RECON_STREAM_RECONED_KSPACE             "reconed_kspace"
-    #define GENERIC_RECON_STREAM_RECONED_COMPLEX_IMAGE      "reconed_images"
-    #define GENERIC_RECON_STREAM_RECONED_COMPLEX_IMAGE_AFTER_POSTPROCESSING "reconed_images_after_post_processing"
-    #define GENERIC_RECON_STREAM_WAVEFORM                   "waveform"
+    /// if these ENVIRONMENT VARIABLES are set to a file path, the corresponding data will be
+    /// streamed directly to the specified file
+    #define GENERIC_RECON_STREAM_MRD_HEADER                 "PINGVIN_STREAM_RECON_HEADER"
+    #define GENERIC_RECON_STREAM_UNDERSAMPLED_KSPACE        "PINGVIN_STREAM_UNDERSAMPLED_KSPACE"
+    #define GENERIC_RECON_STREAM_REF_KSPACE                 "PINGVIN_STREAM_REF_KSPACE"
+    #define GENERIC_RECON_STREAM_REF_KSPACE_FOR_COILMAP     "PINGVIN_STREAM_REF_KSPACE_FOR_COIL_MAP"
+    #define GENERIC_RECON_STREAM_COILMAP                    "PINGVIN_STREAM_COIL_MAP"
+    #define GENERIC_RECON_STREAM_GFACTOR_MAP                "PINGVIN_STREAM_GFACTOR"
+    #define GENERIC_RECON_STREAM_RECONED_KSPACE             "PINGVIN_STREAM_RECONED_KSPACE"
+    #define GENERIC_RECON_STREAM_RECONED_COMPLEX_IMAGE      "PINGVIN_STREAM_RECONED_IMAGES"
+    #define GENERIC_RECON_STREAM_RECONED_COMPLEX_IMAGE_AFTER_POSTPROCESSING "PINGVIN_STREAM_RECONED_IMAGES_AFTER_POST_PROCESSING"
+    #define GENERIC_RECON_STREAM_WAVEFORM                   "PINGVIN_STREAM_WAVEFORM"
 }

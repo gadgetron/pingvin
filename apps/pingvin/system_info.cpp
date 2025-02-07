@@ -212,8 +212,14 @@ namespace Gadgetron::Main::Info {
     #endif
     } // namespace
 
-    const std::filesystem::path default_pingvin_home() {
 
+    void set_pingvin_home(const std::filesystem::path& home)
+    {
+        setenv("PINGVIN_HOME", home.c_str(), 1);
+    }
+
+    const std::filesystem::path get_pingvin_home()
+    {
         const char *home = std::getenv("PINGVIN_HOME");
 
         if (home != nullptr) {

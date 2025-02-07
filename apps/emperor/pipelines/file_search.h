@@ -14,7 +14,7 @@ namespace pingvin {
     public:
         TextSource(std::istream& input_stream) : input_stream_(input_stream) {}
 
-        void setContext(TextContext& ctx) override { }
+        void initContext(TextContext& ctx) override { }
 
         void consume_input(Gadgetron::Core::ChannelPair& input_channel) override
         {

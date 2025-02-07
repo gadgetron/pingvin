@@ -21,19 +21,18 @@ namespace Gadgetron {
 
         typedef GenericReconImageArrayBase BaseClass;
 
-        GenericReconNoiseStdMapComputingGadget(const Core::Context& context, const Core::GadgetProperties& properties);
+        struct Parameters : public BaseClass::Parameters {
+            Parameters(const std::string& prefix) : BaseClass::Parameters(prefix, "Computed Noise Std Map")
+            {
+                register_parameter("start_N_for_std_map", &start_N_for_std_map, "Start N index to compute std map");
+            }
 
-        /// ------------------------------------------------------------------------------------
-        /// parameters to control the reconstruction
-        /// ------------------------------------------------------------------------------------
+            int start_N_for_std_map = 5;
+        };
 
-        /// ------------------------------------------------------------------------------------
-        /// start N index to compute std map
-        NODE_PROPERTY(start_N_for_std_map, int, "Start N index to compute std map", 5);
-
-        // ------------------------------------------------------------------------------------
-
+        GenericReconNoiseStdMapComputingGadget(const Core::MrdContext& context, const Parameters& params);
     protected:
+        const Parameters params_;
 
         // --------------------------------------------------
         // functional functions

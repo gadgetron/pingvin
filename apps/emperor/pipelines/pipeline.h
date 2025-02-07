@@ -8,6 +8,8 @@ namespace po = boost::program_options;
 
 #include "mrd/binary/protocols.h"
 
+#include "system_info.h"
+
 #include "nodes/Stream.h"
 #include "nodes/NodeProcessable.h"
 #include "nodes/Parallel.h"
@@ -29,7 +31,7 @@ struct ISource {
 
 template <typename CTX>
 struct Source : public ISource {
-    virtual void setContext(CTX&) = 0;
+    virtual void initContext(CTX&) = 0;
 };
 
 struct ISink {
@@ -48,7 +50,7 @@ using MrdContext = Gadgetron::Core::MrdContext;
 struct MrdSource : public Source<MrdContext> {
     MrdSource(std::istream& input_stream): mrd_reader_(input_stream) {}
 
-    void setContext(MrdContext& ctx) override {
+    void initContext(MrdContext& ctx) override {
         std::optional<mrd::Header> hdr;
         mrd_reader_.ReadHeader(hdr);
         if (!hdr.has_value()) {
@@ -56,6 +58,16 @@ struct MrdSource : public Source<MrdContext> {
         }
 
         ctx.header = hdr.value();
+
+        for (char** raw = environ; *raw; ++raw) {
+            std::string s(*raw);
+            auto pos = s.find('=');
+            if (pos != std::string::npos) {
+                ctx.env[s.substr(0, pos)] = s.substr(pos + 1);
+            }
+        }
+
+        ctx.paths.pingvin_home = Gadgetron::Main::Info::get_pingvin_home();
     }
 
     void consume_input(Gadgetron::Core::ChannelPair& input_channel) override
@@ -373,20 +385,6 @@ class Pipeline {
     virtual ~Pipeline() = default;
 
     void run(void) {
-        /** TODO: The Context object previously held a `std::string gadgetron_home`, that could be configured from the CLI.
-         *
-         * However, this Path is only used in TWO Gadgets, and it is only used to load Python files.
-         * These Gadgets can be updated to read the Python file paths from its own CLI parameters...
-         *
-         * Otherwise, the GADGETRON_HOME path can be queried from the `static default_gadgetron_home()` function.
-         */
-        // Context::Paths paths{
-        //     (vm.count("home"))
-        //         ? vm["home"].as<std::filesystem::path>().string()
-        //         : "/opt/pingvin"
-        // };
-        // auto context = StreamContext(hdr, paths, vm);
-
         auto input_channel = Gadgetron::Core::make_channel<Gadgetron::Core::MessageChannel>();
         auto output_channel = Gadgetron::Core::make_channel<Gadgetron::Core::MessageChannel>();
         std::atomic<bool> processing = true;
@@ -500,7 +498,7 @@ struct PipelineBuilder : public IPipelineBuilder{
         auto source = source_builder_(input_stream);
 
         CTX ctx;
-        source->setContext(ctx);
+        source->initContext(ctx);
 
         auto sink = sink_builder_(output_stream, ctx);
 

@@ -65,20 +65,37 @@ namespace Gadgetron {
         typedef GenericReconGadget BaseClass;
         typedef Gadgetron::GenericReconCartesianSpiritObj< std::complex<float> > ReconObjType;
 
-        GenericReconCartesianSpiritGadget(const Core::Context& context, const Core::GadgetProperties& properties);
+        struct Parameters : public BaseClass::Parameters {
+            Parameters(const std::string& prefix) : Parameters(prefix, "Cartesian SPIRIT")
+            {}
 
-        /// ------------------------------------------------------------------------------------
-        /// Spirit parameters
-        NODE_PROPERTY(spirit_kSize_RO, int, "Spirit kernel size RO", 7);
-        NODE_PROPERTY(spirit_kSize_E1, int, "Spirit kernel size E1", 7);
-        NODE_PROPERTY(spirit_kSize_E2, int, "Spirit kernel size E2", 5);
-        NODE_PROPERTY_NON_CONST(spirit_reg_lamda, double, "Spirit regularization threshold", 0);
-        NODE_PROPERTY(spirit_calib_over_determine_ratio, double, "Spirit calibration overdermination ratio", 45);
-        NODE_PROPERTY_NON_CONST(spirit_iter_max, int, "Spirit maximal number of iterations", 0);
-        NODE_PROPERTY_NON_CONST(spirit_iter_thres, double, "Spirit threshold to stop iteration", 0);
-        NODE_PROPERTY(spirit_print_iter, bool, "Spirit print out iterations", false);
+            Parameters(const std::string& prefix, const std::string& description)
+                : BaseClass::Parameters(prefix, description)
+            {
+                register_parameter("spirit-kSize-RO", &spirit_kSize_RO, "Spirit kernel size RO");
+                register_parameter("spirit-kSize-E1", &spirit_kSize_E1, "Spirit kernel size E1");
+                register_parameter("spirit-kSize-E2", &spirit_kSize_E2, "Spirit kernel size E2");
+                register_parameter("spirit-reg-lamda", &spirit_reg_lamda, "Spirit regularization threshold");
+                register_parameter("spirit-calib-over-determine-ratio", &spirit_calib_over_determine_ratio, "Spirit calibration overdermination ratio");
+                register_parameter("spirit-iter-max", &spirit_iter_max, "Spirit maximal number of iterations");
+                register_parameter("spirit-iter-thres", &spirit_iter_thres, "Spirit threshold to stop iteration");
+                register_flag("spirit-print-iter", &spirit_print_iter, "Spirit print out iterations");
+            }
+
+            int spirit_kSize_RO = 7;
+            int spirit_kSize_E1 = 7;
+            int spirit_kSize_E2 = 5;
+            double spirit_reg_lamda = 0;
+            double spirit_calib_over_determine_ratio = 45;
+            int spirit_iter_max = 0;
+            double spirit_iter_thres = 0;
+            bool spirit_print_iter = false;
+        };
+
+        GenericReconCartesianSpiritGadget(const Core::MrdContext& context, const Parameters& params);
 
     protected:
+        Parameters params_;
 
         // --------------------------------------------------
         // variable for recon

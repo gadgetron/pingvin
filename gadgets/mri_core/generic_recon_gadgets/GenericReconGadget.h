@@ -21,24 +21,29 @@ namespace Gadgetron {
     public:
         typedef GenericReconDataBase BaseClass;
 
-        GenericReconGadget(const Core::Context& context, const Core::GadgetProperties& properties);
+        struct Parameters : BaseClass::Parameters {
+            Parameters(const std::string& prefix, const std::string& description)
+                : BaseClass::Parameters(prefix, description)
+            {
+                register_parameter("image-series", &image_series, "Image series number");
+                register_parameter("coil-map-algorithm", &coil_map_algorithm, "Method for coil map estimation (Inati, Inati_Iter)");
+                register_parameter("coil-map-kernel-size-readout", &coil_map_kernel_size_readout, "Coil map estimation, kernel size along read out");
+                register_parameter("coil-map-kernel-size-phase", &coil_map_kernel_size_phase, "Coil map estimation, kernel size along phase/slice encoding");
+                register_parameter("coil-map-num-iter", &coil_map_num_iter, "Coil map estimation, number of iterations");
+                register_parameter("coil-map-thres-iter", &coil_map_thres_iter, "Coil map estimation, threshold to stop iteration");
+            }
+            int image_series = 0;
+            std::string coil_map_algorithm = "Inati";
+            size_t coil_map_kernel_size_readout = 7;
+            size_t coil_map_kernel_size_phase = 5;
+            size_t coil_map_num_iter = 10;
+            double coil_map_thres_iter = 1e-4;
+        };
 
-        /// ------------------------------------------------------------------------------------
-        /// parameters to control the reconstruction
-        /// ------------------------------------------------------------------------------------
-
-        /// image series
-        NODE_PROPERTY(image_series, int, "Image series number", 0);
-
-        /// coil map estimation method
-        NODE_PROPERTY(coil_map_algorithm, std::string, "Method for coil map estimation (Inati, Inati_Iter)", "Inati");
-
-        NODE_PROPERTY(coil_map_kernel_size_readout, size_t, "Coil map estimation, kernel size along read out", 7);
-        NODE_PROPERTY(coil_map_kernel_size_phase, size_t, "Coil map estimation, kernel size along phase/slice encoding", 5);
-        NODE_PROPERTY(coil_map_num_iter, size_t, "Coil map estimation, number of iterations", 10);
-        NODE_PROPERTY(coil_map_thres_iter, double, "Coil map estimation, threshold to stop iteration", 1e-4);
+        GenericReconGadget(const Core::MrdContext& context, const Parameters& params);
 
     protected:
+        const Parameters params_;
 
         void send_out_image_array(mrd::ImageArray& res, size_t encoding, int series_num, const std::string& data_role, Core::OutputChannel& out);
         // --------------------------------------------------

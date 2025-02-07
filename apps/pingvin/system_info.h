@@ -14,7 +14,8 @@ namespace Gadgetron::Main::Info {
     bool python_support();
     bool matlab_support();
 
-    const std::filesystem::path default_pingvin_home();
+    void set_pingvin_home(const std::filesystem::path&);
+    const std::filesystem::path get_pingvin_home();
 
     namespace CUDA {
         bool cuda_support();

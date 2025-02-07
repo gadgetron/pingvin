@@ -93,12 +93,12 @@ class PhysioInterpolationGadget : public Core::MRChannelGadget<mrd::Image<std::c
             Parameters(const std::string& prefix)
                 : Core::NodeParameters(prefix, "Interpolates images based on physiological data")
             {
-                register_parameter("physiology_time_index", &physiology_time_index, "Physiology time index");
+                register_parameter("physiology-time-index", &physiology_time_index, "Physiology time index");
                 register_parameter("mode", &mode, "Mode, 0=separate series for each RR, 1=First complete RR only");
                 register_parameter("phases", &phases, "Number of cardiac phases");
-                register_parameter("first_beat_on_trigger", &first_beat_on_trigger, "Indicates that acquisition was started on trigger");
-                register_parameter("interp_method", &interp_method, "Interpolation method");
-                register_parameter("time_stamp_resolution", &time_stamp_resolution, "Time stamp resolution in ms");
+                register_parameter("first-beat-on-trigger", &first_beat_on_trigger, "Indicates that acquisition was started on trigger");
+                register_parameter("interp-method", &interp_method, "Interpolation method");
+                register_parameter("time-stamp-resolution", &time_stamp_resolution, "Time stamp resolution in ms");
             }
         };
 

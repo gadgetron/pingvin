@@ -22,25 +22,39 @@ namespace Gadgetron {
 
         typedef GenericReconImageArrayBase BaseClass;
 
-        GenericReconImageArrayScalingGadget(const Core::Context &context, const Core::GadgetProperties &properties);
+        struct Parameters : public BaseClass::Parameters {
+            Parameters(const std::string& prefix) : BaseClass::Parameters(prefix, "Image Array Scaling")
+            {
+                register_parameter("use-constant-scalingFactor", &use_constant_scalingFactor, "Whether to use constraint scaling; if not, the auto-scaling factor will be computed only ONCE");
+                register_parameter("scalingFactor", &scalingFactor, "Default scaling ratio");
+                register_parameter("min-intensity-value", &min_intensity_value, "Minimal intensity value for auto image scaling");
+                register_parameter("max-intensity-value", &max_intensity_value, "Maximal intensity value for auto image scaling");
+                register_parameter("auto-scaling-only-once", &auto_scaling_only_once, "Whether to compute auto-scaling factor only once; if false, an auto-scaling factor is computed for every incoming image array");
 
-        /// ------------------------------------------------------------------------------------
-        /// parameters to control the reconstruction
-        /// ------------------------------------------------------------------------------------
-        /// image scaling
-        NODE_PROPERTY_NON_CONST(use_constant_scalingFactor, bool, "Whether to use constraint scaling; if not, the auto-scaling factor will be computed only ONCE", true);
-        NODE_PROPERTY(scalingFactor, float, "Default scaling ratio", 4.0);
-        NODE_PROPERTY(min_intensity_value, int, "Minimal intensity value for auto image scaling", 64);
-        NODE_PROPERTY(max_intensity_value, int, "Maximal intensity value for auto image scaling", 4095);
-        NODE_PROPERTY(auto_scaling_only_once, bool, "Whether to compute auto-scaling factor only once; if false, an auto-scaling factor is computed for every incoming image array", true);
+                register_parameter("use-dedicated-scalingFactor-meta-field", &use_dedicated_scalingFactor_meta_field, "If this meta field exists, scale the images with the dedicated scaling factor");
+                register_parameter("scalingFactor-dedicated", &scalingFactor_dedicated, "Dedicated scaling ratio");
+                register_parameter("scalingFactor-gfactor-map", &scalingFactor_gfactor_map, "Scaling ratio for gfactor map");
+                register_parameter("scalingFactor-snr-map", &scalingFactor_snr_map, "Scaling ratio for snr map");
+                register_parameter("scalingFactor-snr-std-map", &scalingFactor_snr_std_map, "Scaling ratio for snr standard deviation map");
+            }
 
-        NODE_PROPERTY(use_dedicated_scalingFactor_meta_field, std::string, "If this meta field exists, scale the images with the dedicated scaling factor", "Use_dedicated_scaling_factor");
-        NODE_PROPERTY(scalingFactor_dedicated, float, "Dedicated scaling ratio", 100.0);
-        NODE_PROPERTY(scalingFactor_gfactor_map, float, "Scaling ratio for gfactor map", 100.0);
-        NODE_PROPERTY(scalingFactor_snr_map, float, "Scaling ratio for snr map", 10.0);
-        NODE_PROPERTY(scalingFactor_snr_std_map, float, "Scaling ratio for snr standard deviation map", 1000.0);
+            bool use_constant_scalingFactor = true;
+            float scalingFactor = 4.0;
+            int min_intensity_value = 64;
+            int max_intensity_value = 4095;
+            bool auto_scaling_only_once = true;
+
+            std::string use_dedicated_scalingFactor_meta_field = "Use_dedicated_scaling_factor";
+            float scalingFactor_dedicated = 100.0;
+            float scalingFactor_gfactor_map = 100.0;
+            float scalingFactor_snr_map = 10.0;
+            float scalingFactor_snr_std_map = 1000.0;
+        };
+
+        GenericReconImageArrayScalingGadget(const Core::MrdContext &context, const Parameters& params);
 
     protected:
+        Parameters params_;
 
         // --------------------------------------------------
         // variables for protocol

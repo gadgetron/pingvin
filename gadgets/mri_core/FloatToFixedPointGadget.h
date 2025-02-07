@@ -22,9 +22,9 @@ namespace Gadgetron
             Parameters(const std::string& prefix) : Core::NodeParameters(prefix, "Float to Fixed Point Conversion")
             {
                 register_parameter("type", &type, "Output integer type (ushort, short, uint, int)");
-                register_parameter("max_intensity", &max_intensity, "Maximum intensity value");
-                register_parameter("min_intensity", &min_intensity, "Minimum intensity value");
-                register_parameter("intensity_offset", &intensity_offset, "Intensity offset");
+                register_parameter("max-intensity", &max_intensity, "Maximum intensity value");
+                register_parameter("min-intensity", &min_intensity, "Minimum intensity value");
+                register_parameter("intensity-offset", &intensity_offset, "Intensity offset");
             }
 
             std::string type = "ushort";
