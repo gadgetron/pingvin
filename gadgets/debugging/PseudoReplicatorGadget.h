@@ -4,13 +4,24 @@
 
 namespace Gadgetron {
 
-class PseudoReplicatorGadget : public Core::ChannelGadget<mrd::ReconData>
+class PseudoReplicatorGadget : public Core::MRChannelGadget<mrd::ReconData>
 {
 public:
-	using Core::ChannelGadget<mrd::ReconData>::ChannelGadget;
+	struct Parameters : public Core::NodeParameters {
+		Parameters(const std::string& prefix) : Core::NodeParameters(prefix, "Pseudo Replicator") {
+			register_parameter("repetitions", &repetitions, "Number of pseudoreplicas to produce");
+		}
 
-	NODE_PROPERTY(repetitions, int, "Number of pseudoreplicas to produce", 10);
-	PseudoReplicatorGadget(const Core::Context& context, const Core::GadgetProperties& props);
+		int repetitions = 10;
+	};
+
+	PseudoReplicatorGadget(const Core::MrdContext& context, const Parameters& params)
+		: MRChannelGadget(context, params)
+		, params_(params)
+	{ }
+
+protected:
+	const Parameters params_;
 
 	void process(Core::InputChannel<mrd::ReconData>& input, Core::OutputChannel& output) override;
 };

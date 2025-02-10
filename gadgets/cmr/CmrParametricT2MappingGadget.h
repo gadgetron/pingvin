@@ -14,18 +14,23 @@ namespace Gadgetron {
     {
     public:
         typedef CmrParametricMappingGadget BaseClass;
+ 
+        struct Parameters : public BaseClass::Parameters {
+            Parameters(const std::string& prefix): BaseClass::Parameters(prefix, "T2 Mapping") {
+                register_parameter("max-iter", &max_iter, "Maximal number of iterations");
+                register_parameter("thres-func", &thres_func, "Threshold for minimal change of cost function");
+                register_parameter("max-T2", &max_T2, "Maximal T2 allowed in mapping (ms)");
+            }
 
-        CmrParametricT2MappingGadget(const Core::Context& context, const Core::GadgetProperties& properties);
+            size_t max_iter = 150;
+            double thres_func = 1e-4;
+            double max_T2 = 4000;
+        };
 
-        /// ------------------------------------------------------------------------------------
-        /// parameters to control the mapping
-        /// ------------------------------------------------------------------------------------
-
-        NODE_PROPERTY(max_iter, size_t, "Maximal number of iterations", 150);
-        NODE_PROPERTY(thres_func, double, "Threshold for minimal change of cost function", 1e-4);
-        NODE_PROPERTY(max_T2, double, "Maximal T2 allowed in mapping (ms)", 4000);
+        CmrParametricT2MappingGadget(const Core::MrdContext& context, const Parameters& params);
 
     protected:
+        const Parameters params_;
 
         // --------------------------------------------------
         // variables for protocol

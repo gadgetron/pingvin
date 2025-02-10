@@ -12,8 +12,9 @@
 
 namespace Gadgetron {
 
-    CmrParametricMappingGadget::CmrParametricMappingGadget(const Core::Context &context, const Core::GadgetProperties &properties)
-        : BaseClass(context, properties)
+    CmrParametricMappingGadget::CmrParametricMappingGadget(const Core::MrdContext &context, const Parameters& params)
+        : BaseClass(context, params)
+        , params_(params)
     {
         auto& h = context.header;
 
@@ -51,7 +52,7 @@ namespace Gadgetron {
     void CmrParametricMappingGadget::process(Core::InputChannel<mrd::ImageArray>& in, Core::OutputChannel& out)
     {
         for (auto m1: in) {
-            if (perform_timing) { gt_timer_local_.start("CmrParametricMappingGadget::process"); }
+            if (params_.perform_timing) { gt_timer_local_.start("CmrParametricMappingGadget::process"); }
 
             GDEBUG_CONDITION_STREAM(verbose, "CmrParametricMappingGadget::process(...) starts ... ");
 
@@ -75,7 +76,7 @@ namespace Gadgetron {
             // -------------------------------------------------------------
 
             // some images do not need mapping
-            if (data->meta[0].count(skip_processing_meta_field) > 0)
+            if (data->meta[0].count(params_.skip_processing_meta_field) > 0)
             {
                 out.push(std::move(m1));
                 continue;
@@ -109,7 +110,7 @@ namespace Gadgetron {
 
             // -------------------------------------------------------------
             // if prep times are not read from protocol, find them from image header
-            if (!imaging_prep_time_from_protocol)
+            if (!params_.imaging_prep_time_from_protocol)
             {
                 this->prep_times_.resize(N, 0);
 
@@ -160,18 +161,18 @@ namespace Gadgetron {
                 // fill in image header and meta
                 // send out results
                 // ----------------------------------------------------------
-                if ( send_sd_map && (this->fill_sd_header(map_sd) == GADGET_OK) )
+                if ( params_.send_sd_map && (this->fill_sd_header(map_sd) == GADGET_OK) )
                 {
                     out.push(std::move(map_sd));
                 }
 
-                if (send_map && (this->fill_map_header(map) == GADGET_OK))
+                if (params_.send_map && (this->fill_map_header(map) == GADGET_OK))
                 {
                     out.push(std::move(map));
                 }
             }
 
-            if (perform_timing) { gt_timer_local_.stop(); }
+            if (params_.perform_timing) { gt_timer_local_.stop(); }
         }
     }
 
@@ -189,18 +190,18 @@ namespace Gadgetron {
 
             size_t e2, cha, n, s, slc;
 
-            std::string lut = color_lut_map;
+            std::string lut = params_.color_lut_map;
             if (this->field_strength_T_ > 2)
             {
-                lut = color_lut_map_3T;
+                lut = params_.color_lut_map_3T;
             }
 
             std::ostringstream ostr;
-            ostr << "x" << (double)scaling_factor_map;
+            ostr << "x" << (double)params_.scaling_factor_map;
             std::string scalingStr = ostr.str();
 
             std::ostringstream ostr_unit;
-            ostr_unit << std::setprecision(3) << 1.0f / scaling_factor_map << "ms";
+            ostr_unit << std::setprecision(3) << 1.0f / params_.scaling_factor_map << "ms";
             std::string unitStr = ostr_unit.str();
 
             for (slc = 0; slc < SLC; slc++)
@@ -210,9 +211,9 @@ namespace Gadgetron {
                     for (n = 0; n < N; n++)
                     {
                         auto& meta = map.meta(n, s, slc);
-                        meta[GADGETRON_IMAGE_SCALE_RATIO] = {(double)scaling_factor_map};
-                        meta[GADGETRON_IMAGE_WINDOWCENTER] = {(long)(window_center_map*scaling_factor_map)};
-                        meta[GADGETRON_IMAGE_WINDOWWIDTH] = {(long)(window_width_map*scaling_factor_map)};
+                        meta[GADGETRON_IMAGE_SCALE_RATIO] = {(double)params_.scaling_factor_map};
+                        meta[GADGETRON_IMAGE_WINDOWCENTER] = {(long)(params_.window_center_map*params_.scaling_factor_map)};
+                        meta[GADGETRON_IMAGE_WINDOWWIDTH] = {(long)(params_.window_width_map*params_.scaling_factor_map)};
                         meta[GADGETRON_IMAGE_COLORMAP] = {lut};
 
                         meta[GADGETRON_IMAGECOMMENT] = meta[GADGETRON_DATA_ROLE];
@@ -222,7 +223,7 @@ namespace Gadgetron {
                 }
             }
 
-            Gadgetron::scal( (float)(scaling_factor_map), map.data);
+            Gadgetron::scal( (float)(params_.scaling_factor_map), map.data);
         }
         catch (...)
         {
@@ -245,14 +246,14 @@ namespace Gadgetron {
             size_t S = map_sd.data.get_size(5);
             size_t SLC = map_sd.data.get_size(6);
 
-            std::string lut = color_lut_sd_map;
+            std::string lut = params_.color_lut_sd_map;
 
             std::ostringstream ostr;
-            ostr << "x" << (double)scaling_factor_sd_map;
+            ostr << "x" << (double)params_.scaling_factor_sd_map;
             std::string scalingStr = ostr.str();
 
             std::ostringstream ostr_unit;
-            ostr_unit << std::setprecision(3) << 1.0f / scaling_factor_sd_map << "ms";
+            ostr_unit << std::setprecision(3) << 1.0f / params_.scaling_factor_sd_map << "ms";
             std::string unitStr = ostr_unit.str();
 
             size_t e2, cha, n, s, slc;
@@ -264,9 +265,9 @@ namespace Gadgetron {
                     for (n = 0; n < N; n++)
                     {
                         auto& meta = map_sd.meta(n, s, slc);
-                        meta[GADGETRON_IMAGE_SCALE_RATIO] = {(double)scaling_factor_sd_map};
-                        meta[GADGETRON_IMAGE_WINDOWCENTER] = {(long)(window_center_sd_map*scaling_factor_sd_map)};
-                        meta[GADGETRON_IMAGE_WINDOWWIDTH] = {(long)(window_width_sd_map*scaling_factor_sd_map)};
+                        meta[GADGETRON_IMAGE_SCALE_RATIO] = {(double)params_.scaling_factor_sd_map};
+                        meta[GADGETRON_IMAGE_WINDOWCENTER] = {(long)(params_.window_center_sd_map*params_.scaling_factor_sd_map)};
+                        meta[GADGETRON_IMAGE_WINDOWWIDTH] = {(long)(params_.window_width_sd_map*params_.scaling_factor_sd_map)};
                         meta[GADGETRON_IMAGE_COLORMAP] = {lut};
 
                         meta[GADGETRON_IMAGECOMMENT] = meta[GADGETRON_DATA_ROLE];
@@ -276,7 +277,7 @@ namespace Gadgetron {
                 }
             }
 
-            Gadgetron::scal((float)(scaling_factor_map), map_sd.data);
+            Gadgetron::scal((float)(params_.scaling_factor_map), map_sd.data);
         }
         catch (...)
         {
@@ -298,7 +299,7 @@ namespace Gadgetron {
         mask_initial.create(RO, E1, SLC);
         Gadgetron::fill(mask_initial, (float)1);
 
-        double std_thres = std_thres_masking;
+        double std_thres = params_.std_thres_masking;
 
         size_t n;
         for (n = 0; n < RO*E1*SLC; n++)

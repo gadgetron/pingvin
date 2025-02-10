@@ -17,47 +17,72 @@ namespace Gadgetron {
     public:
         typedef GenericReconImageArrayBase BaseClass;
 
-        CmrParametricMappingGadget(const Core::Context &context, const Core::GadgetProperties &properties);
+        struct Parameters : public BaseClass::Parameters {
+            Parameters(const std::string& prefix): Parameters(prefix, "CmrParametricMapping")
+            {}
 
-        /// ------------------------------------------------------------------------------------
-        /// parameters to control the mapping
-        /// ------------------------------------------------------------------------------------
+            Parameters(const std::string& prefix, const std::string& description): BaseClass::Parameters(prefix, description) {
+                register_parameter("skip-processing-meta-field", &skip_processing_meta_field, "If this meta field exists, pass the incoming image array to next gadget without processing");
+                register_parameter("imaging-prep-time-from-protocol", &imaging_prep_time_from_protocol, "If true, read in imaging prep time from protocols; if false, read in from meta fields");
 
-        NODE_PROPERTY(skip_processing_meta_field, std::string, "If this meta field exists, pass the incoming image array to next gadget without processing", GADGETRON_SKIP_PROCESSING_AFTER_RECON);
+                register_parameter("send-map", &send_map, "Whether to send out maps");
+                register_parameter("send-sd-map", &send_sd_map, "Whether to send out sd maps");
 
-        NODE_PROPERTY(imaging_prep_time_from_protocol, bool, "If true, read in imaging prep time from protocols; if false, read in from meta fields", true);
+                register_parameter("color-lut-map", &color_lut_map, "Color lookup table for map");
+                register_parameter("window-center-map", &window_center_map, "Window center for map");
+                register_parameter("window-width-map", &window_width_map, "Window width for map");
 
-        // -------------------------------------------
+                register_parameter("color-lut-map-3T", &color_lut_map_3T, "Color lookup table for map at 3T");
+                register_parameter("window-center-map-3T", &window_center_map_3T, "Window center for map at 3T");
+                register_parameter("window-width-map-3T", &window_width_map_3T, "Window width for map at 3T");
 
-        NODE_PROPERTY(send_map, bool, "Whether to send out maps", true);
-        NODE_PROPERTY(send_sd_map, bool, "Whether to send out sd maps", true);
+                register_parameter("scaling-factor-map", &scaling_factor_map, "Scale factor for map");
 
-        NODE_PROPERTY(color_lut_map, std::string, "Color lookup table for map", "GadgetronParametricMap.pal");
-        NODE_PROPERTY(window_center_map, double, "Window center for map", 4.0);
-        NODE_PROPERTY(window_width_map, double, "Window width for map", 8.0);
+                register_parameter("color-lut-sd-map", &color_lut_sd_map, "Color lookup table for sd map");
+                register_parameter("window-center-sd-map", &window_center_sd_map, "Window center for sd map");
+                register_parameter("window-width-sd-map", &window_width_sd_map, "Window width for sd map");
+                register_parameter("scaling-factor-sd-map", &scaling_factor_sd_map, "Scale factor for sd map");
 
-        NODE_PROPERTY(color_lut_map_3T, std::string, "Color lookup table for map at 3T", "GadgetronParametricMap_3T.pal");
-        NODE_PROPERTY(window_center_map_3T, double, "Window center for map at 3T", 4.0);
-        NODE_PROPERTY(window_width_map_3T, double, "Window width for map at 3T", 8.0);
+                register_parameter("perform-hole-filling", &perform_hole_filling, "Whether to perform hole filling on map");
+                register_parameter("max-size-hole", &max_size_hole, "Maximal size for hole");
 
-        NODE_PROPERTY(scaling_factor_map, double, "Scale factor for map", 10.0);
+                register_parameter("std-thres-masking", &std_thres_masking, "Number of noise std for masking");
+                register_parameter("mapping-with-masking", &mapping_with_masking, "Whether to compute and apply a mask for mapping");
+            };
 
-        // -------------------------------------------
+            std::string skip_processing_meta_field = GADGETRON_SKIP_PROCESSING_AFTER_RECON;
 
-        NODE_PROPERTY(color_lut_sd_map, std::string, "Color lookup table for sd map", "GadgetronParametricSDMap.pal");
-        NODE_PROPERTY(window_center_sd_map, double, "Window center for sd map", 4.0);
-        NODE_PROPERTY(window_width_sd_map, double, "Window width for sd map", 8.0);
-        NODE_PROPERTY(scaling_factor_sd_map, double, "Scale factor for sd map", 100.0);
+            bool imaging_prep_time_from_protocol = true;
 
-        NODE_PROPERTY(perform_hole_filling, bool, "Whether to perform hole filling on map", true);
-        NODE_PROPERTY(max_size_hole, int, "Maximal size for hole", 20);
+            bool send_map = true;
+            bool send_sd_map = true;
 
-        NODE_PROPERTY(std_thres_masking, double, "Number of noise std for masking", 3.0);
-        NODE_PROPERTY(mapping_with_masking, bool, "Whether to compute and apply a mask for mapping", true);
+            std::string color_lut_map = "GadgetronParametricMap.pal";
+            double window_center_map = 4.0;
+            double window_width_map = 8.0;
 
-        // ------------------------------------------------------------------------------------
+            std::string color_lut_map_3T = "GadgetronParametricMap_3T.pal";
+            double window_center_map_3T = 4.0;
+            double window_width_map_3T = 8.0;
+
+            double scaling_factor_map = 10.0;
+
+            std::string color_lut_sd_map = "GadgetronParametricSDMap.pal";
+            double window_center_sd_map = 4.0;
+            double window_width_sd_map = 8.0;
+            double scaling_factor_sd_map = 100.0;
+
+            bool perform_hole_filling = true;
+            int max_size_hole = 20;
+
+            double std_thres_masking = 3.0;
+            bool mapping_with_masking = true;
+        };
+
+        CmrParametricMappingGadget(const Core::MrdContext &context, const Parameters& params);
 
     protected:
+        const Parameters params_;
 
         // --------------------------------------------------
         // variables for protocol

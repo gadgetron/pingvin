@@ -5,17 +5,23 @@
 
 namespace Gadgetron{
 
-    class RateLimitGadget : public Core::ChannelGadget<mrd::StreamItem>
+    class RateLimitGadget : public Core::MRChannelGadget<mrd::StreamItem>
     {
     public:
-      using Core::ChannelGadget<mrd::StreamItem>::ChannelGadget;
+      struct Parameters : public Core::NodeParameters {
+        Parameters(const std::string& prefix): Core::NodeParameters(prefix, "Rate Limiter") {
+          register_parameter("sleep-time", &sleep_time_int, "Sleep time in milliseconds");
+        }
 
-      RateLimitGadget(const Core::Context& context, const Core::GadgetProperties& props);
+        int sleep_time_int = 0;
+      };
+
+      RateLimitGadget(const Core::MrdContext& context, const Parameters& params);
 
       void process(Core::InputChannel<mrd::StreamItem>& input, Core::OutputChannel& output) override;
 
     protected:
-      NODE_PROPERTY(sleep_time_int, int, "sleep_time", 0);
+      const Parameters params_;
 
       std::chrono::milliseconds sleep_time_;
     };

@@ -3,11 +3,6 @@
 
 namespace Gadgetron {
 
-PseudoReplicatorGadget::PseudoReplicatorGadget(const Core::Context& context, const Core::GadgetProperties& props)
-    : Core::ChannelGadget<mrd::ReconData>(context, props)
-{
-}
-
 void PseudoReplicatorGadget::process(Core::InputChannel<mrd::ReconData>& input, Core::OutputChannel& output)
 {
 	std::mt19937 engine(5489UL);
@@ -17,7 +12,7 @@ void PseudoReplicatorGadget::process(Core::InputChannel<mrd::ReconData>& input, 
 		// First just send the normal data to obtain standard image
 		output.push(reconData);
 
-		for (int i = 0; i < repetitions; i++) {
+		for (int i = 0; i < params_.repetitions; i++) {
 
 			for (auto& rbit : reconData.buffers) {
 				auto& data = rbit.data.data;

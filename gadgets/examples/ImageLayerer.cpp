@@ -43,8 +43,6 @@ namespace {
 
 namespace Gadgetron::Examples {
 
-    ImageLayerer::ImageLayerer(const Core::Context &, const Core::GadgetProperties &properties) : Merge(properties) {}
-
     void ImageLayerer::process(std::map<std::string, Core::GenericInputChannel> input, Core::OutputChannel output) {
 
         auto unchanged = Core::InputChannel<mrd::AnyImage>(input.at("unchanged"), output);
@@ -56,8 +54,6 @@ namespace Gadgetron::Examples {
                     image,
                     inverted.pop()
             );
-
-
 
             GINFO_STREAM("Images combined; pushing out result.");
 

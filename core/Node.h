@@ -15,6 +15,10 @@ namespace Gadgetron::Core {
     class Node {
 
     public:
+        struct Parameters : NodeParameters {
+            using NodeParameters::NodeParameters;
+        };
+
         virtual ~Node() = default;
 
         /**
@@ -25,25 +29,14 @@ namespace Gadgetron::Core {
         virtual void process(GenericInputChannel& in, OutputChannel& out) = 0;
     };
 
-    class GenericChannelGadget : public Node, public PropertyMixin {
-    public:
-        struct Parameters : NodeParameters {
-            using NodeParameters::NodeParameters;
-        };
-
-        GenericChannelGadget(const Context& context, const GadgetProperties& properties) : PropertyMixin(properties) {}
-    };
-
     /**
      * A Node providing typed access to input data. Messages not matching the TYPELIST are simply passed to the next
      * Node in the chain.
      * Should be the first choice for writing new Gadgets.
      * @tparam TYPELIST The type(s) of the messages to be received
      */
-    template <class... TYPELIST> class ChannelGadget : public GenericChannelGadget {
+    template <class... TYPELIST> class ChannelGadget : public Node {
     public:
-        using GenericChannelGadget::GenericChannelGadget;
-
         void process(GenericInputChannel& in, OutputChannel& out) override final {
             auto typed_input = InputChannel<TYPELIST...>(in, out);
             this->process(typed_input, out);
@@ -62,8 +55,7 @@ namespace Gadgetron::Core {
     public:
         using ChannelGadget<TYPELIST...>::ChannelGadget;
 
-        MRChannelGadget(const MrdContext& context, const NodeParameters& parameters)
-            : ChannelGadget<TYPELIST...>(Core::Context{}, Core::GadgetProperties{}) {}
+        MRChannelGadget(const MrdContext& context, const NodeParameters& parameters) {}
     };
 }
 

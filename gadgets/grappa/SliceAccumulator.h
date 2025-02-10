@@ -2,9 +2,8 @@
 
 #include <vector>
 
-#include "ChannelReorderer.h"
-
 #include "Node.h"
+#include "common/AnnotatedAcquisition.h"
 
 namespace Gadgetron::Grappa {
 

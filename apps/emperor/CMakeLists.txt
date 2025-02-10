@@ -26,6 +26,7 @@ target_link_libraries(emperor
         pingvin_mricore
         pingvin_epi
         pingvin_grappa
+        pingvin_cmr
         Boost::system
         Boost::program_options
         GTBLAS)

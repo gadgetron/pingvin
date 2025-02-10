@@ -5,10 +5,11 @@
 
 namespace Gadgetron {
 
-RateLimitGadget::RateLimitGadget(const Core::Context& context, const Core::GadgetProperties& props)
-    : Core::ChannelGadget<mrd::StreamItem>(context, props)
+RateLimitGadget::RateLimitGadget(const Core::MrdContext& context, const Parameters& params)
+    : Core::MRChannelGadget<mrd::StreamItem>(context, params)
+    , params_(params)
 {
-  this->sleep_time_ = std::chrono::milliseconds(this->sleep_time_int);
+  this->sleep_time_ = std::chrono::milliseconds(params_.sleep_time_int);
 }
 
 void RateLimitGadget::process(Core::InputChannel<mrd::StreamItem>& in, Core::OutputChannel& out)

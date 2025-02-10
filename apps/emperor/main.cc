@@ -4,6 +4,7 @@
 #include "pipelines/epi.h"
 #include "pipelines/cartesian_grappa.h"
 #include "pipelines/cartesian_spirit.h"
+#include "pipelines/cmr.h"
 
 #include "pipelines/file_search.h"
 
@@ -124,7 +125,9 @@ int main(int argc, char** argv)
         &file_search,
         &grappa,
         &cartesian_grappa,
-        &cartesian_spirit_nonlinear
+        &cartesian_spirit_nonlinear,
+        &cmr_cine_binning,
+        &cmr_mapping_t1_sr
     };
     std::map<std::string, IPipelineBuilder*> builder_map;
     for (auto& builder : builders) {

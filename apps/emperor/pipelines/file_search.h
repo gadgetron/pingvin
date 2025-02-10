@@ -62,7 +62,7 @@ namespace pingvin {
         };
 
       TextualSearch(const TextContext& context, const Parameters& params)
-            : Core::ChannelGadget<std::string>(Core::Context{}, Core::GadgetProperties{})
+            : Core::ChannelGadget<std::string>()
             , parameters_(params)
         { }
 

@@ -8,8 +8,6 @@ set(RTGRAPPA_SOURCES
         common/AcquisitionBuffer.h
         common/grappa_common.h
         common/AnnotatedAcquisition.h
-        ChannelReorderer.cpp
-        ChannelReorderer.h
         cpu/WeightsCore.cpp
         cpu/WeightsCore.h)
 
