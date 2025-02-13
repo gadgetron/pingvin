@@ -27,7 +27,7 @@ def test_e2e(spec, check_requirements, request, fetch_test_data, process_data, v
 
 
 @pytest.fixture
-def process_data(local_test_data_path, tmp_path):
+def process_data(local_test_data_path, tmp_path, test_env):
     """Runs the Pingvin on the input test data, producing an output file."""
     def _process_data(job):
         input_file = local_test_data_path(job.datafile)
@@ -48,7 +48,7 @@ def process_data(local_test_data_path, tmp_path):
         log_stderr_filename = os.path.join(tmp_path, f"pingvin_{job.name}.log.err")
         with open(log_stdout_filename, 'w') as log_stdout:
             with open(log_stderr_filename, 'w') as log_stderr:
-                result = subprocess.run(command, stdout=log_stdout, stderr=log_stderr, cwd=tmp_path)
+                result = subprocess.run(command, stdout=log_stdout, stderr=log_stderr, cwd=tmp_path, env=test_env)
                 if result.returncode != 0:
                     pytest.fail(f"Pingvin failed with return code {result.returncode}. See {log_stderr_filename} for details.")
 

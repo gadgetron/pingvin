@@ -8,12 +8,12 @@ namespace Gadgetron::Main::Nodes {
 
     void ParallelProcess::process_input(GenericInputChannel input, Queue &queue) {
 
-        ThreadPool pool(workers ? workers : std::thread::hardware_concurrency());
+        ThreadPool pool(workers_ ? workers_ : std::thread::hardware_concurrency());
 
         for (auto message : input) {
             queue.push(
                 pool.async(
-                        [&](auto message) { return pureStream.process_function(std::move(message)); },
+                        [&](auto message) { return pure_stream_.process_function(std::move(message)); },
                         std::move(message)
                 )
             );

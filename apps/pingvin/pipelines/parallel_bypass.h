@@ -11,34 +11,29 @@
 #include "gadgets/mri_core/SimpleReconGadget.h"
 #include "gadgets/mri_core/ImageArraySplitGadget.h"
 #include "gadgets/mri_core/ExtractGadget.h"
+#include "core/parallel/Fanout.h"
+#include "gadgets/examples/ImageInverter.h"
+#include "gadgets/examples/ImageLayerer.h"
 
 namespace pingvin {
 
   using namespace Gadgetron;
 
-static auto default_mr = PipelineBuilder<MrdContext>("default", "Basic Cartesian Reconstruction")
+static auto example_parallel_bypass = PipelineBuilder<MrdContext>("parallel-bypass", "Basic Parallel Bypass Example")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
+        .withNode<NoiseAdjustGadget>("noise")
         .withNode<RemoveROOversamplingGadget>("ros")
-        .withNode<AcquisitionAccumulateTriggerGadget>("accumulate")
+        .withNode<AcquisitionAccumulateTriggerGadget>("acctrig")
         .withNode<BucketToBufferGadget>("buffer")
         .withNode<SimpleReconGadget>("recon")
         .withNode<ImageArraySplitGadget>("image-split")
         .withNode<ExtractGadget>("extract")
-        ;
-
-static auto default_mr_optimized = PipelineBuilder<MrdContext>("default-optimized", "Basic Cartesian Reconstruction")
-        .withSource<MrdSource>()
-        .withSink<MrdSink>()
-        .withNode<NoiseAdjustGadget>("noise-adjust")
-        .withNode<PCACoilGadget>("pca")
-        .withNode<CoilReductionGadget>("coil-reduction")  // TODO: specify a default of `coils_out = 16`??
-        .withNode<RemoveROOversamplingGadget>("ros")
-        .withNode<AcquisitionAccumulateTriggerGadget>("accumulate")
-        .withNode<BucketToBufferGadget>("buffer")
-        .withNode<SimpleReconGadget>("recon")
-        .withNode<ImageArraySplitGadget>("image-split")
-        .withNode<ExtractGadget>("extract")
+        .withBranch<Core::Parallel::ImageFanout>("fanout")
+            .withStream("unchanged")
+            .withStream("inverted")
+                .withNode<Examples::ImageInverter>("invert")
+            .withMerge<Examples::ImageLayerer>("layer")
         ;
 
 } // namespace pingvin

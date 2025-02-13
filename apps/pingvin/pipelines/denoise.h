@@ -10,34 +10,39 @@
 #include "gadgets/mri_core/ImageArraySplitGadget.h"
 #include "gadgets/mri_core/ComplexToFloatGadget.h"
 #include "gadgets/mri_core/FloatToFixedPointGadget.h"
+#include "gadgets/mri_core/DenoiseGadget.h"
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconCartesianReferencePrepGadget.h"
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconEigenChannelGadget.h"
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconCartesianGrappaGadget.h"
-#include "gadgets/mri_core/generic_recon_gadgets/GenericReconPartialFourierHandlingFilterGadget.h"
+#include "gadgets/mri_core/generic_recon_gadgets/GenericReconPartialFourierHandlingPOCSGadget.h"
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconKSpaceFilteringGadget.h"
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconFieldOfViewAdjustmentGadget.h"
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconImageArrayScalingGadget.h"
+#include "gadgets/mri_core/generic_recon_gadgets/GenericReconNoiseStdMapComputingGadget.h"
 
 namespace pingvin {
 
-static auto cartesian_grappa = PipelineBuilder<MrdContext>("cartesian-grappa", "Cartesian Grappa Recon")
+using namespace Gadgetron;
+
+static auto grappa_denoise = PipelineBuilder<MrdContext>("cartesian-grappa-cine-denoise", "Cartesian Grappa with Cine Denoising")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<NoiseAdjustGadget>("noise")
-        .withNode<AsymmetricEchoAdjustROGadget>("asymmetric-echo")
+        .withNode<AsymmetricEchoAdjustROGadget>("echo-adjust")
         .withNode<RemoveROOversamplingGadget>("ros")
-        .withNode<AcquisitionAccumulateTriggerGadget>("acquisition-accumulate")
-        .withNode<BucketToBufferGadget>("bucket-to-buffer")
-        .withNode<GenericReconCartesianReferencePrepGadget>("reference-prep")
-        .withNode<GenericReconEigenChannelGadget>("eigen-channel")
+        .withNode<AcquisitionAccumulateTriggerGadget>("acctrig")
+        .withNode<BucketToBufferGadget>("buffer")
+        .withNode<GenericReconCartesianReferencePrepGadget>("refprep")
+        .withNode<GenericReconEigenChannelGadget>("coilcomp")
         .withNode<GenericReconCartesianGrappaGadget>("grappa")
-        .withNode<GenericReconPartialFourierHandlingFilterGadget>("pf-handling")
-        .withNode<GenericReconKSpaceFilteringGadget>("kspace-filtering")
-        .withNode<GenericReconFieldOfViewAdjustmentGadget>("fov-adjustment")
-        .withNode<GenericReconImageArrayScalingGadget>("image-array-scaling")
-        .withNode<ImageArraySplitGadget>("image-split")
+        .withNode<GenericReconPartialFourierHandlingPOCSGadget>("pf")
+        .withNode<GenericReconKSpaceFilteringGadget>("kspace-filter")
+        .withNode<GenericReconFieldOfViewAdjustmentGadget>("fov-adjust")
+        .withNode<ImageArraySplitGadget>("split")
+        .withParallelProcessStream()
+            .withPureNode<DenoiseGadget>("denoise")
+            .withWorkers(6)
         .withNode<ComplexToFloatGadget>("complex-to-float")
-        .withNode<FloatToFixedPointGadget>("convert")
         ;
 
 } // namespace pingvin

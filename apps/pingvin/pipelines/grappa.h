@@ -43,9 +43,27 @@ static auto grappa = PipelineBuilder<MrdContext>("grappa", "Basic GRAPPA Reconst
                             .withStream("weights")
                                 .withNode<Grappa::cpuWeightsCalculator>("weights")
                             .withMerge<Grappa::Unmixing>("unmixing")
+                        .withNode<ExtractGadget>("extract")
+                        ;
+
+static auto grappa_cpu = PipelineBuilder<MrdContext>("grappa-cpu", "Basic GRAPPA Reconstruction")
+                        .withSource<MrdSource>()
+                        .withSink<MrdSink>()
+                        .withNode<NoiseAdjustGadget>("noise-adjust")
+                        .withNode<PCACoilGadget>("pca")
+                        .withNode<CoilReductionGadget>("coil-reduction")
+                        .withNode<AsymmetricEchoAdjustROGadget>("echo-adjust")
+                        .withNode<RemoveROOversamplingGadget>("remove-oversampling")
+                        .withNode<Grappa::SliceAccumulator>("slice-acc")
+
+                        .withBranch<Grappa::AcquisitionFanout>("acq-fanout")
+                            .withStream("images")
+                                .withNode<Grappa::ImageAccumulator>("image-acc")
+                            .withStream("weights")
+                                .withNode<Grappa::gpuWeightsCalculator>("weights")
+                            .withMerge<Grappa::Unmixing>("unmixing")
 
                         .withNode<ExtractGadget>("extract")
-                        .withNode<AutoScaleGadget>("scale")
-                        .withNode<FloatToFixedPointGadget>("convert");
+                        ;
 
 } // namespace pingvin

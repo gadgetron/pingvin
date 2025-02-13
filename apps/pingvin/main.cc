@@ -4,13 +4,18 @@
 #include "pipelines/epi.h"
 #include "pipelines/cartesian_grappa.h"
 #include "pipelines/cartesian_spirit.h"
+#include "pipelines/grappa_epi.h"
 #include "pipelines/cmr.h"
+#include "pipelines/parallel_bypass.h"
+#include "pipelines/streams.h"
+#include "pipelines/denoise.h"
 
 #include "pipelines/file_search.h"
 
-
 #include "log.h"
+#include "initialization.h"
 #include "system_info.h"
+#include "pingvin_config.h"
 
 #include <boost/program_options.hpp>
 
@@ -64,6 +69,8 @@ int main(int argc, char** argv)
         ("home",
             po::value<std::filesystem::path>()->default_value(Gadgetron::Main::Info::get_pingvin_home()),
             "Set the Pingvin home directory")
+        ("genconf,g", "Generate a full configuration file for the given pipeline")
+        ("dumpconf,d", "Dump the current configuration for the given pipeline")
         ("config,c", po::value<std::string>(), "Pipeline configuration file")
         ("input,i", po::value<std::string>(), "Input stream (default=stdin)")
         ("output,o", po::value<std::string>(), "Output stream (default=stdout)")
@@ -106,32 +113,62 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    Gadgetron::Main::check_environment_variables();
+    Gadgetron::Main::configure_blas_libraries();
+    Gadgetron::Main::set_locale();
+
+    GINFO_STREAM("Pingvin " << PINGVIN_VERSION_STRING << " [" << PINGVIN_GIT_SHA1_HASH << "]");
+
     if (vm.count("info")) {
-        std::cerr << "Pingvin Info: ..." << std::endl;
+        std::stringstream str;
+        Gadgetron::Main::Info::print_system_information(str);
+        GINFO_STREAM(str.str());
         return 0;
     }
 
-    if (vm.count("home")) {
+    if (vm.count("home") && !vm["home"].defaulted()) {
         Gadgetron::Main::Info::set_pingvin_home(vm["home"].as<std::filesystem::path>());
-        std::cerr << "Set Pingvin home to: " << Gadgetron::Main::Info::get_pingvin_home() << std::endl;
+        GINFO_STREAM("Set Pingvin home to: " << Gadgetron::Main::Info::get_pingvin_home());
     }
 
     // "Choose" a Pipeline
     std::vector<IPipelineBuilder*> builders{
-        &epi_2d,
+        &file_search,
+
+        &noise_dependency,
         &default_mr,
         &default_mr_optimized,
-        &noise_dependency,
-        &file_search,
+
+        &epi_2d,
+
         &grappa,
+        &grappa_cpu,
+
         &cartesian_grappa,
+        &cartesian_grappa_snr,
+        &grappa_denoise,
+
+        &cartesian_spirit,
         &cartesian_spirit_nonlinear,
+
+        &grappa_epi,
+
         &cmr_cine_binning,
-        &cmr_mapping_t1_sr
+        &cmr_mapping_t1_sr,
+        &cmr_rtcine_lax_ai,
+
+        &example_parallel_bypass,
+
+        &stream_cartesian_grappa_imagearray,
+        &stream_cartesian_grappa,
+        &stream_image_array_scaling,
+        &stream_image_array_split,
+        &stream_complex_to_float,
+        &stream_float_to_fixed_point,
     };
     std::map<std::string, IPipelineBuilder*> builder_map;
     for (auto& builder : builders) {
-        builder_map[builder->name] = builder;
+        builder_map[builder->name()] = builder;
     }
 
     if (!vm.count("pipeline")) {
@@ -143,7 +180,7 @@ int main(int argc, char** argv)
             std::cerr << "Pipelines:" << std::endl;
             for (auto& builder : builders) {
                 // std::cerr << "┌ " << builder->name << std::endl << "└──── " << builder->description << std::endl;
-                std::cerr << "- " << builder->name << std::endl << "  └── " << builder->description << std::endl;
+                std::cerr << "- " << builder->name() << std::endl << "  └── " << builder->description() << std::endl;
             }
             return 0;
         } else {
@@ -165,6 +202,7 @@ int main(int argc, char** argv)
         // Parse again for Pipeline
         po::parsed_options parsed = po::basic_command_line_parser(unrecognized).options(pipeline_options).run();
         po::store(parsed, vm);
+
 
         if (vm.count("help")) {
             std::cerr << help_options << std::endl;
@@ -200,6 +238,15 @@ int main(int argc, char** argv)
     {
         std::cerr << e.what() << std::endl;
         return 1;
+    }
+
+    if (vm.count("dumpconf")) {
+        builder->dump_config(std::cout, true);
+        return 0;
+    }
+    if (vm.count("genconf")) {
+        builder->dump_config(std::cout, false);
+        return 0;
     }
 
     std::unique_ptr<std::istream> input_file;

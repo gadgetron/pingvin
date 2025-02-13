@@ -1,3 +1,1 @@
-# add_subdirectory(pingvin)
-
-add_subdirectory(emperor)
+add_subdirectory(pingvin)

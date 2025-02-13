@@ -19,6 +19,7 @@
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconImageArrayScalingGadget.h"
 #include "gadgets/cmr/CmrCartesianKSpaceBinningCineGadget.h"
 #include "gadgets/cmr/CmrParametricT1SRMappingGadget.h"
+#include "gadgets/cmr/CmrRealTimeLAXCineAIAnalysisGadget.h"
 
 namespace pingvin {
 
@@ -32,7 +33,7 @@ static auto cmr_cine_binning = PipelineBuilder<MrdContext>("cmr-cine-binning", "
         .withNode<BucketToBufferGadget>("buffer")
         .withNode<GenericReconCartesianReferencePrepGadget>("refprep")
         .withNode<GenericReconEigenChannelGadget>("coilcomp")
-        .withNode<CmrCartesianKSpaceBinningCineGadget>("cmr")
+        .withNode<CmrCartesianKSpaceBinningCineGadget>("binning")
         .withNode<GenericReconPartialFourierHandlingPOCSGadget>("pf")
         .withNode<GenericReconKSpaceFilteringGadget>("kspace-filter")
         .withNode<GenericReconFieldOfViewAdjustmentGadget>("fov-adjust")
@@ -58,6 +59,27 @@ static auto cmr_mapping_t1_sr = PipelineBuilder<MrdContext>("cmr-mapping-t1-sr",
         .withNode<GenericReconFieldOfViewAdjustmentGadget>("fov-adjust")
         .withNode<GenericReconImageArrayScalingGadget>("scale")
         .withNode<CmrParametricT1SRMappingGadget>("sasha")
+        .withNode<ImageArraySplitGadget>("split")
+        .withNode<ComplexToFloatGadget>("complex-to-float")
+        .withNode<FloatToFixedPointGadget>("convert")
+        ;
+
+static auto cmr_rtcine_lax_ai = PipelineBuilder<MrdContext>("cmr-rtcine-lax-ai", "CMR real-time cine LAX AI")
+        .withSource<MrdSource>()
+        .withSink<MrdSink>()
+        .withNode<NoiseAdjustGadget>("noise")
+        .withNode<AsymmetricEchoAdjustROGadget>("asymmetric-echo")
+        .withNode<RemoveROOversamplingGadget>("ros")
+        .withNode<AcquisitionAccumulateTriggerGadget>("acctrig")
+        .withNode<BucketToBufferGadget>("buffer")
+        .withNode<GenericReconCartesianReferencePrepGadget>("refprep")
+        .withNode<GenericReconEigenChannelGadget>("coilcomp")
+        .withNode<GenericReconCartesianGrappaGadget>("grappa")
+        .withNode<GenericReconPartialFourierHandlingPOCSGadget>("pf")
+        .withNode<GenericReconKSpaceFilteringGadget>("kspace-filter")
+        .withNode<GenericReconFieldOfViewAdjustmentGadget>("fov-adjust")
+        .withNode<GenericReconImageArrayScalingGadget>("scale")
+        .withNode<CmrRealTimeLAXCineAIAnalysisGadget>("laxai")
         .withNode<ImageArraySplitGadget>("split")
         .withNode<ComplexToFloatGadget>("complex-to-float")
         .withNode<FloatToFixedPointGadget>("convert")

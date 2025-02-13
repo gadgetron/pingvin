@@ -39,7 +39,7 @@ namespace Gadgetron {
             }
 
             bool use_constant_scalingFactor = true;
-            float scalingFactor = 4.0;
+            float scalingFactor = 10.0;
             int min_intensity_value = 64;
             int max_intensity_value = 4095;
             bool auto_scaling_only_once = true;

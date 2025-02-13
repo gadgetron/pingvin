@@ -21,8 +21,8 @@ namespace Gadgetron {
 
             Parameters(const std::string& prefix) : Core::NodeParameters(prefix, "Denoising Options")
             {
-                register_parameter("image_std", &image_std, "Standard deviation of the noise in the produced image");
-                register_parameter("search_radius", &search_radius, "Standard deviation of the noise in the produced image");
+                register_parameter("image-std", &image_std, "Standard deviation of the noise in the produced image");
+                register_parameter("search-radius", &search_radius, "Standard deviation of the noise in the produced image");
                 register_parameter("denoiser", &denoiser, "Type of denoiser - non_local_means or non_local_bayes");
             }
         };

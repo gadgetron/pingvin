@@ -233,14 +233,14 @@ def adaptive_thresh_cpu(probs, p_thresh=0.5, p_thresh_max=0.988):
 
 if __name__=="__main__":
     
-    GT_HOME = os.environ['GADGETRON_HOME']
-    GT_PYTHON_DIR = os.path.join(GT_HOME, 'share/gadgetron/python')
-    print("GT_HOME is", GT_HOME)
+    PINGVIN_HOME = os.environ['PINGVIN_HOME']
+    PINGVIN_PYTHON_DIR = os.path.join(PINGVIN_HOME, 'share/pingvin/python')
+    print("PINGVIN_HOME is", PINGVIN_HOME)
     
     # test get_model
     model_host = 'https://gadgetrondata.blob.core.windows.net/cmr-ai-models/'
     model_file = 'CMR_landmark_network_RO_320_E1_320_CH2_CH3_CH4_Myo_Pts_sFOV_LossMultiSoftProb_KLD_Dice_Pytorch_1.8.0a0+37c1f4a_2021-08-08_20210808_085042.onnx'
-    model_dest = os.path.join(GT_PYTHON_DIR, 'cmr_lax_landmark_detection')
+    model_dest = os.path.join(PINGVIN_PYTHON_DIR, 'cmr_lax_landmark_detection')
     model_sha256 = '48efe3e70b1ff083c9dd0066469f62bf495e52857d68893296e7375b69f691e4'
     
     res = check_and_get_model(model_host, model_file, model_dest, model_sha256)

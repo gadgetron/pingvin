@@ -13,6 +13,7 @@ namespace po = boost::program_options;
 #include "nodes/Stream.h"
 #include "nodes/NodeProcessable.h"
 #include "nodes/Parallel.h"
+#include "nodes/ParallelProcess.h"
 #include "Channel.h"
 #include "ErrorHandler.h"
 
@@ -149,6 +150,7 @@ struct INodeBuilder {
     virtual ~INodeBuilder() = default;
     virtual std::shared_ptr<Gadgetron::Main::Processable> build(const C& ctx) const = 0;
     virtual void collect_options(po::options_description& parent) = 0;
+    virtual void dump_config(std::ostream& os, bool only_modified=false) = 0;
 };
 
 template <typename N, typename CTX>
@@ -173,6 +175,23 @@ public:
         }
     }
 
+    void dump_config(std::ostream& os, bool only_modified) override {
+        std::stringstream ss;
+        ss.imbue(std::locale::classic());
+        for (auto& p: parameters_.parameters()) {
+            if (!p->modified() && only_modified) {
+                continue;
+            }
+            p->print(ss);
+            ss << std::endl;
+        }
+        auto s = ss.str();
+        if (!s.empty()) {
+            os << "[" << parameters_.prefix() << "]" << std::endl;
+            os << s << std::endl;
+        }
+    }
+
 private:
     std::string label_;
     typename N::Parameters parameters_;
@@ -187,6 +206,12 @@ public:
     void collect_options(po::options_description& stream_desc) override {
         for (auto& nb: builders_) {
             nb->collect_options(stream_desc);
+        }
+    }
+
+    void dump_config(std::ostream& os, bool only_modified) {
+        for (auto& nb: builders_) {
+            nb->dump_config(os, only_modified);
         }
     }
 
@@ -214,6 +239,7 @@ struct IBranchBuilder {
     virtual ~IBranchBuilder() = default;
     virtual std::unique_ptr<Gadgetron::Core::Parallel::Branch> build(const CTX& ctx) const = 0;
     virtual void collect_options(po::options_description& parent) = 0;
+    virtual void dump_config(std::ostream& os, bool only_modified=false) = 0;
 };
 
 template <typename N, typename CTX>
@@ -237,6 +263,18 @@ public:
         }
     }
 
+    void dump_config(std::ostream& os, bool only_modified) override {
+        os << "[" << parameters_.prefix() << "]" << std::endl;
+        for (auto& p: parameters_.parameters()) {
+            if (!p->modified() && only_modified) {
+                continue;
+            }
+            p->print(os);
+            os << std::endl;
+        }
+        os << std::endl;
+    }
+
 private:
     std::string label_;
     typename N::Parameters parameters_;
@@ -247,6 +285,7 @@ struct IMergeBuilder {
     virtual ~IMergeBuilder() = default;
     virtual std::unique_ptr<Gadgetron::Core::Parallel::Merge> build(const CTX& ctx) const = 0;
     virtual void collect_options(po::options_description& parent) = 0;
+    virtual void dump_config(std::ostream& os, bool only_modified=false) = 0;
 };
 
 template <typename N, typename CTX>
@@ -268,6 +307,18 @@ public:
 
             parent.add(desc);
         }
+    }
+
+    void dump_config(std::ostream& os, bool only_modified) override {
+        os << "[" << parameters_.prefix() << "]" << std::endl;
+        for (auto& p: parameters_.parameters()) {
+            if (!p->modified() && only_modified) {
+                continue;
+            }
+            p->print(os);
+            os << std::endl;
+        }
+        os << std::endl;
     }
 
 private:
@@ -330,7 +381,7 @@ public:
         return std::make_shared<Gadgetron::Main::Nodes::Parallel>(std::move(branch), std::move(merge), streams);
     }
 
-    virtual void collect_options(po::options_description& parent) {
+    void collect_options(po::options_description& parent) override {
         if (!branch_builder_) {
             throw std::runtime_error("No branch specified");
         }
@@ -344,13 +395,116 @@ public:
         merge_builder_->collect_options(parent);
     }
 
+    void dump_config(std::ostream& os, bool only_modified) override {
+        branch_builder_->dump_config(os, only_modified);
+        for (auto& stream_builder_: stream_builders_) {
+            stream_builder_.dump_config(os, only_modified);
+        }
+        merge_builder_->dump_config(os, only_modified);
+    }
+
 private:
     PipelineBuilder<CTX>& parent_;
-    std::string label_;
 
     std::unique_ptr<IBranchBuilder<CTX>> branch_builder_;
     std::unique_ptr<IMergeBuilder<CTX>> merge_builder_;
     std::vector<StreamBuilder<CTX>> stream_builders_;
+};
+
+template <typename CTX>
+struct IPureNodeBuilder {
+    virtual ~IPureNodeBuilder() = default;
+    virtual std::unique_ptr<Gadgetron::Core::GenericPureGadget> build(const CTX& ctx) const = 0;
+    virtual void collect_options(po::options_description& parent) = 0;
+    virtual void dump_config(std::ostream& os, bool only_modified=false) = 0;
+};
+
+template <typename N, typename CTX>
+class PureNodeBuilder : public IPureNodeBuilder<CTX> {
+public:
+    PureNodeBuilder(const std::string& label): label_(label), parameters_(label) {}
+
+    std::unique_ptr<Gadgetron::Core::GenericPureGadget> build(const CTX& ctx) const override {
+        return std::move(std::make_unique<N>(ctx, this->parameters_));
+    }
+
+    void collect_options(po::options_description& parent) override {
+        po::options_description desc(parameters_.description());
+
+        if (parameters_.parameters().size() > 0) {
+            for (auto& p: parameters_.parameters()) {
+                desc.add(p->as_boost_option());
+            }
+
+            parent.add(desc);
+        }
+    }
+
+    void dump_config(std::ostream& os, bool only_modified) override {
+        os << "[" << parameters_.prefix() << "]" << std::endl;
+        for (auto& p: parameters_.parameters()) {
+            if (!p->modified() && only_modified) {
+                continue;
+            }
+            p->print(os);
+            os << std::endl;
+        }
+        os << std::endl;
+    }
+
+private:
+    std::string label_;
+    typename N::Parameters parameters_;
+};
+
+template <typename CTX>
+class ParallelProcessBuilder : public INodeBuilder<CTX> {
+public:
+    ParallelProcessBuilder(PipelineBuilder<CTX>& parent)
+        : parent_(parent)
+    {}
+
+    template <typename N>
+    ParallelProcessBuilder& withPureNode(const std::string& label) {
+        auto nb = std::make_shared<PureNodeBuilder<N, CTX>>(label);
+        builders_.emplace_back(nb);
+        return *this;
+    }
+
+    PipelineBuilder<CTX>& withWorkers(size_t workers) {
+        workers_ = workers;
+        return parent_;
+    }
+
+    virtual std::shared_ptr<Gadgetron::Main::Processable> build(const CTX& ctx) const override {
+        std::vector<std::shared_ptr<Gadgetron::Core::GenericPureGadget>> pure_gadgets;
+        for (auto& builder : builders_) {
+            auto node = builder->build(ctx);
+            pure_gadgets.emplace_back(std::move(node));
+        }
+
+        Gadgetron::Main::Nodes::PureStream pure_stream(pure_gadgets);
+
+        return std::make_shared<Gadgetron::Main::Nodes::ParallelProcess>(pure_stream, workers_);
+    }
+
+    void collect_options(po::options_description& parent) override {
+        for (auto& builder: builders_) {
+            builder->collect_options(parent);
+        }
+    }
+
+    void dump_config(std::ostream& os, bool only_modified) override {
+        for (auto& builder: builders_) {
+            builder->dump_config(os, only_modified);
+        }
+    }
+
+private:
+    PipelineBuilder<CTX>& parent_;
+    size_t workers_;
+
+    std::vector<std::shared_ptr<IPureNodeBuilder<CTX>>> builders_;
 };
 
 
@@ -366,13 +520,18 @@ class ErrorThrower : public Gadgetron::Main::ErrorReporter
 class Pipeline;
 
 struct IPipelineBuilder {
-    IPipelineBuilder(const std::string& name, const std::string& description): name(name), description(description) { }
+    IPipelineBuilder(const std::string& name, const std::string& description): name_(name), description_(description) { }
     virtual Pipeline build(std::istream& input_stream, std::ostream& output_stream) = 0;
     virtual po::options_description collect_options(void) = 0;
+    virtual void dump_config(std::ostream& os, bool only_modified = false) = 0;
     virtual ~IPipelineBuilder() = default;
 
-    const std::string name;
-    const std::string description;
+    std::string name(void) const { return name_; }
+    std::string description(void) const { return description_; }
+
+protected:
+    std::string name_;
+    std::string description_;
 };
 
 
@@ -454,6 +613,13 @@ struct PipelineBuilder : public IPipelineBuilder{
     PipelineBuilder(const std::string& pipeline_name, const std::string& pipeline_description)
         : IPipelineBuilder(pipeline_name, pipeline_description) {}
 
+    PipelineBuilder duplicate(const std::string& pipeline_name, const std::string& pipeline_description) const {
+        auto pb = *this;
+        pb.name_ = pipeline_name;
+        pb.description_ = pipeline_description;
+        return std::move(pb);
+    }
+
     template <typename N>
     PipelineBuilder& withSource(void) {
         source_builder_ = [](std::istream& is) { return std::make_shared<N>(is); };
@@ -478,14 +644,23 @@ struct PipelineBuilder : public IPipelineBuilder{
         auto pb = std::make_shared<ParallelBuilder<CTX>>(*this);
         streambuilder_.append(pb);
         return pb->template withBranch<N>(label);
-        // return *pb;
     }
 
+    ParallelProcessBuilder<CTX>& withParallelProcessStream(void) {
+        auto pb = std::make_shared<ParallelProcessBuilder<CTX>>(*this);
+        streambuilder_.append(pb);
+        return *pb;
+    } 
+
     po::options_description collect_options(void) override {
-        po::options_description pipeline_desc(this->description);
+        po::options_description pipeline_desc(this->description_);
 
         streambuilder_.collect_options(pipeline_desc);
         return pipeline_desc;
+    }
+
+    void dump_config(std::ostream& os, bool only_modified) override {
+        streambuilder_.dump_config(os, only_modified);
     }
 
     Pipeline build(std::istream& input_stream, std::ostream& output_stream) override {

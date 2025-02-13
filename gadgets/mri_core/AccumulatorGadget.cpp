@@ -28,8 +28,7 @@ AccumulatorGadget::AccumulatorGadget(const Core::MrdContext& context, const Para
     auto h = (context.header);
     if (h.encoding.size() != 1) {
         GDEBUG("Number of encoding spaces: %d\n", h.encoding.size());
-        GDEBUG("This simple AccumulatorGadget only supports one encoding space\n");
-        // TODO: How to throw Gadget failures?
+        GADGET_THROW("This simple AccumulatorGadget only supports one encoding space");
     }
 
     mrd::EncodingSpaceType e_space = h.encoding[0].encoded_space;

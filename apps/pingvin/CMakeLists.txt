@@ -1,20 +1,10 @@
-find_package(PugiXML REQUIRED)
-
 configure_file(pingvin_config.in pingvin_config.h)
 
 add_executable(pingvin
-        main.cpp
+        main.cc
+
         initialization.cpp
-        initialization.h
         system_info.cpp
-
-        Loader.cpp
-        Loader.h
-
-        Config.cpp
-        Config.h
-
-        StreamConsumer.h
 
         ErrorHandler.h
 
@@ -23,6 +13,7 @@ add_executable(pingvin
 
         nodes/Stream.cpp
         nodes/Stream.h
+        nodes/NodeProcessable.h
         nodes/Parallel.cpp
         nodes/Parallel.h
         nodes/ParallelProcess.cpp
@@ -33,14 +24,15 @@ add_executable(pingvin
 
 target_link_libraries(pingvin
         pingvin_core
-        pingvin_toolbox_log
-        pingvin_toolbox_mri_core
+        pingvin_core_parallel
+        pingvin_mricore
+        pingvin_epi
+        pingvin_grappa
+        pingvin_cmr
+        pingvin_examples
         Boost::system
-        Boost::filesystem
         Boost::program_options
-        ${PUGIXML_LIBRARIES}
-        GTBLAS
-        ${CMAKE_DL_LIBS})
+        GTBLAS)
 
 target_include_directories(pingvin
         PRIVATE
@@ -64,3 +56,6 @@ if (GPERFTOOLS_PROFILER)
 endif ()
 
 install(TARGETS pingvin DESTINATION bin COMPONENT main)
+
+file(GLOB_RECURSE PIPELINE_CONFIG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/pipelines/config/*.conf)
+install(FILES ${PIPELINE_CONFIG_FILES} DESTINATION ${PINGVIN_INSTALL_CONFIG_PATH} COMPONENT main)

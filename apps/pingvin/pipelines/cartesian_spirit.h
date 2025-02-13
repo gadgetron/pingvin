@@ -21,11 +21,31 @@
 
 namespace pingvin {
 
+static auto cartesian_spirit = PipelineBuilder<MrdContext>("cartesian-spirit", "Cartesian SPIRIT Recon")
+        .withSource<MrdSource>()
+        .withSink<MrdSink>()
+        .withNode<NoiseAdjustGadget>("noise")
+        .withNode<AsymmetricEchoAdjustROGadget>("echo-adjust")
+        .withNode<RemoveROOversamplingGadget>("ros")
+        .withNode<AcquisitionAccumulateTriggerGadget>("acctrig")
+        .withNode<BucketToBufferGadget>("buffer")
+        .withNode<GenericReconCartesianReferencePrepGadget>("refprep")
+        .withNode<GenericReconEigenChannelGadget>("coilcomp")
+        .withNode<GenericReconCartesianSpiritGadget>("spirit")
+        .withNode<GenericReconPartialFourierHandlingFilterGadget>("partial-fourier")
+        .withNode<GenericReconKSpaceFilteringGadget>("kspace-filter")
+        .withNode<GenericReconFieldOfViewAdjustmentGadget>("fov-adjust")
+        .withNode<GenericReconImageArrayScalingGadget>("scale")
+        .withNode<ImageArraySplitGadget>("split")
+        .withNode<ComplexToFloatGadget>("complex-to-float")
+        .withNode<FloatToFixedPointGadget>("convert")
+        ;
+
 static auto cartesian_spirit_nonlinear = PipelineBuilder<MrdContext>("cartesian-nonlinear-spirit", "Cartesian NonLinear Spirit RealTimeCine")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<NoiseAdjustGadget>("noise")
-        .withNode<AsymmetricEchoAdjustROGadget>("asymmetric-echo")
+        .withNode<AsymmetricEchoAdjustROGadget>("echo-adjust")
         .withNode<RemoveROOversamplingGadget>("ros")
         .withNode<AcquisitionAccumulateTriggerGadget>("acctrig")
         .withNode<BucketToBufferGadget>("buffer")

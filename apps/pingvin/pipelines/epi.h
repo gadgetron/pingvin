@@ -22,7 +22,7 @@ namespace pingvin {
   static auto epi_2d = PipelineBuilder<MrdContext>("epi", "Basic EPI Reconstruction")
                            .withSource<MrdSource>()
                            .withSink<MrdSink>()
-                           .withNode<NoiseAdjustGadget>("noise-adjust")
+                           .withNode<NoiseAdjustGadget>("noise")
                            .withNode<EPIReconXGadget>("reconx")
                            .withNode<EPICorrGadget>("epicorr")
                            .withNode<FFTXGadget>("fftx")
