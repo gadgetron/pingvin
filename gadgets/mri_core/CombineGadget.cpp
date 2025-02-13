@@ -54,5 +54,4 @@ namespace Gadgetron {
     mrd::AnyImage CombineGadget::process_function(mrd::AnyImage image) const {
         return visit([&](auto& image) -> mrd::AnyImage { return combine(image); }, image);
     }
-    GADGETRON_GADGET_EXPORT(CombineGadget);
 } // namespace Gadgetron

@@ -709,5 +709,4 @@ namespace Gadgetron {
         this->gt_streamer_.close_stream_buffer();
     }
 
-    GADGETRON_GADGET_EXPORT(GenericReconCartesianGrappaGadget)
 }

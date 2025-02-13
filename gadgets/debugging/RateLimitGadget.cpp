@@ -20,5 +20,4 @@ void RateLimitGadget::process(Core::InputChannel<mrd::StreamItem>& in, Core::Out
   }
 }
 
-GADGETRON_GADGET_EXPORT(RateLimitGadget)
 } // namespace Gadgetron

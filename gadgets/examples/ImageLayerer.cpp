@@ -60,6 +60,4 @@ namespace Gadgetron::Examples {
             output.push(std::move(merged));
         }
     }
-
-    GADGETRON_MERGE_EXPORT(ImageLayerer)
 }

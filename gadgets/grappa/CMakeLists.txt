@@ -2,12 +2,9 @@ set(RTGRAPPA_SOURCES
         ImageAccumulator.cpp
         WeightsCalculator.cpp
         Unmixing.cpp
-        AcquisitionFanout.cpp
         SliceAccumulator.cpp
         common/AcquisitionBuffer.cpp
         common/AcquisitionBuffer.h
-        common/grappa_common.h
-        common/AnnotatedAcquisition.h
         cpu/WeightsCore.cpp
         cpu/WeightsCore.h)
 

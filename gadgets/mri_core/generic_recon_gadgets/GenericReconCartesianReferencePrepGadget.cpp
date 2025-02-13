@@ -305,5 +305,4 @@ namespace Gadgetron {
         if (params_.perform_timing) { gt_timer_.stop(); }
     }
 
-    GADGETRON_GADGET_EXPORT(GenericReconCartesianReferencePrepGadget)
 }

@@ -274,6 +274,5 @@ namespace Gadgetron {
     }
     // ----------------------------------------------------------------------------------------
 
-    GADGETRON_GADGET_EXPORT(CmrParametricT2MappingGadget)
 
 }

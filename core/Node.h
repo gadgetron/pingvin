@@ -2,7 +2,6 @@
 
 #include "Parameters.h"
 #include "Channel.h"
-#include "PropertyMixin.h"
 #include "Context.h"
 #include <boost/dll/alias.hpp>
 
@@ -58,6 +57,3 @@ namespace Gadgetron::Core {
         MRChannelGadget(const MrdContext& context, const NodeParameters& parameters) {}
     };
 }
-
-/** TODO: Delete everywhere */
-#define GADGETRON_GADGET_EXPORT(GadgetClass)

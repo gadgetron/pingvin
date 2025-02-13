@@ -193,6 +193,5 @@ void MaxwellCorrectionGadget::process(Core::InputChannel<mrd::Image<std::complex
     }
 }
 
-GADGETRON_GADGET_EXPORT(MaxwellCorrectionGadget)
 
 } // namespace Gadgetron

@@ -77,5 +77,4 @@ namespace Gadgetron {
             out.push(std::move(acq));
         }
     }
-    GADGETRON_GADGET_EXPORT(AsymmetricEchoAdjustROGadget)
 } // namespace Gadgetron

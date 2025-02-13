@@ -211,5 +211,4 @@ FlagTriggerGadget::FlagTriggerGadget(const Core::MrdContext& context, const Para
     this->predicate = create_trigger_filter(parameters_.trigger_flags);
 }
 
-GADGETRON_GADGET_EXPORT(FlagTriggerGadget);
 }

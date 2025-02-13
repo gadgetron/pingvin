@@ -4,7 +4,7 @@
 #include <set>
 #include <functional>
 
-#include "AnnotatedAcquisition.h"
+#include "mrd/types.h"
 
 #include "Channel.h"
 
@@ -16,7 +16,7 @@ namespace Gadgetron::Grappa {
     public:
         explicit AcquisitionBuffer(const mrd::Header& header);
 
-        void add(const AnnotatedAcquisition &acquisition);
+        void add(const mrd::Acquisition& acquisition);
 
         template<class T>
         void add(const T &acquisitions) {
@@ -38,8 +38,8 @@ namespace Gadgetron::Grappa {
 
         std::array<uint16_t,4> region_of_support(size_t index) const;
 
-        void add_pre_update_callback(std::function<void(const AnnotatedAcquisition &)> fn);
-        void add_post_update_callback(std::function<void(const AnnotatedAcquisition &)> fn);
+        void add_pre_update_callback(std::function<void(const mrd::Acquisition &)> fn);
+        void add_post_update_callback(std::function<void(const mrd::Acquisition &)> fn);
 
     private:
         const mrd::Header header_;
@@ -62,7 +62,7 @@ namespace Gadgetron::Grappa {
 
         const int minimum_calibration_region = 8;
 
-        std::vector<std::function<void(const AnnotatedAcquisition &)>> pre_update_callbacks;
-        std::vector<std::function<void(const AnnotatedAcquisition &)>> post_update_callbacks;
+        std::vector<std::function<void(const mrd::Acquisition &)>> pre_update_callbacks;
+        std::vector<std::function<void(const mrd::Acquisition &)>> post_update_callbacks;
     };
 }

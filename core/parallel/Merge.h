@@ -7,17 +7,14 @@
 #include "Channel.h"
 #include "Context.h"
 #include "Parameters.h"
-#include "PropertyMixin.h"
 
 namespace Gadgetron::Core::Parallel {
 
-    class Merge : public PropertyMixin {
+    class Merge {
     public:
         struct Parameters : NodeParameters {
             using NodeParameters::NodeParameters;
         };
-
-        explicit Merge(const GadgetProperties &props);
 
         virtual ~Merge() = default;
         virtual void process(std::map<std::string, GenericInputChannel>, OutputChannel) = 0;
@@ -28,10 +25,6 @@ namespace Gadgetron::Core::Parallel {
     public:
         using Merge::Merge;
 
-        MRMerge(const MrdContext& context, const NodeParameters& parameters)
-            : Merge(Core::GadgetProperties{}) {}
+        MRMerge(const MrdContext& context, const NodeParameters& parameters) {}
     };
 }
-
-/** TODO: Delete everywhere */
-#define GADGETRON_MERGE_EXPORT(MergeClass)

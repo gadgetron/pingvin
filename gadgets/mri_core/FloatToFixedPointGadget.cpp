@@ -96,5 +96,4 @@ namespace Gadgetron
         }
     }
 
-    GADGETRON_GADGET_EXPORT(FloatToFixedPointGadget)
 }

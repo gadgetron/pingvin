@@ -635,6 +635,5 @@ namespace Gadgetron {
         v = boost::any(d);
     }
 
-    GADGETRON_GADGET_EXPORT(BucketToBufferGadget)
 
 } // namespace Gadgetron

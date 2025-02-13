@@ -646,5 +646,4 @@ namespace Gadgetron {
         }
     }
 
-    GADGETRON_GADGET_EXPORT(GenericReconCartesianNonLinearSpirit2DTGadget)
 }

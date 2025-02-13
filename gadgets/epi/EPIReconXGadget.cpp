@@ -132,7 +132,6 @@ namespace Gadgetron {
         }
     }
 
-    GADGETRON_GADGET_EXPORT(EPIReconXGadget)
 
 } // namespace Gadgetron
 

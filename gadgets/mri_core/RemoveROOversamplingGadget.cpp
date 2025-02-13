@@ -83,6 +83,5 @@ RemoveROOversamplingGadget::RemoveROOversamplingGadget(const Core::MrdContext& c
     }
 }
 
-GADGETRON_GADGET_EXPORT(RemoveROOversamplingGadget)
 
 } // namespace Gadgetron

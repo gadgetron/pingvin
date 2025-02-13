@@ -220,5 +220,4 @@ namespace Gadgetron {
         acq.data = data_out;
     }
 
-    GADGETRON_GADGET_EXPORT(PCACoilGadget)
 }

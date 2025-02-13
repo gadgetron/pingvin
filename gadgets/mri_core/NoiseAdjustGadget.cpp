@@ -421,6 +421,5 @@ namespace Gadgetron {
         return std::nullopt;
     }
 
-GADGETRON_GADGET_EXPORT(NoiseAdjustGadget)
 
 } // namespace Gadgetron

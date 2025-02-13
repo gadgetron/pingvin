@@ -667,5 +667,4 @@ namespace Gadgetron {
         out.push(std::move(res));
     }
 
-    GADGETRON_GADGET_EXPORT(GenericReconGadget)
 }

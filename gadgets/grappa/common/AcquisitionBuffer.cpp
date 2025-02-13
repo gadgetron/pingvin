@@ -1,5 +1,3 @@
-#include "AcquisitionBuffer.h"
-
 #include <map>
 #include <set>
 
@@ -7,7 +5,7 @@
 
 #include "hoNDArray.h"
 
-#include "grappa_common.h"
+#include "AcquisitionBuffer.h"
 
 #include <range/v3/algorithm/max_element.hpp>
 #include <range/v3/numeric.hpp>
@@ -58,11 +56,10 @@ namespace Gadgetron::Grappa {
         buffers = std::map<size_t, buffer>{};
     }
 
-    void AcquisitionBuffer::add(const AnnotatedAcquisition &acquisition) {
+    void AcquisitionBuffer::add(const mrd::Acquisition &acq) {
 
-        for (auto &fn : pre_update_callbacks) fn(acquisition);
+        for (auto &fn : pre_update_callbacks) fn(acq);
 
-        auto& acq = std::get<mrd::Acquisition>(acquisition);
         auto &header = acq.head;
         const auto &data = acq.data;
 
@@ -91,7 +88,7 @@ namespace Gadgetron::Grappa {
             buffer.data(slice,current_line,channel) = data(slice,channel);
         }
 
-        for (auto &fn : post_update_callbacks) fn(acquisition);
+        for (auto &fn : post_update_callbacks) fn(acq);
     }
 
     hoNDArray<std::complex<float>> AcquisitionBuffer::take(size_t index) {
@@ -150,11 +147,11 @@ namespace Gadgetron::Grappa {
     }
 
 
-    void AcquisitionBuffer::add_pre_update_callback(std::function<void(const AnnotatedAcquisition &)> fn) {
+    void AcquisitionBuffer::add_pre_update_callback(std::function<void(const mrd::Acquisition &)> fn) {
         pre_update_callbacks.emplace_back(std::move(fn));
     }
 
-    void AcquisitionBuffer::add_post_update_callback(std::function<void(const AnnotatedAcquisition &)> fn) {
+    void AcquisitionBuffer::add_post_update_callback(std::function<void(const mrd::Acquisition &)> fn) {
         post_update_callbacks.emplace_back(std::move(fn));
     }
 }

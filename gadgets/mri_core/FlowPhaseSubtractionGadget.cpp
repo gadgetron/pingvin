@@ -59,5 +59,4 @@ void FlowPhaseSubtractionGadget::process(Core::InputChannel<mrd::Image<std::comp
     }
 }
 
-GADGETRON_GADGET_EXPORT(FlowPhaseSubtractionGadget)
 } // namespace Gadgetron

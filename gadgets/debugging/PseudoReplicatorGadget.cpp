@@ -28,5 +28,4 @@ void PseudoReplicatorGadget::process(Core::InputChannel<mrd::ReconData>& input, 
 	}
 }
 
-GADGETRON_GADGET_EXPORT(PseudoReplicatorGadget)
 } // namespace Gadgetron

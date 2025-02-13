@@ -33,7 +33,6 @@ namespace {
 
 } // namespace
 
-GADGETRON_GADGET_EXPORT(ScaleGadget)
 
 PercentileScaleImageTypes ScaleGadget::process_function(PercentileScaleImageTypes args) const {
     return std::visit([&](auto image) { return PercentileScaleImageTypes(autoscale(image, parameters_.max_value, parameters_.percentile)); },

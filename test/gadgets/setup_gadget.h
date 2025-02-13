@@ -6,7 +6,6 @@
 #include "Channel.h"
 #include "Context.h"
 #include "Node.h"
-#include "PropertyMixin.h"
 #include <mrd/types.h>
 #include <array>
 #include <thread>

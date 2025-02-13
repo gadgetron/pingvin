@@ -32,7 +32,6 @@ The **NODE_PROPERTY** macro defines a variable on the AutoScaleGadget which can 
 .. literalinclude:: ../../gadgets/mri_core/AutoScaleGadget.cpp
     :language: cpp
 
-Note the **GADGETRON_GADGET_EXPORT** declaration, which produces the code causing the AutoScaleGadget to be loadable by Pingvin.
 
 
 ChannelGadget
@@ -141,5 +140,4 @@ We want to gather acquisitions until we have enough for a (possibly undersampled
             const mrd::Header header;
     };
 
-    GADGETRON_GADGET_EXPORT(SimpleRecon)
 

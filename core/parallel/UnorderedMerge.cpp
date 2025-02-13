@@ -18,8 +18,6 @@ namespace {
 
 namespace Gadgetron::Core::Parallel {
 
-    UnorderedMerge::UnorderedMerge(const Context &, const GadgetProperties &props) : Merge(props) {}
-
     void UnorderedMerge::process(std::map<std::string, GenericInputChannel> input, OutputChannel output) {
 
         std::vector<std::thread> threads;
@@ -36,7 +34,5 @@ namespace Gadgetron::Core::Parallel {
 
         for (auto &thread : threads) thread.join();
     }
-
-    GADGETRON_MERGE_EXPORT(UnorderedMerge)
 }
 

@@ -1,7 +1,5 @@
 #include "WeightsCore.h"
 
-#include "../common/grappa_common.h"
-
 #include "cuNDArray.h"
 #include "htgrappa.h"
 #include "b1_map.h"

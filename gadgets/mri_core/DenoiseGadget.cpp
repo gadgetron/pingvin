@@ -34,5 +34,4 @@ namespace Gadgetron {
         return std::move(image_array);
     }
 
-    GADGETRON_GADGET_EXPORT(DenoiseGadget)
 }

@@ -42,7 +42,6 @@ install(FILES
         Context.h
         Node.h
         PureGadget.h
-        PropertyMixin.h
         ChannelAlgorithms.h
         Process.h
         DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)

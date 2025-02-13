@@ -425,5 +425,4 @@ namespace Gadgetron {
         return GADGET_OK;
     }
 
-    GADGETRON_GADGET_EXPORT(CmrCartesianKSpaceBinningCineGadget)
 }

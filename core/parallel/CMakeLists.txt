@@ -1,13 +1,7 @@
-
 add_library(pingvin_core_parallel SHARED
         Branch.h
-		Branch.hpp
-		Branch.cpp
 		Merge.h
-		Merge.cpp
 		Fanout.h
-		Fanout.hpp
-		Fanout.cpp
 		UnorderedMerge.h
 		UnorderedMerge.cpp)
 
@@ -28,8 +22,7 @@ install(TARGETS pingvin_core_parallel
 
 install(FILES
         Branch.h
-        Branch.hpp
         Merge.h
         Fanout.h
-        Fanout.hpp
+        UnorderedMerge.h
         DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)

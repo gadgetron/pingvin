@@ -237,5 +237,4 @@ void WhiteNoiseInjectorGadget::process(Core::InputChannel<mrd::Acquisition>& in,
     }
 }
 
-GADGETRON_GADGET_EXPORT(WhiteNoiseInjectorGadget)
 }

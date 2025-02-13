@@ -88,5 +88,4 @@ void EPIPackNavigatorGadget::process(Core::InputChannel<mrd::Acquisition>& input
     }
 }
 
-GADGETRON_GADGET_EXPORT(EPIPackNavigatorGadget)
 } // namespace Gadgetron

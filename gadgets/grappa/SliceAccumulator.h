@@ -3,17 +3,16 @@
 #include <vector>
 
 #include "Node.h"
-#include "common/AnnotatedAcquisition.h"
 
 namespace Gadgetron::Grappa {
 
-    using Slice = std::vector<AnnotatedAcquisition>;
+    using Slice = std::vector<mrd::Acquisition>;
 
-    class SliceAccumulator : public Core::MRChannelGadget<AnnotatedAcquisition> {
+    class SliceAccumulator : public Core::MRChannelGadget<mrd::Acquisition> {
     public:
-        using Core::MRChannelGadget<AnnotatedAcquisition>::MRChannelGadget;
+        using Core::MRChannelGadget<mrd::Acquisition>::MRChannelGadget;
 
-        void process(Core::InputChannel<AnnotatedAcquisition> &in, Core::OutputChannel &out) override;
+        void process(Core::InputChannel<mrd::Acquisition> &in, Core::OutputChannel &out) override;
     };
 }
 

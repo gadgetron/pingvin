@@ -57,5 +57,4 @@ void ImageArraySplitGadget::process(Core::InputChannel<ImageOrImageArray>& in, C
     }
 }
 
-GADGETRON_GADGET_EXPORT(ImageArraySplitGadget);
 } // namespace Gadgetron

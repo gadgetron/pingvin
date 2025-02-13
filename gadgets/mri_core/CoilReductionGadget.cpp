@@ -89,5 +89,4 @@ void CoilReductionGadget::process(Core::InputChannel<mrd::Acquisition>& in, Core
         out.push(std::move(acq));
     }
 }
-GADGETRON_GADGET_EXPORT(CoilReductionGadget)
 }

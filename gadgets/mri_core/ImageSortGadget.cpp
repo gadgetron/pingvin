@@ -54,5 +54,4 @@ namespace Gadgetron {
           images_.clear();
         }
     }
-    GADGETRON_GADGET_EXPORT(ImageSortGadget);
 }

@@ -18,12 +18,10 @@ namespace {
 
 
     Grappa::Image create_reconstruction_job(
-            const AnnotatedAcquisition &first,
-            const AnnotatedAcquisition &last,
+            const mrd::Acquisition &first_acq,
+            const mrd::Acquisition &last_acq,
             AcquisitionBuffer &buffer
     ) {
-        auto &first_acq = std::get<mrd::Acquisition>(first);
-        auto &last_acq = std::get<mrd::Acquisition>(last);
         auto slice = last_acq.head.idx.slice.value_or(0);
 
         Grappa::Image image{};
@@ -50,12 +48,11 @@ namespace Gadgetron::Grappa {
 
         for (auto slice : in) {
 
-            slice = std::move(slice) | ranges::actions::remove_if([](auto& acq){return std::get<mrd::Acquisition>(acq).head.flags.HasFlags(mrd::AcquisitionFlags::kIsParallelCalibration);});
+            slice = std::move(slice) | ranges::actions::remove_if([](auto& acq){return acq.head.flags.HasFlags(mrd::AcquisitionFlags::kIsParallelCalibration);});
 
             buffer.add(slice);
             out.push(create_reconstruction_job(slice.front(), slice.back(), buffer));
         }
     }
 
-    GADGETRON_GADGET_EXPORT(ImageAccumulator);
 }

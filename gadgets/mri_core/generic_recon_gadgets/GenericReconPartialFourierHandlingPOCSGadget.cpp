@@ -25,5 +25,4 @@ hoNDArray<std::complex<float>> GenericReconPartialFourierHandlingPOCSGadget::per
 
 }
 
-GADGETRON_GADGET_EXPORT(GenericReconPartialFourierHandlingPOCSGadget)
 }

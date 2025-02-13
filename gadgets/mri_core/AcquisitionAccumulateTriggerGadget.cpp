@@ -170,7 +170,6 @@ namespace Gadgetron {
         send_data(out, buckets, waveforms);
     }
 
-    GADGETRON_GADGET_EXPORT(AcquisitionAccumulateTriggerGadget);
 
     namespace {
         const std::map<std::string, TriggerDimension> triggerdimension_from_name = {

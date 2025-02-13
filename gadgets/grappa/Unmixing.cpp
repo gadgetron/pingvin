@@ -51,7 +51,6 @@ namespace {
 }
 
 namespace Gadgetron::Grappa {
-    GADGETRON_MERGE_EXPORT(Unmixing);
 
     void Unmixing::process(
             std::map<std::string, Core::GenericInputChannel> input,

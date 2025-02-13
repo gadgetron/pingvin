@@ -125,5 +125,4 @@ void AccumulatorGadget::process(Core::InputChannel<mrd::Acquisition>& in, Core::
         }
     }
 }
-GADGETRON_GADGET_EXPORT(AccumulatorGadget)
 } // namespace Gadgetron

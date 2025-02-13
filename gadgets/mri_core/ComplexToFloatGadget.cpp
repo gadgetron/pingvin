@@ -42,5 +42,4 @@ mrd::Image<float> ComplexToFloatGadget::process_function(
     return out;
 }
 
-GADGETRON_GADGET_EXPORT(ComplexToFloatGadget)
 }

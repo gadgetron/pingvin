@@ -18,6 +18,4 @@ namespace Gadgetron::Examples {
             channel.push(std::move(acq_or_wav));
         }
     }
-
-    GADGETRON_BRANCH_EXPORT(AcquisitionWaveformBranch)
 }
