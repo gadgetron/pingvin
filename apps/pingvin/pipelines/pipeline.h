@@ -15,7 +15,6 @@ namespace po = boost::program_options;
 #include "nodes/Parallel.h"
 #include "nodes/ParallelProcess.h"
 #include "Channel.h"
-#include "ErrorHandler.h"
 
 #include "Node.h"
 #include "parallel/Branch.h"
@@ -507,15 +506,6 @@ private:
     std::vector<std::shared_ptr<IPureNodeBuilder<CTX>>> builders_;
 };
 
-
-class ErrorThrower : public Gadgetron::Main::ErrorReporter
-{
-  public:
-    void operator()(const std::string& location, const std::string& message) override {
-        throw std::runtime_error(("[" + location + "] ERROR: " + message));
-    }
-};
-
 // Forward declaration
 class Pipeline;
 
@@ -546,36 +536,26 @@ class Pipeline {
     void run(void) {
         auto input_channel = Gadgetron::Core::make_channel<Gadgetron::Core::MessageChannel>();
         auto output_channel = Gadgetron::Core::make_channel<Gadgetron::Core::MessageChannel>();
-        std::atomic<bool> processing = true;
 
         auto process_future = std::async(std::launch::async, [&]() {
-            try
-            {
-                ErrorThrower error_thrower;
-                Gadgetron::Main::ErrorHandler error_handler(error_thrower, std::string(__FILE__));
-                stream_->process(std::move(input_channel.input), std::move(output_channel.output), error_handler);
-                processing = false;
-            }
-            catch (const std::exception& exc)
-            {
-                {
-                    // Induce a ChannelClosed exception upon readers of the channel.
-                    auto destruct_me = std::move(output_channel.output);
-                }
-                processing = false;
+            try {
+                stream_->process(std::move(input_channel.input), std::move(output_channel.output));
+            } catch (const std::exception& exc) {
+                GERROR_STREAM("Exception in process_future: " << exc.what());
+                // Induce a ChannelClosed exception upon readers of the channel.
+                auto destruct_me = std::move(output_channel.output);
                 throw;
             }
         });
 
         auto input_future = std::async(std::launch::async, [&]() {
-            try
-            {
+            try {
                 source_->consume_input(input_channel);
-            }
-            catch(std::ios_base::failure& exc)
-            {
+            } catch(const std::exception& exc) {
+                GERROR_STREAM("Exception in input_future: " << exc.what());
                 // Induce a ChannelClosed exception upon readers of the channel.
                 auto destruct_me = std::move(input_channel.output);
+                throw;
             }
         });
 

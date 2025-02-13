@@ -18,8 +18,7 @@ namespace Gadgetron::Main::Nodes {
 
         void process(
                 Core::GenericInputChannel input,
-                Core::OutputChannel output,
-                ErrorHandler &
+                Core::OutputChannel output
         ) override;
 
         bool empty() const;

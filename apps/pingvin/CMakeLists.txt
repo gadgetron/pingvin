@@ -6,8 +6,6 @@ add_executable(pingvin
         initialization.cpp
         system_info.cpp
 
-        ErrorHandler.h
-
         nodes/Processable.h
         nodes/Processable.cpp
 

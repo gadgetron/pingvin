@@ -12,7 +12,7 @@ namespace Gadgetron::Main::Nodes {
         ParallelProcess(const PureStream& pureStream, size_t workers)
             : workers_(workers), pure_stream_(pureStream) {}
 
-        void process(Core::GenericInputChannel input, Core::OutputChannel output, ErrorHandler& error_handler) override;
+        void process(Core::GenericInputChannel input, Core::OutputChannel output) override;
         const std::string& name() override;
 
     private:

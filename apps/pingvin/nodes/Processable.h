@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ErrorHandler.h"
 #include "Channel.h"
 #include "Context.h"
 
@@ -15,8 +14,7 @@ namespace Gadgetron::Main {
 
         virtual void process(
                 Core::GenericInputChannel input,
-                Core::OutputChannel output,
-                ErrorHandler &error_handler
+                Core::OutputChannel output
         ) = 0;
 
         virtual const std::string& name() = 0;
@@ -24,8 +22,7 @@ namespace Gadgetron::Main {
         static std::thread process_async(
             std::shared_ptr<Processable> processable,
             Core::GenericInputChannel input,
-            Core::OutputChannel output,
-            const ErrorHandler &errorHandler
+            Core::OutputChannel output
         );
     };
 }

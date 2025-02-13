@@ -27,22 +27,22 @@ namespace Gadgetron::Main::Nodes {
     }
 
     void ParallelProcess::process(GenericInputChannel input,
-            OutputChannel output,
-            ErrorHandler& error_handler
+            OutputChannel output
     ) {
         Queue queue;
 
-        auto input_thread = error_handler.run(
+        std::thread input_thread(
                 [&](auto input) { this->process_input(std::move(input), queue); },
                 std::move(input)
         );
 
-        auto output_thread = error_handler.run(
+        std::thread output_thread(
                 [&](auto output) { this->process_output(std::move(output), queue); },
                 std::move(output)
         );
 
-        input_thread.join(); output_thread.join();
+        input_thread.join();
+        output_thread.join();
     }
 
     const std::string& ParallelProcess::name() {

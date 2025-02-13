@@ -55,11 +55,8 @@ namespace Gadgetron::Main::Nodes {
 
     void Parallel::process(
             InputChannel input,
-            OutputChannel output,
-            ErrorHandler &error_handler
+            OutputChannel output
     ) {
-        ErrorHandler nested_handler{error_handler, branch->key};
-
         std::vector<std::thread> threads;
         std::map<std::string, ChannelPair> input_channels;
         std::map<std::string, ChannelPair> output_channels;
@@ -68,7 +65,7 @@ namespace Gadgetron::Main::Nodes {
             emplace_channels(*stream, input_channels, output_channels);
         }
 
-        threads.emplace_back(nested_handler.run(
+        threads.emplace_back(std::thread(
                 [&](auto input, auto output, auto bypass) {
                     branch->process(std::move(input), std::move(output), std::move(bypass));
                 },
@@ -77,7 +74,7 @@ namespace Gadgetron::Main::Nodes {
                 split(output)
         ));
 
-        threads.emplace_back(nested_handler.run(
+        threads.emplace_back(std::thread(
                 [&](auto input, auto output) {
                     merge->process(std::move(input), std::move(output));
                 },
@@ -86,14 +83,14 @@ namespace Gadgetron::Main::Nodes {
         ));
 
         for (auto &stream : streams) {
-            threads.emplace_back(
-                    Processable::process_async(
-                            stream,
-                            std::move(input_channels.at(stream->key).input),
-                            std::move(output_channels.at(stream->key).output),
-                            nested_handler
-                    )
-            );
+            threads.emplace_back(std::thread(
+                    [&](auto stream, auto input, auto output) {
+                        stream->process(std::move(input), std::move(output));
+                    },
+                    stream,
+                    std::move(input_channels.at(stream->key).input),
+                    std::move(output_channels.at(stream->key).output)
+            ));
         }
 
         for (auto &thread : threads) { thread.join(); }

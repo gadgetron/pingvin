@@ -10,10 +10,7 @@ namespace Gadgetron::Main::Nodes {
 
     using namespace Gadgetron::Core;
 
-    void Stream::process(GenericInputChannel input,
-            OutputChannel output,
-            ErrorHandler &error_handler
-    ) {
+    void Stream::process(GenericInputChannel input, OutputChannel output) {
         if (empty()) return;
 
         std::vector<GenericInputChannel> input_channels{};
@@ -28,15 +25,19 @@ namespace Gadgetron::Main::Nodes {
 
         output_channels.emplace_back(std::move(output));
 
-        ErrorHandler nested_handler{error_handler, name()};
-
         std::vector<std::thread> threads(nodes.size());
         for (auto i = 0; i < nodes.size(); i++) {
-            threads[i] = Processable::process_async(
+            threads[i] = std::thread(
+                [](auto node, auto input_channel, auto output_channel) {
+                    try {
+                        node->process(std::move(input_channel), std::move(output_channel));
+                    } catch (const Core::ChannelClosed &e) {
+                        // Ignored
+                    }
+                },
                 nodes[i],
                 std::move(input_channels[i]),
-                std::move(output_channels[i]),
-                nested_handler
+                std::move(output_channels[i])
             );
         }
 

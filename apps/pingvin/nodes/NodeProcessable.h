@@ -9,8 +9,7 @@ public:
     NodeProcessable(const std::shared_ptr<Gadgetron::Core::Node>& node, std::string name) : node_(node), name_(std::move(name)) {}
 
     void process(Gadgetron::Core::GenericInputChannel input,
-            Gadgetron::Core::OutputChannel output,
-            Gadgetron::Main::ErrorHandler &
+            Gadgetron::Core::OutputChannel output
     ) override {
         node_->process(input, output);
     }

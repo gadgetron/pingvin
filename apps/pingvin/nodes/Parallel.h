@@ -27,8 +27,7 @@ namespace Gadgetron::Main::Nodes {
 
         void process(
                 Core::GenericInputChannel input,
-                Core::OutputChannel output,
-                ErrorHandler &error_handler
+                Core::OutputChannel output
         ) override;
 
         const std::string &name() override;
