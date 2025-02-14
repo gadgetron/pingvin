@@ -39,7 +39,7 @@ static auto grappa_denoise = PipelineBuilder<MrdContext>("cartesian-grappa-cine-
         .withNode<GenericReconKSpaceFilteringGadget>("kspace-filter")
         .withNode<GenericReconFieldOfViewAdjustmentGadget>("fov-adjust")
         .withNode<ImageArraySplitGadget>("split")
-        .withParallelProcessStream()
+        .withMultiprocessStream()
             .withPureNode<DenoiseGadget>("denoise")
             .withWorkers(6)
         .withNode<ComplexToFloatGadget>("complex-to-float")

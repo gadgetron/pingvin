@@ -1,20 +1,13 @@
-#include "Parallel.h"
+#include "ParallelStream.h"
 
 #include <map>
 #include <memory>
+#include <thread>
 
 #include "Channel.h"
 #include "Context.h"
 
 namespace {
-    using namespace Gadgetron::Core;
-    using namespace Gadgetron::Core::Parallel;
-    using namespace Gadgetron::Main;
-    using namespace Gadgetron::Main::Nodes;
-
-    using DecoratedBranch = Gadgetron::Main::Nodes::Parallel::DecoratedBranch;
-    using DecoratedMerge  = Gadgetron::Main::Nodes::Parallel::DecoratedMerge;
-
     template<class KEY, class VALUE, class F>
     auto transform_map(std::map<KEY, VALUE>& input, F f) {
         using TRANSFORMED = std::remove_reference_t<decltype(f(input.begin()->second))>;
@@ -28,9 +21,6 @@ namespace {
 
 namespace {
     using namespace Gadgetron::Core;
-    using namespace Gadgetron::Core::Parallel;
-    using namespace Gadgetron::Main;
-    using namespace Gadgetron::Main::Nodes;
 
     ChannelPair split(const ChannelPair &in) {
         return ChannelPair{ split(in.input), split(in.output) };
@@ -51,12 +41,9 @@ namespace {
     }
 }
 
-namespace Gadgetron::Main::Nodes {
+namespace Gadgetron::Core {
 
-    void Parallel::process(
-            InputChannel input,
-            OutputChannel output
-    ) {
+    void ParallelStream::process(GenericInputChannel& input, OutputChannel& output) {
         std::vector<std::thread> threads;
         std::map<std::string, ChannelPair> input_channels;
         std::map<std::string, ChannelPair> output_channels;
@@ -85,7 +72,7 @@ namespace Gadgetron::Main::Nodes {
         for (auto &stream : streams) {
             threads.emplace_back(std::thread(
                     [&](auto stream, auto input, auto output) {
-                        stream->process(std::move(input), std::move(output));
+                        stream->process(input, output);
                     },
                     stream,
                     std::move(input_channels.at(stream->key).input),
@@ -95,35 +82,4 @@ namespace Gadgetron::Main::Nodes {
 
         for (auto &thread : threads) { thread.join(); }
     }
-
-
-    const std::string &Parallel::name() {
-        static const std::string n = "Parallel";
-        return n;
-    }
-
-    void Parallel::DecoratedBranch::process(
-            InputChannel input,
-            std::map<std::string, OutputChannel> output,
-            OutputChannel bypass
-    ) {
-         branch->process(std::move(input), std::move(output), std::move(bypass));
-    }
-
-    Parallel::DecoratedBranch::DecoratedBranch(
-            std::unique_ptr<Branch> branch,
-            std::string key
-    ) : branch(std::move(branch)), key(std::move(key)) {}
-
-    void Parallel::DecoratedMerge::process(
-            std::map<std::string, InputChannel> input,
-            OutputChannel output
-    ) {
-         merge->process(std::move(input), std::move(output));
-    }
-
-    Parallel::DecoratedMerge::DecoratedMerge(
-            std::unique_ptr<Merge> merge,
-            std::string key
-    ) : merge(std::move(merge)), key(std::move(key)) {}
 }

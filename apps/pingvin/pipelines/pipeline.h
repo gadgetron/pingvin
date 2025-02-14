@@ -11,9 +11,8 @@ namespace po = boost::program_options;
 #include "system_info.h"
 
 #include "nodes/Stream.h"
-#include "nodes/NodeProcessable.h"
-#include "nodes/Parallel.h"
-#include "nodes/ParallelProcess.h"
+#include "nodes/ParallelStream.h"
+#include "nodes/MultiprocessStream.h"
 #include "Channel.h"
 
 #include "Node.h"
@@ -147,7 +146,7 @@ private:
 template <typename C>
 struct INodeBuilder {
     virtual ~INodeBuilder() = default;
-    virtual std::shared_ptr<Gadgetron::Main::Processable> build(const C& ctx) const = 0;
+    virtual std::shared_ptr<Gadgetron::Core::Node> build(const C& ctx) const = 0;
     virtual void collect_options(po::options_description& parent) = 0;
     virtual void dump_config(std::ostream& os, bool only_modified=false) = 0;
 };
@@ -157,9 +156,8 @@ class NodeBuilder : public INodeBuilder<CTX> {
 public:
     NodeBuilder(const std::string& label): label_(label), parameters_(label) {}
 
-    std::shared_ptr<Gadgetron::Main::Processable> build(const CTX& ctx) const override {
-        auto node = std::make_shared<N>(ctx, this->parameters_);
-        return std::make_shared<NodeProcessable>(node, label_);
+    std::shared_ptr<Gadgetron::Core::Node> build(const CTX& ctx) const override {
+        return std::make_shared<N>(ctx, this->parameters_);
     }
 
     void collect_options(po::options_description& parent) override {
@@ -214,14 +212,14 @@ public:
         }
     }
 
-    std::shared_ptr<Gadgetron::Main::Processable> build(const CTX& ctx) const override {
-        std::vector<std::shared_ptr<Gadgetron::Main::Processable>> processables;
+    std::shared_ptr<Gadgetron::Core::Node> build(const CTX& ctx) const override {
+        std::vector<std::shared_ptr<Gadgetron::Core::Node>> nodes;
         for (auto& builder : builders_) {
-            processables.emplace_back(
+            nodes.emplace_back(
                 builder->build(ctx)
             );
         }
-        return std::make_shared<Gadgetron::Main::Nodes::Stream>(processables, key_);
+        return std::make_shared<Gadgetron::Core::Stream>(nodes, key_);
     }
 
     void append(std::shared_ptr<INodeBuilder<CTX>> builder) {
@@ -362,7 +360,7 @@ public:
         return *this;
     }
 
-    virtual std::shared_ptr<Gadgetron::Main::Processable> build(const CTX& ctx) const override {
+    virtual std::shared_ptr<Gadgetron::Core::Node> build(const CTX& ctx) const override {
         if (!branch_builder_) {
             throw std::runtime_error("No branch specified");
         }
@@ -370,14 +368,14 @@ public:
             throw std::runtime_error("No merge specified");
         }
         auto branch = branch_builder_->build(ctx);
-        std::vector<std::shared_ptr<Gadgetron::Main::Nodes::Stream>> streams;
+        std::vector<std::shared_ptr<Gadgetron::Core::Stream>> streams;
         for (auto& stream_builder_: stream_builders_) {
-            auto stream = std::dynamic_pointer_cast<Gadgetron::Main::Nodes::Stream>(stream_builder_.build(ctx));
+            auto stream = std::dynamic_pointer_cast<Gadgetron::Core::Stream>(stream_builder_.build(ctx));
             streams.push_back(stream);
         }
         auto merge = merge_builder_->build(ctx);
 
-        return std::make_shared<Gadgetron::Main::Nodes::Parallel>(std::move(branch), std::move(merge), streams);
+        return std::make_shared<Gadgetron::Core::ParallelStream>(std::move(branch), std::move(merge), streams);
     }
 
     void collect_options(po::options_description& parent) override {
@@ -457,14 +455,14 @@ private:
 };
 
 template <typename CTX>
-class ParallelProcessBuilder : public INodeBuilder<CTX> {
+class MultiprocessStreamBuilder : public INodeBuilder<CTX> {
 public:
-    ParallelProcessBuilder(PipelineBuilder<CTX>& parent)
+    MultiprocessStreamBuilder(PipelineBuilder<CTX>& parent)
         : parent_(parent)
     {}
 
     template <typename N>
-    ParallelProcessBuilder& withPureNode(const std::string& label) {
+    MultiprocessStreamBuilder& withPureNode(const std::string& label) {
         auto nb = std::make_shared<PureNodeBuilder<N, CTX>>(label);
         builders_.emplace_back(nb);
         return *this;
@@ -475,16 +473,16 @@ public:
         return parent_;
     }
 
-    virtual std::shared_ptr<Gadgetron::Main::Processable> build(const CTX& ctx) const override {
+    virtual std::shared_ptr<Gadgetron::Core::Node> build(const CTX& ctx) const override {
         std::vector<std::shared_ptr<Gadgetron::Core::GenericPureGadget>> pure_gadgets;
         for (auto& builder : builders_) {
             auto node = builder->build(ctx);
             pure_gadgets.emplace_back(std::move(node));
         }
 
-        Gadgetron::Main::Nodes::PureStream pure_stream(pure_gadgets);
+        Gadgetron::Core::PureStream pure_stream(pure_gadgets);
 
-        return std::make_shared<Gadgetron::Main::Nodes::ParallelProcess>(pure_stream, workers_);
+        return std::make_shared<Gadgetron::Core::MultiprocessStream>(pure_stream, workers_);
     }
 
     void collect_options(po::options_description& parent) override {
@@ -527,7 +525,7 @@ protected:
 
 class Pipeline {
   public:
-    Pipeline(const std::shared_ptr<ISource>& source_, const std::shared_ptr<ISink>& sink_, const std::shared_ptr<Gadgetron::Main::Processable>& stream_)
+    Pipeline(const std::shared_ptr<ISource>& source_, const std::shared_ptr<ISink>& sink_, const std::shared_ptr<Gadgetron::Core::Node>& stream_)
         : source_(source_), sink_(sink_), stream_(stream_)
     {}
 
@@ -539,7 +537,8 @@ class Pipeline {
 
         auto process_future = std::async(std::launch::async, [&]() {
             try {
-                stream_->process(std::move(input_channel.input), std::move(output_channel.output));
+                // stream_->process(std::move(input_channel.input), std::move(output_channel.output));
+                stream_->process(input_channel.input, output_channel.output);
             } catch (const std::exception& exc) {
                 GERROR_STREAM("Exception in process_future: " << exc.what());
                 // Induce a ChannelClosed exception upon readers of the channel.
@@ -583,9 +582,7 @@ class Pipeline {
     std::shared_ptr<ISource> source_;
     std::shared_ptr<ISink> sink_;
 
-    std::shared_ptr<Gadgetron::Main::Processable> stream_;
-
-    std::vector<std::shared_ptr<Gadgetron::Main::Processable>> processables_;
+    std::shared_ptr<Gadgetron::Core::Node> stream_;
 };
 
 template <typename CTX>
@@ -626,8 +623,8 @@ struct PipelineBuilder : public IPipelineBuilder{
         return pb->template withBranch<N>(label);
     }
 
-    ParallelProcessBuilder<CTX>& withParallelProcessStream(void) {
-        auto pb = std::make_shared<ParallelProcessBuilder<CTX>>(*this);
+    MultiprocessStreamBuilder<CTX>& withMultiprocessStream(void) {
+        auto pb = std::make_shared<MultiprocessStreamBuilder<CTX>>(*this);
         streambuilder_.append(pb);
         return *pb;
     } 

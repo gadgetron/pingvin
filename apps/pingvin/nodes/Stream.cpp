@@ -1,16 +1,11 @@
 #include "Stream.h"
 
-#include "Parallel.h"
-#include "ParallelProcess.h"
-#include "Processable.h"
+#include <thread>
 
-#include "Node.h"
 
-namespace Gadgetron::Main::Nodes {
+namespace Gadgetron::Core {
 
-    using namespace Gadgetron::Core;
-
-    void Stream::process(GenericInputChannel input, OutputChannel output) {
+    void Stream::process(GenericInputChannel& input, OutputChannel& output) {
         if (empty()) return;
 
         std::vector<GenericInputChannel> input_channels{};
@@ -30,7 +25,7 @@ namespace Gadgetron::Main::Nodes {
             threads[i] = std::thread(
                 [](auto node, auto input_channel, auto output_channel) {
                     try {
-                        node->process(std::move(input_channel), std::move(output_channel));
+                        node->process(input_channel, output_channel);
                     } catch (const Core::ChannelClosed &e) {
                         // Ignored
                     }
@@ -47,9 +42,4 @@ namespace Gadgetron::Main::Nodes {
     }
 
     bool Stream::empty() const { return nodes.empty(); }
-}
-
-const std::string &Gadgetron::Main::Nodes::Stream::name() {
-    static const std::string name = "Stream";
-    return key.empty() ? name : key;
 }

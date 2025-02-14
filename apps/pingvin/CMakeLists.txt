@@ -6,16 +6,12 @@ add_executable(pingvin
         initialization.cpp
         system_info.cpp
 
-        nodes/Processable.h
-        nodes/Processable.cpp
-
         nodes/Stream.cpp
         nodes/Stream.h
-        nodes/NodeProcessable.h
-        nodes/Parallel.cpp
-        nodes/Parallel.h
-        nodes/ParallelProcess.cpp
-        nodes/ParallelProcess.h
+        nodes/ParallelStream.cpp
+        nodes/ParallelStream.h
+        nodes/MultiprocessStream.cpp
+        nodes/MultiprocessStream.h
         nodes/PureStream.cpp
         nodes/PureStream.h
         )

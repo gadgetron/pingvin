@@ -1,8 +1,9 @@
 #include "PureStream.h"
 
-Gadgetron::Core::Message Gadgetron::Main::Nodes::PureStream::process_function(
-    Gadgetron::Core::Message message
-) const {
+namespace Gadgetron::Core {
+
+Message PureStream::process_function(Message message) const
+{
     return std::accumulate(
             pure_gadgets_.begin(),
             pure_gadgets_.end(),
@@ -11,4 +12,6 @@ Gadgetron::Core::Message Gadgetron::Main::Nodes::PureStream::process_function(
                 return gadget->process_function(std::move(message));
             }
     );
+}
+
 }

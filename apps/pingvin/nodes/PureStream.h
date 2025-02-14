@@ -1,8 +1,9 @@
 #pragma once
+
 #include "Message.h"
 #include "PureGadget.h"
 
-namespace Gadgetron::Main::Nodes {
+namespace Gadgetron::Core {
     class PureStream {
     public:
         PureStream(const std::vector<std::shared_ptr<Core::GenericPureGadget>>& pure_gadgets)

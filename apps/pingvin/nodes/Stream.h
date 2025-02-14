@@ -3,28 +3,27 @@
 
 #include <memory>
 
-#include "Processable.h"
+#include "Node.h"
 
 #include "Channel.h"
 #include "Context.h"
 
-namespace Gadgetron::Main::Nodes {
+namespace Gadgetron::Core {
 
-    class Stream : public Processable {
+    class Stream : public Node {
     public:
         const std::string key;
 
-        Stream(std::vector<std::shared_ptr<Processable>> nodes, const std::string key=""): nodes(std::move(nodes)), key(key) {}
+        Stream(std::vector<std::shared_ptr<Node>> nodes, const std::string key=""): nodes(std::move(nodes)), key(key) {}
 
         void process(
-                Core::GenericInputChannel input,
-                Core::OutputChannel output
+                Core::GenericInputChannel& input,
+                Core::OutputChannel& output
         ) override;
 
         bool empty() const;
-        const std::string &name() override;
 
     private:
-        std::vector<std::shared_ptr<Processable>> nodes;
+        std::vector<std::shared_ptr<Node>> nodes;
     };
 }
