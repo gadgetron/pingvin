@@ -13,7 +13,7 @@ namespace Gadgetron {
 
 #define OE_PHASE_CORR_POLY_ORDER 4
 
-    EPICorrGadget::EPICorrGadget(const Core::MrdContext& context, const Parameters& params)
+    EPICorrGadget::EPICorrGadget(const Core::MRContext& context, const Parameters& params)
         : EPICorrGadget::MRChannelGadget(context, params)
         , parameters_(params)
         , corrComputed_(false), navNumber_(-1), epiEchoNumber_(-1)
@@ -178,7 +178,7 @@ namespace Gadgetron {
 
             // mean of the reference navigator (across RO and channels):
             std::complex<float> navMean = mean(vectorise(navdata_.slice(parameters_.referenceNavigatorNumber)));
-    
+
             // for clarity, we'll use the following when filtering navigator parameters:
             size_t set(hdr.idx.set.value_or(0)), slc(hdr.idx.slice.value_or(0)), exc(0);
             if (parameters_.navigatorParameterFilterLength > 1) {

@@ -75,7 +75,7 @@ add_library(pingvin_cmr SHARED
 set_target_properties(pingvin_cmr PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
 
 target_link_libraries(pingvin_cmr
-    pingvin_core
+    pingvin_mri
     pingvin_mricore
     pingvin_toolbox_log
     pingvin_toolbox_cpucore

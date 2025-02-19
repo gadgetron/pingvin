@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 
 namespace Gadgetron{
@@ -21,7 +21,7 @@ namespace Gadgetron{
             }
         };
 
-        AccumulatorGadget(const Core::MrdContext& context, const Parameters& params);
+        AccumulatorGadget(const Core::MRContext& context, const Parameters& params);
         void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& output) override;
 
       protected:

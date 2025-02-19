@@ -31,15 +31,6 @@ set(pingvin_mricore_header_files
         ImageIndexGadget.h
         AccumulatorGadget.h
         ScaleGadget.h
-
-        # These Gadgets are NOT TESTED and have not been upgraded to MRD v2
-        # CoilComputationGadget.h
-        # CropAndCombineGadget.h
-        # ImageAccumulatorGadget.h
-        # ImageFFTGadget.h
-        # ImageResizingGadget.h
-        # NoiseAdjustGadget_unoptimized.h
-        # PartialFourierAdjustROGadget.h
         )
 
 set(pingvin_mricore_src_files
@@ -74,15 +65,6 @@ set(pingvin_mricore_src_files
         ImageSortGadget.cpp
         MaxwellCorrectionGadget.cpp
         ScaleGadget.cpp
-
-        # These Gadgets are NOT TESTED and have not been upgraded to MRD v2
-        # CoilComputationGadget.cpp
-        # CropAndCombineGadget.cpp
-        # ImageAccumulatorGadget.cpp
-        # ImageFFTGadget.cpp
-        # ImageResizingGadget.cpp
-        # NoiseAdjustGadget_unoptimized.cpp
-        # PartialFourierAdjustROGadget.cpp
         )
 
 set(pingvin_mricore_config_files
@@ -106,14 +88,6 @@ set(pingvin_mricore_generic_recon_gadgets_header_files
         generic_recon_gadgets/GenericReconEigenChannelGadget.h
         generic_recon_gadgets/GenericReconNoiseStdMapComputingGadget.h
         generic_recon_gadgets/GenericReconStreamDef.h
-
-        # These Gadgets are NOT TESTED and have not been upgraded to MRD v2
-        # generic_recon_gadgets/GenericReconAccumulateImageTriggerGadget.h
-        # generic_recon_gadgets/GenericReconCartesianFFTGadget.h
-        # generic_recon_gadgets/GenericReconImageToImageArrayGadget.h
-        # generic_recon_gadgets/GenericReconReferenceKSpaceDelayedBufferGadget.h
-        # generic_recon_gadgets/GenericImageReconGadget.h
-        # generic_recon_gadgets/GenericImageReconArrayToImageGadget.h
 )
 
 set(pingvin_mricore_generic_recon_gadgets_src_files
@@ -130,14 +104,6 @@ set(pingvin_mricore_generic_recon_gadgets_src_files
         generic_recon_gadgets/GenericReconImageArrayScalingGadget.cpp
         generic_recon_gadgets/GenericReconEigenChannelGadget.cpp
         generic_recon_gadgets/GenericReconNoiseStdMapComputingGadget.cpp
-
-        # These Gadgets are NOT TESTED and have not been upgraded to MRD v2
-        # generic_recon_gadgets/GenericReconAccumulateImageTriggerGadget.cpp
-        # generic_recon_gadgets/GenericReconCartesianFFTGadget.cpp
-        # generic_recon_gadgets/GenericReconImageToImageArrayGadget.cpp
-        # generic_recon_gadgets/GenericReconReferenceKSpaceDelayedBufferGadget.cpp
-        # generic_recon_gadgets/GenericImageReconGadget.cpp
-        # generic_recon_gadgets/GenericImageReconArrayToImageGadget.cpp
 )
 
 set(pingvin_mricore_generic_recon_gadgets_config_files
@@ -188,7 +154,7 @@ add_library(pingvin_mricore SHARED
 set_target_properties(pingvin_mricore PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
 
 target_link_libraries(pingvin_mricore
-        pingvin_core
+        pingvin_mri
         pingvin_toolbox_log
         pingvin_toolbox_cpucore
         pingvin_toolbox_cpufft

@@ -2,6 +2,9 @@
 
 #include "Pipeline.h"
 
+#include "MRSource.h"
+#include "MRSink.h"
+
 #include "gadgets/mri_core/NoiseAdjustGadget.h"
 #include "gadgets/mri_core/PCACoilGadget.h"
 #include "gadgets/mri_core/CoilReductionGadget.h"
@@ -16,9 +19,9 @@ namespace Pingvin {
 
   using namespace Gadgetron;
 
-static auto default_mr = PipelineBuilder<Gadgetron::Core::MrdContext>("default", "Basic Cartesian Reconstruction")
-        .withSource<MrdSource>()
-        .withSink<MrdSink>()
+static auto default_mr = PipelineBuilder<Gadgetron::Core::MRContext>("default", "Basic Cartesian Reconstruction")
+        .withSource<MRSource>()
+        .withSink<MRSink>()
         .withNode<RemoveROOversamplingGadget>("ros")
         .withNode<AcquisitionAccumulateTriggerGadget>("acctrig")
         .withNode<BucketToBufferGadget>("buffer")
@@ -27,9 +30,9 @@ static auto default_mr = PipelineBuilder<Gadgetron::Core::MrdContext>("default",
         .withNode<ExtractGadget>("extract")
         ;
 
-static auto default_mr_optimized = PipelineBuilder<Gadgetron::Core::MrdContext>("default-optimized", "Basic Cartesian Reconstruction")
-        .withSource<MrdSource>()
-        .withSink<MrdSink>()
+static auto default_mr_optimized = PipelineBuilder<Gadgetron::Core::MRContext>("default-optimized", "Basic Cartesian Reconstruction")
+        .withSource<MRSource>()
+        .withSink<MRSink>()
         .withNode<NoiseAdjustGadget>("noise-adjust")
         .withNode<PCACoilGadget>("pca")
         .withNode<CoilReductionGadget>("coil-reduction")

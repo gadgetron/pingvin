@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PureGadget.h"
+#include "MRPureNode.h"
 
 namespace Gadgetron::Examples {
     class ImageInverter : public Core::MRPureGadget<mrd::AnyImage, mrd::AnyImage> {

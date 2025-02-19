@@ -1,5 +1,5 @@
 #pragma once
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 
 #include <bitset>
@@ -27,7 +27,7 @@ class ExtractGadget : public Core::MRChannelGadget<mrd::Image<std::complex<float
         float real_imag_offset = 0.0f;
     };
 
-    ExtractGadget(const Core::MrdContext& context, const Parameters& params);
+    ExtractGadget(const Core::MRContext& context, const Parameters& params);
 
     void process(Core::InputChannel<mrd::Image<std::complex<float>>>& in, Core::OutputChannel& out) override;
 

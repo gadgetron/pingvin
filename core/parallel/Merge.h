@@ -1,11 +1,8 @@
 #pragma once
 
 #include <map>
-#include <memory>
-#include <boost/dll.hpp>
 
 #include "Channel.h"
-#include "Context.h"
 #include "Parameters.h"
 
 namespace Gadgetron::Core::Parallel {
@@ -18,13 +15,5 @@ namespace Gadgetron::Core::Parallel {
 
         virtual ~Merge() = default;
         virtual void process(std::map<std::string, GenericInputChannel>, OutputChannel) = 0;
-    };
-
-    /** TODO: Move to MR-specific location! */
-    class MRMerge : public Merge {
-    public:
-        using Merge::Merge;
-
-        MRMerge(const MrdContext& context, const NodeParameters& parameters) {}
     };
 }

@@ -79,7 +79,7 @@ namespace Gadgetron {
             bool mapping_with_masking = true;
         };
 
-        CmrParametricMappingGadget(const Core::MrdContext &context, const Parameters& params);
+        CmrParametricMappingGadget(const Core::MRContext &context, const Parameters& params);
 
     protected:
         const Parameters params_;

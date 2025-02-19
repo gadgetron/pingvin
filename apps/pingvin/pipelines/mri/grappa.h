@@ -2,6 +2,9 @@
 
 #include "Pipeline.h"
 
+#include "MRSource.h"
+#include "MRSink.h"
+
 #include "gadgets/mri_core/NoiseAdjustGadget.h"
 #include "gadgets/mri_core/PCACoilGadget.h"
 #include "gadgets/mri_core/CoilReductionGadget.h"
@@ -20,9 +23,9 @@ namespace Pingvin {
 
 using namespace Gadgetron;
 
-static auto grappa = PipelineBuilder<Gadgetron::Core::MrdContext>("grappa", "Basic GRAPPA Reconstruction")
-                        .withSource<MrdSource>()
-                        .withSink<MrdSink>()
+static auto grappa = PipelineBuilder<Gadgetron::Core::MRContext>("grappa", "Basic GRAPPA Reconstruction")
+                        .withSource<MRSource>()
+                        .withSink<MRSink>()
                         .withNode<NoiseAdjustGadget>("noise-adjust")
                         .withNode<PCACoilGadget>("pca")
                         .withNode<CoilReductionGadget>("coil-reduction")
@@ -46,9 +49,9 @@ static auto grappa = PipelineBuilder<Gadgetron::Core::MrdContext>("grappa", "Bas
                         .withNode<ExtractGadget>("extract")
                         ;
 
-static auto grappa_cpu = PipelineBuilder<Gadgetron::Core::MrdContext>("grappa-cpu", "Basic GRAPPA Reconstruction")
-                        .withSource<MrdSource>()
-                        .withSink<MrdSink>()
+static auto grappa_cpu = PipelineBuilder<Gadgetron::Core::MRContext>("grappa-cpu", "Basic GRAPPA Reconstruction")
+                        .withSource<MRSource>()
+                        .withSink<MRSink>()
                         .withNode<NoiseAdjustGadget>("noise-adjust")
                         .withNode<PCACoilGadget>("pca")
                         .withNode<CoilReductionGadget>("coil-reduction")

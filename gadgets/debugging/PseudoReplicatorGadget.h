@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 
 namespace Gadgetron {
 
@@ -15,7 +15,7 @@ public:
 		int repetitions = 10;
 	};
 
-	PseudoReplicatorGadget(const Core::MrdContext& context, const Parameters& params)
+	PseudoReplicatorGadget(const Core::MRContext& context, const Parameters& params)
 		: MRChannelGadget(context, params)
 		, params_(params)
 	{ }

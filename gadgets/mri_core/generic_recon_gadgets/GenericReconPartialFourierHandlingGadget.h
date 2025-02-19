@@ -20,7 +20,7 @@
 #include "hoNDFFT.h"
 
 #include "mri_core_partial_fourier.h"
-#include "PureGadget.h"
+#include "MRPureNode.h"
 
 namespace Gadgetron {
 
@@ -44,7 +44,7 @@ class GenericReconPartialFourierHandlingGadget : public Core::MRPureGadget<mrd::
             std::string skip_processing_meta_field = "Skip_processing_after_recon";
         };
 
-        GenericReconPartialFourierHandlingGadget(const Core::MrdContext& context, const Parameters& params);
+        GenericReconPartialFourierHandlingGadget(const Core::MRContext& context, const Parameters& params);
 
         virtual ~GenericReconPartialFourierHandlingGadget() = default;
 

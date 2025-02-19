@@ -35,30 +35,30 @@ namespace Gadgetron {
                 register_parameter("use-multiple-channel-recon", &use_multiple_channel_recon, "Whether to perform multi-channel recon in the raw data step");
                 register_parameter("use-nonlinear-binning-recon", &use_nonlinear_binning_recon, "Whether to non-linear recon in the binning step");
                 register_parameter("number-of-output-phases", &number_of_output_phases, "Number of output phases after binning");
- 
+
                 register_parameter("send-out-raw", &send_out_raw, "Whether to set out raw images");
                 register_parameter("send-out-multiple-series-by-slice", &send_out_multiple_series_by_slice, "Whether to set out binning images as multiple series");
- 
+
                 register_parameter("arrhythmia-rejector-factor", &arrhythmia_rejector_factor, "If a heart beat RR is not in the range of [ (1-arrhythmiaRejectorFactor)*meanRR (1+arrhythmiaRejectorFactor)*meanRR], it will be rejected");
- 
+
                 register_parameter("grappa-kSize-RO", &grappa_kSize_RO, "Raw data recon, kernel size RO");
                 register_parameter("grappa-kSize-E1", &grappa_kSize_E1, "Raw data recon, kernel size E1");
                 register_parameter("grappa-reg-lamda", &grappa_reg_lamda, "Raw data recon, kernel calibration regularization");
- 
+
                 register_parameter("downstream-coil-compression-num-modesKept", &downstream_coil_compression_num_modesKept, "Number of modes kept for down stream coil compression in raw recon step");
                 register_parameter("downstream-coil-compression-thres", &downstream_coil_compression_thres, "Threshold for determining number of kept modes in the down stream coil compression");
- 
+
                 register_parameter("respiratory-navigator-moco-reg-strength", &respiratory_navigator_moco_reg_strength, "Regularization strength of respiratory moco");
                 register_multitoken("respiratory-navigator-moco-iters", &respiratory_navigator_moco_iters, "Number of iterations for respiratory moco");
- 
+
                 register_parameter("kspace-binning-interpolate-heart-beat-images", &kspace_binning_interpolate_heart_beat_images, "Whether to interpolate best heart beat images");
                 register_parameter("kspace-binning-navigator-acceptance-window", &kspace_binning_navigator_acceptance_window, "Respiratory navigator acceptance window");
                 register_parameter("kspace-binning-max-temporal-window", &kspace_binning_max_temporal_window, "Maximally allowed temporal window ratio for binned kspace");
                 register_parameter("kspace-binning-minimal-cardiac-phase-width", &kspace_binning_minimal_cardiac_phase_width, "Allowed minimal temporal window for binned kspace, in ms");
- 
+
                 register_parameter("kspace-binning-moco-reg-strength", &kspace_binning_moco_reg_strength, "Regularization strength of binning moco");
                 register_multitoken("kspace-binning-moco-iters", &kspace_binning_moco_iters, "Number of iterations for binning moco");
- 
+
                 register_parameter("kspace-binning-kSize-RO", &kspace_binning_kSize_RO, "Binned kspace recon, kernel size RO");
                 register_parameter("kspace-binning-kSize-E1", &kspace_binning_kSize_E1, "Binned kspace recon, kernel size E1");
                 register_parameter("kspace-binning-reg-lamda", &kspace_binning_reg_lamda, "Binned kspace recon, kernel calibration regularization");
@@ -72,7 +72,7 @@ namespace Gadgetron {
                 register_parameter("kspace-binning-nonlinear-reg-use-coil-sen-map", &kspace_binning_nonlinear_reg_use_coil_sen_map, "Binned kspace recon, whether to use coil map, non-linear recon");
                 register_parameter("kspace-binning-nonlinear-reg-with-approx-coeff", &kspace_binning_nonlinear_reg_with_approx_coeff, "Binned kspace recon, whether to keep approximal coefficients, non-linear recon");
                 register_parameter("kspace-binning-nonlinear-reg-wav-name", &kspace_binning_nonlinear_reg_wav_name, "Binned kspace recon, wavelet name, non-linear recon");
- 
+
                 register_parameter("time-tick", &time_tick, "Time tick in ms");
                 register_multitoken("kspace-binning-processed-slices", &kspace_binning_processed_slices, "If set, these slices will be processed");
             }
@@ -130,7 +130,7 @@ namespace Gadgetron {
             std::vector<unsigned int> kspace_binning_processed_slices = {};
         };
 
-        CmrCartesianKSpaceBinningCineGadget(const Core::MrdContext &context, const Parameters& params);
+        CmrCartesianKSpaceBinningCineGadget(const Core::MRContext &context, const Parameters& params);
 
     protected:
         const Parameters params_;

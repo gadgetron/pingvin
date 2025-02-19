@@ -7,7 +7,7 @@
 
 namespace Gadgetron {
 
-FlowPhaseSubtractionGadget::FlowPhaseSubtractionGadget(const Core::MrdContext& context, const Core::NodeParameters& params)
+FlowPhaseSubtractionGadget::FlowPhaseSubtractionGadget(const Core::MRContext& context, const Core::NodeParameters& params)
     : FlowPhaseSubtractionGadget::MRChannelGadget(context, params)
 {
     const auto e_limits = context.header.encoding[0].encoding_limits;

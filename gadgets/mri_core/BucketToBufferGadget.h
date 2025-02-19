@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 #include <complex>
 
@@ -39,7 +39,7 @@ namespace Gadgetron {
             bool verbose = false;
         };
 
-        BucketToBufferGadget(const Core::MrdContext& context, const Parameters& params)
+        BucketToBufferGadget(const Core::MRContext& context, const Parameters& params)
             : Core::MRChannelGadget<mrd::AcquisitionBucket>(context, params)
             , parameters_(params)
         {

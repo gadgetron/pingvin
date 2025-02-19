@@ -2,19 +2,19 @@
 
 #include "Pipeline.h"
 
-#include "pipelines/noise.h"
-#include "pipelines/grappa.h"
-#include "pipelines/default.h"
-#include "pipelines/epi.h"
-#include "pipelines/cartesian_grappa.h"
-#include "pipelines/cartesian_spirit.h"
-#include "pipelines/grappa_epi.h"
-#include "pipelines/cmr.h"
-#include "pipelines/parallel_bypass.h"
-#include "pipelines/streams.h"
-#include "pipelines/denoise.h"
+#include "mri/noise.h"
+#include "mri/grappa.h"
+#include "mri/default.h"
+#include "mri/epi.h"
+#include "mri/cartesian_grappa.h"
+#include "mri/cartesian_spirit.h"
+#include "mri/grappa_epi.h"
+#include "mri/cmr.h"
+#include "mri/parallel_bypass.h"
+#include "mri/streams.h"
+#include "mri/denoise.h"
 
-#include "pipelines/file_search.h"
+#include "file_search.h"
 
 
 namespace Pingvin {

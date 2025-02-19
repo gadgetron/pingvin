@@ -1,8 +1,6 @@
 #pragma once
 
-#include <vector>
-
-#include "Node.h"
+#include "MRNode.h"
 
 namespace Gadgetron::Grappa {
 

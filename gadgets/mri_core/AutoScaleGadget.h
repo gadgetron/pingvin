@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "PureGadget.h"
+#include "MRPureNode.h"
 #include "hoNDArray_math.h"
 #include <algorithm>
 
@@ -22,7 +22,7 @@ namespace Gadgetron{
             }
         };
 
-        AutoScaleGadget(const Core::MrdContext& context, const Parameters& params)
+        AutoScaleGadget(const Core::MRContext& context, const Parameters& params)
             : Core::MRPureGadget<mrd::AnyImage, mrd::AnyImage >(context, params)
             , parameters_(params)
         {}

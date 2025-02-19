@@ -7,14 +7,14 @@
 
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 
 namespace Gadgetron{
   class AsymmetricEchoAdjustROGadget : public Core::MRChannelGadget<mrd::Acquisition>
     {
       public:
-        AsymmetricEchoAdjustROGadget(const Core::MrdContext& context, const Parameters& params);
+        AsymmetricEchoAdjustROGadget(const Core::MRContext& context, const Parameters& params);
 
         void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& output) override;
 

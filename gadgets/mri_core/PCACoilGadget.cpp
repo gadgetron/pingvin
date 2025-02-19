@@ -23,7 +23,7 @@ namespace Gadgetron {
         }
     }
 
-    PCACoilGadget::PCACoilGadget(const Core::MrdContext& context, const Parameters& params)
+    PCACoilGadget::PCACoilGadget(const Core::MRContext& context, const Parameters& params)
         : Core::MRChannelGadget<mrd::Acquisition>(context, params)
         , parameters_(params)
     {

@@ -1,15 +1,26 @@
 #pragma once
 
-#include <map>
-#include <memory>
+#include "parallel/Branch.h"
+#include "parallel/Merge.h"
 
-#include "Branch.h"
-
-#include "Channel.h"
+#include "MRContext.h"
 
 namespace Gadgetron::Core::Parallel {
 
-    /** TODO: Move to MR-specific location! */
+    template <class... TYPELIST> class MRBranch : public TypedBranch<TYPELIST...> {
+    public:
+        using TypedBranch<TYPELIST...>::TypedBranch;
+
+        MRBranch(const MRContext& context, const NodeParameters& parameters) {}
+    };
+
+    class MRMerge : public Merge {
+    public:
+        using Merge::Merge;
+
+        MRMerge(const MRContext& context, const NodeParameters& parameters) {}
+    };
+
     template<class ...ARGS>
     class Fanout : public MRBranch<ARGS...> {
     public:
@@ -28,4 +39,5 @@ namespace Gadgetron::Core::Parallel {
     using AcquisitionFanout = Core::Parallel::Fanout<mrd::Acquisition>;
     using WaveformFanout = Core::Parallel::Fanout<mrd::WaveformUint32>;
     using ImageFanout = Core::Parallel::Fanout<mrd::AnyImage>;
-}
+
+} // namespace Gadgetron::Core::Parallel

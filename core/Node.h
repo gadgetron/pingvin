@@ -2,8 +2,6 @@
 
 #include "Parameters.h"
 #include "Channel.h"
-#include "Context.h"
-#include <boost/dll/alias.hpp>
 
 namespace po = boost::program_options;
 namespace Gadgetron::Core {
@@ -47,13 +45,5 @@ namespace Gadgetron::Core {
          * @param out Channel of output
          */
         virtual void process(InputChannel<TYPELIST...>& in, OutputChannel& out) = 0;
-    };
-
-    /** TODO: Move to MR-specific location! */
-    template <class... TYPELIST> class MRChannelGadget : public ChannelGadget<TYPELIST...> {
-    public:
-        using ChannelGadget<TYPELIST...>::ChannelGadget;
-
-        MRChannelGadget(const MrdContext& context, const NodeParameters& parameters) {}
     };
 }

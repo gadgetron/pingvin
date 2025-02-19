@@ -56,7 +56,7 @@ namespace Gadgetron {
 
         };
 
-        GenericReconEigenChannelGadget(const Core::MrdContext &context, const Parameters& params);
+        GenericReconEigenChannelGadget(const Core::MRContext &context, const Parameters& params);
 
     protected:
         const Parameters params_;

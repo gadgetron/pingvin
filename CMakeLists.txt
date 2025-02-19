@@ -318,6 +318,7 @@ add_subdirectory(cmake)
 add_subdirectory(core)
 add_subdirectory(gadgets)
 add_subdirectory(toolboxes)
+add_subdirectory(mri)
 
 option(BUILD_WITH_GPERFTOOLS_PROFILER "Build with the gperftools profiler." Off)
 if (BUILD_WITH_GPERFTOOLS_PROFILER)

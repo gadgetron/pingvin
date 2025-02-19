@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 
 #include <complex>
@@ -49,7 +49,7 @@ namespace Gadgetron {
             unsigned long n_acquisitions_before_ongoing_trigger = 40;
         };
 
-        AcquisitionAccumulateTriggerGadget(const Core::MrdContext& context, const Parameters& params)
+        AcquisitionAccumulateTriggerGadget(const Core::MRContext& context, const Parameters& params)
             : Core::MRChannelGadget<std::variant<mrd::Acquisition, mrd::WaveformUint32>>(context, params)
             , parameters_(params) {}
 

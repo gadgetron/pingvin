@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 #include "hoNDFFT.h"
 #ifdef USE_OMP // TODO: Should this be removed? Its from the old version
@@ -15,7 +15,7 @@
 namespace Gadgetron {
 class RemoveROOversamplingGadget : public Core::MRChannelGadget<mrd::Acquisition> {
   public:
-    RemoveROOversamplingGadget(const Core::MrdContext& context, const Core::NodeParameters& params);
+    RemoveROOversamplingGadget(const Core::MRContext& context, const Core::NodeParameters& params);
 
     void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& output) override;
 

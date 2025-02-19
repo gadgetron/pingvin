@@ -32,12 +32,4 @@ public:
     virtual RETURN process_function(INPUT args) const = 0;
 };
 
-
-/** TODO: Move to MR-specific location! */
-template <class RETURN, class INPUT>
-class MRPureGadget : public PureGadget<RETURN, INPUT> {
-public:
-    MRPureGadget(const MrdContext& context, const NodeParameters& parameters) {}
-};
-
 }

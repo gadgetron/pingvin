@@ -203,7 +203,7 @@ void FlagTriggerGadget::process(Core::InputChannel<mrd::Acquisition>& in, Core::
     }
 }
 
-FlagTriggerGadget::FlagTriggerGadget(const Core::MrdContext& context, const Parameters& params)
+FlagTriggerGadget::FlagTriggerGadget(const Core::MRContext& context, const Parameters& params)
     : MRChannelGadget(context, params)
     , parameters_(params)
 {

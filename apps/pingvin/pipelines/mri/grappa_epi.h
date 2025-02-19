@@ -2,6 +2,9 @@
 
 #include "Pipeline.h"
 
+#include "MRSource.h"
+#include "MRSink.h"
+
 #include "gadgets/epi/EPIReconXGadget.h"
 #include "gadgets/epi/EPICorrGadget.h"
 #include "gadgets/epi/FFTXGadget.h"
@@ -26,9 +29,9 @@ namespace Pingvin {
 
   using namespace Gadgetron;
 
-  static auto grappa_epi = PipelineBuilder<Gadgetron::Core::MrdContext>("grappa-epi", "Basic EPI Reconstruction")
-                           .withSource<MrdSource>()
-                           .withSink<MrdSink>()
+  static auto grappa_epi = PipelineBuilder<Gadgetron::Core::MRContext>("grappa-epi", "Basic EPI Reconstruction")
+                           .withSource<MRSource>()
+                           .withSink<MRSink>()
                            .withNode<NoiseAdjustGadget>("noise")
                            .withNode<EPIReconXGadget>("reconx")
                            .withNode<EPICorrGadget>("epicorr")

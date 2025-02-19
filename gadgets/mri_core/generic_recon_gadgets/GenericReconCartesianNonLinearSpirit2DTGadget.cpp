@@ -11,7 +11,7 @@
 
 namespace Gadgetron {
 
-    GenericReconCartesianNonLinearSpirit2DTGadget::GenericReconCartesianNonLinearSpirit2DTGadget(const Core::MrdContext& context, const Parameters& params)
+    GenericReconCartesianNonLinearSpirit2DTGadget::GenericReconCartesianNonLinearSpirit2DTGadget(const Core::MRContext& context, const Parameters& params)
         : BaseClass(context, params)
         , params_(params)
     {

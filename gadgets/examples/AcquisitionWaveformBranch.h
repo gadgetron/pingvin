@@ -1,6 +1,6 @@
 #pragma once
 
-#include "parallel/Branch.h"
+#include "MRParallel.h"
 
 namespace Gadgetron::Examples {
 
@@ -8,7 +8,7 @@ namespace Gadgetron::Examples {
 
     class AcquisitionWaveformBranch : public Core::Parallel::MRBranch<AcquisitionOrWaveform> {
     public:
-        AcquisitionWaveformBranch(const Core::MrdContext &context, const Core::NodeParameters &params)
+        AcquisitionWaveformBranch(const Core::MRContext &context, const Core::NodeParameters &params)
             : MRBranch<AcquisitionOrWaveform>(context, params)
         {}
 

@@ -18,8 +18,7 @@ add_library(pingvin_grappa SHARED ${RTGRAPPA_SOURCES})
 set_target_properties(pingvin_grappa PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
 
 target_link_libraries(pingvin_grappa
-        pingvin_core
-        pingvin_core_parallel
+        pingvin_mri
         pingvin_mricore
         pingvin_toolbox_cpucore
         pingvin_toolbox_cpucore_math

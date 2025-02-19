@@ -11,7 +11,7 @@
 
 namespace Gadgetron {
 
-ComplexToFloatGadget::ComplexToFloatGadget(const Core::MrdContext& context, const Parameters& params)
+ComplexToFloatGadget::ComplexToFloatGadget(const Core::MRContext& context, const Parameters& params)
     : MRPureGadget(context, params)
 {
 

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 #include <numeric>
 #ifdef USE_OMP
@@ -15,7 +15,7 @@
 namespace Gadgetron {
 class MaxwellCorrectionGadget : public Core::MRChannelGadget<mrd::Image<std::complex<float>>> {
   public:
-    MaxwellCorrectionGadget(const Core::MrdContext& context, const Core::NodeParameters& params);
+    MaxwellCorrectionGadget(const Core::MRContext& context, const Core::NodeParameters& params);
     ~MaxwellCorrectionGadget() override = default;
 
     void process(Core::InputChannel<mrd::Image<std::complex<float>>>& input, Core::OutputChannel& output) override;

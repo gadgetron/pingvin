@@ -8,7 +8,7 @@
 
 namespace Gadgetron {
 
-    EPIReconXGadget::EPIReconXGadget(const Core::MrdContext& context, const Core::NodeParameters& params)
+    EPIReconXGadget::EPIReconXGadget(const Core::MRContext& context, const Core::NodeParameters& params)
         : EPIReconXGadget::MRChannelGadget(context, params)
     {
         auto& h = context.header;

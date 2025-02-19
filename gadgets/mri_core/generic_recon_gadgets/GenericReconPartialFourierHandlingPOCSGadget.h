@@ -36,7 +36,7 @@ namespace Gadgetron {
             size_t partial_fourier_POCS_transitBand_E2 = 16;
         };
 
-        GenericReconPartialFourierHandlingPOCSGadget(const Core::MrdContext& context, const Parameters& params)
+        GenericReconPartialFourierHandlingPOCSGadget(const Core::MRContext& context, const Parameters& params)
             : BaseClass(context, params)
             , params_(params)
         {}

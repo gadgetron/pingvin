@@ -1,5 +1,3 @@
-include_directories(${HDF5_INCLUDE_DIRS})
-
 set(pingvin_debugging_header_files
         PseudoReplicatorGadget.h
         RateLimitGadget.h
@@ -19,7 +17,7 @@ add_library(pingvin_debugging SHARED
 
 set_target_properties(pingvin_debugging PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
 
-target_link_libraries(pingvin_debugging pingvin_core)
+target_link_libraries(pingvin_debugging pingvin_mri)
 
 target_include_directories(pingvin_debugging
         PUBLIC

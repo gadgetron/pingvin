@@ -33,7 +33,7 @@ namespace Gadgetron {
             double anchor_TS = 10000;
         };
 
-        CmrParametricT1SRMappingGadget(const Core::MrdContext& context, const Parameters& params);
+        CmrParametricT1SRMappingGadget(const Core::MRContext& context, const Parameters& params);
 
     protected:
         const Parameters params_;

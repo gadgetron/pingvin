@@ -1,8 +1,5 @@
 #pragma once
 
-#include <Context.h>
-#include <Channel.h>
-
 #include "Merge.h"
 
 namespace Gadgetron::Core::Parallel {

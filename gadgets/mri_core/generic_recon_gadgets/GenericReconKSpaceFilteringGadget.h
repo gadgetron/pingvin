@@ -53,7 +53,7 @@ namespace Gadgetron {
             double filterE2_width = 0.15;
         };
 
-        GenericReconKSpaceFilteringGadget(const Core::MrdContext &context, const Parameters& params);
+        GenericReconKSpaceFilteringGadget(const Core::MRContext &context, const Parameters& params);
 
     protected:
         const Parameters params_;

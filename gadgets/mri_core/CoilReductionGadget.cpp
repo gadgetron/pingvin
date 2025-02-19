@@ -2,7 +2,7 @@
 
 namespace Gadgetron {
 
-CoilReductionGadget::CoilReductionGadget(const Core::MrdContext& context, const Parameters& params)
+CoilReductionGadget::CoilReductionGadget(const Core::MRContext& context, const Parameters& params)
     : Core::MRChannelGadget<mrd::Acquisition>(context, params)
     , parameters_(params)
 {

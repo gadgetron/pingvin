@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GadgetronTimer.h"
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 
 #include <complex>
@@ -49,7 +49,7 @@ namespace Gadgetron {
             }
         };
 
-        NoiseAdjustGadget(const Core::MrdContext& context, const Parameters& params);
+        NoiseAdjustGadget(const Core::MRContext& context, const Parameters& params);
 
         void process(Core::InputChannel<mrd::Acquisition>& in, Core::OutputChannel& out) override;
 

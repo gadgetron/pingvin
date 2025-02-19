@@ -2,6 +2,10 @@
 
 #include "Pipeline.h"
 
+#include "MRSource.h"
+#include "MRSink.h"
+#include "MRParallel.h"
+
 #include "gadgets/mri_core/NoiseAdjustGadget.h"
 #include "gadgets/mri_core/PCACoilGadget.h"
 #include "gadgets/mri_core/CoilReductionGadget.h"
@@ -11,7 +15,6 @@
 #include "gadgets/mri_core/SimpleReconGadget.h"
 #include "gadgets/mri_core/ImageArraySplitGadget.h"
 #include "gadgets/mri_core/ExtractGadget.h"
-#include "core/parallel/Fanout.h"
 #include "gadgets/examples/ImageInverter.h"
 #include "gadgets/examples/ImageLayerer.h"
 
@@ -19,9 +22,9 @@ namespace Pingvin {
 
   using namespace Gadgetron;
 
-static auto example_parallel_bypass = PipelineBuilder<Gadgetron::Core::MrdContext>("parallel-bypass", "Basic Parallel Bypass Example")
-        .withSource<MrdSource>()
-        .withSink<MrdSink>()
+static auto example_parallel_bypass = PipelineBuilder<Gadgetron::Core::MRContext>("parallel-bypass", "Basic Parallel Bypass Example")
+        .withSource<MRSource>()
+        .withSink<MRSink>()
         .withNode<NoiseAdjustGadget>("noise")
         .withNode<RemoveROOversamplingGadget>("ros")
         .withNode<AcquisitionAccumulateTriggerGadget>("acctrig")

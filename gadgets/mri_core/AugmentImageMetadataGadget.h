@@ -6,7 +6,7 @@
 #pragma once
 #include "hoNDArray.h"
 
-#include "PureGadget.h"
+#include "MRPureNode.h"
 
 namespace Gadgetron
 {

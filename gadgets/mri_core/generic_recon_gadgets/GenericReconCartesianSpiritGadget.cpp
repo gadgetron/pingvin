@@ -8,7 +8,7 @@
 
 namespace Gadgetron {
 
-    GenericReconCartesianSpiritGadget::GenericReconCartesianSpiritGadget(const Core::MrdContext& context, const Parameters& params)
+    GenericReconCartesianSpiritGadget::GenericReconCartesianSpiritGadget(const Core::MRContext& context, const Parameters& params)
         : BaseClass(context, params)
         , params_(params)
     {

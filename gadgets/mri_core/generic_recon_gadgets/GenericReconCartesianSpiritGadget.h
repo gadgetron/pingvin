@@ -92,7 +92,7 @@ namespace Gadgetron {
             bool spirit_print_iter = false;
         };
 
-        GenericReconCartesianSpiritGadget(const Core::MrdContext& context, const Parameters& params);
+        GenericReconCartesianSpiritGadget(const Core::MRContext& context, const Parameters& params);
 
     protected:
         Parameters params_;

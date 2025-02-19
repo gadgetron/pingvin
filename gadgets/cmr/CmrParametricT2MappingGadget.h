@@ -14,7 +14,7 @@ namespace Gadgetron {
     {
     public:
         typedef CmrParametricMappingGadget BaseClass;
- 
+
         struct Parameters : public BaseClass::Parameters {
             Parameters(const std::string& prefix): BaseClass::Parameters(prefix, "T2 Mapping") {
                 register_parameter("max-iter", &max_iter, "Maximal number of iterations");
@@ -27,7 +27,7 @@ namespace Gadgetron {
             double max_T2 = 4000;
         };
 
-        CmrParametricT2MappingGadget(const Core::MrdContext& context, const Parameters& params);
+        CmrParametricT2MappingGadget(const Core::MRContext& context, const Parameters& params);
 
     protected:
         const Parameters params_;

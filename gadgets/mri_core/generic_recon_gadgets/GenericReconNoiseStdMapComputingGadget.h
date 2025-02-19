@@ -30,7 +30,7 @@ namespace Gadgetron {
             int start_N_for_std_map = 5;
         };
 
-        GenericReconNoiseStdMapComputingGadget(const Core::MrdContext& context, const Parameters& params);
+        GenericReconNoiseStdMapComputingGadget(const Core::MRContext& context, const Parameters& params);
     protected:
         const Parameters params_;
 

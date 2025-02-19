@@ -5,7 +5,6 @@
 #include <thread>
 
 #include "Channel.h"
-#include "Context.h"
 
 namespace {
     template<class KEY, class VALUE, class F>

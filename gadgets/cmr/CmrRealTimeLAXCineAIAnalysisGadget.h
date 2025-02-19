@@ -40,7 +40,7 @@ namespace Gadgetron {
             std::string model_dest = "cmr_lax_landmark_detection";
         };
 
-        CmrRealTimeLAXCineAIAnalysisGadget(const Core::MrdContext &context, const Parameters& params);
+        CmrRealTimeLAXCineAIAnalysisGadget(const Core::MRContext &context, const Parameters& params);
 
     protected:
         const Parameters params_;

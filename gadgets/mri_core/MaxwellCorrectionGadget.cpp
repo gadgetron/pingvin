@@ -7,7 +7,7 @@ namespace Gadgetron {
 #endif // M_PI
 #define M_PI 3.14159265358979323846
 
-MaxwellCorrectionGadget::MaxwellCorrectionGadget(const Core::MrdContext& context, const Core::NodeParameters& params)
+MaxwellCorrectionGadget::MaxwellCorrectionGadget(const Core::MRContext& context, const Core::NodeParameters& params)
     : MaxwellCorrectionGadget::MRChannelGadget(context, params)
 {
     maxwell_coefficients_present_ = false;

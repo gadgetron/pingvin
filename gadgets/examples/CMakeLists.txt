@@ -13,9 +13,7 @@ set_target_properties(pingvin_examples PROPERTIES
         SOVERSION ${PINGVIN_SOVERSION})
 
 target_link_libraries(pingvin_examples
-        pingvin_core
-        pingvin_core_parallel
-        pingvin_mricore
+        pingvin_mri
         pingvin_toolbox_cpucore)
 
 install(TARGETS pingvin_examples

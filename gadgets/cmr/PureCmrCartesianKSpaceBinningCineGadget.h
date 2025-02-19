@@ -1,10 +1,6 @@
-//
-// Created by dchansen on 2/21/19.
-//
-
 #pragma once
 
-#include "PureGadget.h"
+#include "MRPureNode.h"
 #include "cmr_kspace_binning.h"
 #include "ImageArraySendMixin.h"
 
@@ -45,7 +41,7 @@ namespace Gadgetron {
                     "Regularization strength of binning moco");
                 register_multitoken("kspace-binning-moco-iters", &kspace_binning_moco_iters,
                     "Number of iterations for binning moco");
-                register_parameter("kspace-binning-kSize-RO", &kspace_binning_kSize_RO, "Binned kspace recon, kernel size RO"); 
+                register_parameter("kspace-binning-kSize-RO", &kspace_binning_kSize_RO, "Binned kspace recon, kernel size RO");
                 register_parameter("kspace-binning-kSize-E1", &kspace_binning_kSize_E1, "Binned kspace recon, kernel size E1");
                 register_parameter("kspace-binning-reg-lamda", &kspace_binning_reg_lamda, "Binned kspace recon, kernel calibration regularization");
                 register_parameter("kspace-binning-linear-iter-max", &kspace_binning_linear_iter_max,
@@ -113,7 +109,7 @@ namespace Gadgetron {
             float time_tick = 2.5f;
         };
 
-        PureCmrCartesianKSpaceBinningCineGadget(const Core::MrdContext& context, const Parameters& params);
+        PureCmrCartesianKSpaceBinningCineGadget(const Core::MRContext& context, const Parameters& params);
 
         mrd::ImageArray process_function(mrd::ReconData args) const override;
 

@@ -65,7 +65,7 @@ namespace Gadgetron {
         }
     }
 
-    ExtractGadget::ExtractGadget(const Core::MrdContext& context, const Parameters& params)
+    ExtractGadget::ExtractGadget(const Core::MRContext& context, const Parameters& params)
         : Core::MRChannelGadget<mrd::Image<std::complex<float>>>(context, params)
         , parameters_(params)
     {

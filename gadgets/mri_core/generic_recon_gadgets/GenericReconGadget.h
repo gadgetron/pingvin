@@ -40,7 +40,7 @@ namespace Gadgetron {
             double coil_map_thres_iter = 1e-4;
         };
 
-        GenericReconGadget(const Core::MrdContext& context, const Parameters& params);
+        GenericReconGadget(const Core::MRContext& context, const Parameters& params);
 
     protected:
         const Parameters params_;

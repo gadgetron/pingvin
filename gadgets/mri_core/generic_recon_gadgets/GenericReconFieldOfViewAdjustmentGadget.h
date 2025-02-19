@@ -24,7 +24,7 @@ namespace Gadgetron {
             {}
         };
 
-        GenericReconFieldOfViewAdjustmentGadget(const Core::MrdContext &context, const Parameters& params);
+        GenericReconFieldOfViewAdjustmentGadget(const Core::MRContext &context, const Parameters& params);
         ~GenericReconFieldOfViewAdjustmentGadget() override;
 
     protected:

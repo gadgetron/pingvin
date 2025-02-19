@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 
-#include "PureGadget.h"
+#include "MRPureNode.h"
 #include <string>
 
 namespace Gadgetron {
@@ -27,7 +27,7 @@ namespace Gadgetron {
             }
         };
 
-        DenoiseGadget(const Core::MrdContext& context, const Parameters& params)
+        DenoiseGadget(const Core::MRContext& context, const Parameters& params)
             : Core::MRPureGadget<DenoiseSupportedTypes, DenoiseSupportedTypes>(context, params)
             , parameters_(params)
         {}

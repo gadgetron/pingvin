@@ -2,9 +2,7 @@
 
 #include "SliceAccumulator.h"
 
-#include "Context.h"
-#include "Channel.h"
-#include "Node.h"
+#include "MRNode.h"
 
 #include "cpu/WeightsCore.h"
 #ifdef USE_CUDA
@@ -35,7 +33,7 @@ namespace Gadgetron::Grappa {
             }
         };
 
-        WeightsCalculator(const Core::MrdContext &context, const Parameters &params)
+        WeightsCalculator(const Core::MRContext &context, const Parameters &params)
             : Core::MRChannelGadget<Slice>(context, params)
             , parameters_(params)
             , header_(context.header)

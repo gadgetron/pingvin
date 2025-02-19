@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 
 namespace Gadgetron{
@@ -16,7 +16,7 @@ namespace Gadgetron{
         int sleep_time_int = 0;
       };
 
-      RateLimitGadget(const Core::MrdContext& context, const Parameters& params);
+      RateLimitGadget(const Core::MRContext& context, const Parameters& params);
 
       void process(Core::InputChannel<mrd::StreamItem>& input, Core::OutputChannel& output) override;
 

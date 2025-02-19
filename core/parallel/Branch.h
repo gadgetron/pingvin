@@ -1,11 +1,8 @@
 #pragma once
 
 #include <map>
-#include <memory>
-#include <boost/dll.hpp>
 
 #include "Channel.h"
-#include "Context.h"
 #include "Parameters.h"
 
 namespace Gadgetron::Core::Parallel {
@@ -38,14 +35,6 @@ namespace Gadgetron::Core::Parallel {
         }
 
         virtual void process(InputChannel<ARGS...> &, std::map<std::string, OutputChannel>) = 0;
-    };
-
-    /** TODO: Move to MR-specific location! */
-    template <class... TYPELIST> class MRBranch : public TypedBranch<TYPELIST...> {
-    public:
-        using TypedBranch<TYPELIST...>::TypedBranch;
-
-        MRBranch(const MrdContext& context, const NodeParameters& parameters) {}
     };
 
 }

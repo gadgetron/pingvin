@@ -7,9 +7,6 @@
 #include "parallel/Branch.h"
 #include "parallel/Merge.h"
 
-#include "Channel.h"
-#include "Context.h"
-
 namespace Gadgetron::Core {
 
     class ParallelStream : public Node {

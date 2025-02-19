@@ -1,8 +1,5 @@
 #include "SliceAccumulator.h"
 
-#include "Context.h"
-#include "Channel.h"
-
 #include "hoNDArray.h"
 
 namespace {

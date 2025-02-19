@@ -79,7 +79,7 @@ inline void RandNormGenerator<T>::gen(hoNDArray< std::complex<T> >& randNum)
     }
 }
 
-WhiteNoiseInjectorGadget::WhiteNoiseInjectorGadget(const Core::MrdContext& context, const Parameters& params)
+WhiteNoiseInjectorGadget::WhiteNoiseInjectorGadget(const Core::MRContext& context, const Parameters& params)
     : Core::MRChannelGadget<mrd::Acquisition>(context, params)
     , params_(params)
     , acceFactorE1_(1), acceFactorE2_(1)

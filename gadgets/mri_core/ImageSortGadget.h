@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 
 namespace Gadgetron{
@@ -25,7 +25,7 @@ namespace Gadgetron{
         }
       };
 
-      ImageSortGadget(const Core::MrdContext& context, const Parameters& params)
+      ImageSortGadget(const Core::MRContext& context, const Parameters& params)
         : ImageSortGadget::MRChannelGadget(context, params)
         , parameters_(params)
       {}

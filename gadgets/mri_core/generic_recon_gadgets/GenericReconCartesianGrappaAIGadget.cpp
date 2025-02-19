@@ -5,7 +5,7 @@
 
 namespace Gadgetron {
 
-    GenericReconCartesianGrappaAIGadget::GenericReconCartesianGrappaAIGadget(const Core::MrdContext &context, const Parameters& params)
+    GenericReconCartesianGrappaAIGadget::GenericReconCartesianGrappaAIGadget(const Core::MRContext &context, const Parameters& params)
         : BaseClass(context, params)
     {
         std::filesystem::path pingvin_python_path = context.paths.pingvin_home / "share" / "pingvin" / "python";

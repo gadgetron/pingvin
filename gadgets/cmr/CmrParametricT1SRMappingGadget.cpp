@@ -12,7 +12,7 @@
 
 namespace Gadgetron {
 
-    CmrParametricT1SRMappingGadget::CmrParametricT1SRMappingGadget(const Core::MrdContext& context, const Parameters& params)
+    CmrParametricT1SRMappingGadget::CmrParametricT1SRMappingGadget(const Core::MRContext& context, const Parameters& params)
         : BaseClass(context, params)
         , params_(params)
     {

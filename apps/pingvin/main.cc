@@ -1,7 +1,7 @@
 #include "log.h"
 #include "system_info.h"
 #include "pingvin_config.h"
-#include "pipeline_registry.h"
+#include "pipelines/registry.h"
 
 #include <boost/program_options.hpp>
 

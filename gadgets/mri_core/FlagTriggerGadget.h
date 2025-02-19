@@ -2,7 +2,7 @@
 // Created by david on 24/08/2020.
 //
 #pragma once
-#include "Node.h"
+#include "MRNode.h"
 
 namespace Gadgetron {
 
@@ -62,7 +62,7 @@ class FlagTriggerGadget : public Core::MRChannelGadget<mrd::Acquisition> {
         std::string trigger_flags = "";
     };
 
-    FlagTriggerGadget(const Core::MrdContext& context, const Parameters& params);
+    FlagTriggerGadget(const Core::MRContext& context, const Parameters& params);
 
     void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& output) override;
 

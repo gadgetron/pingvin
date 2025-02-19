@@ -5,7 +5,7 @@
 
 namespace Gadgetron {
 
-    GenericReconGadget::GenericReconGadget(const Core::MrdContext& context, const Parameters& params)
+    GenericReconGadget::GenericReconGadget(const Core::MRContext& context, const Parameters& params)
         : BaseClass(context, params)
         , params_(params)
     {

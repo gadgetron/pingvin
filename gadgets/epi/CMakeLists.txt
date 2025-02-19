@@ -11,9 +11,8 @@ add_library(pingvin_epi SHARED
 
 set_target_properties(pingvin_epi PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
 
-target_link_libraries(
-  pingvin_epi
-  pingvin_core
+target_link_libraries(pingvin_epi
+  pingvin_mri
   pingvin_mricore
   pingvin_toolbox_cpucore
   pingvin_toolbox_cpufft

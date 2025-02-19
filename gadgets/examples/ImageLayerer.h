@@ -1,13 +1,12 @@
 #pragma once
 
-#include "Node.h"
-#include "parallel/Merge.h"
+#include "MRParallel.h"
 
 namespace Gadgetron::Examples {
 
     class ImageLayerer : public Core::Parallel::MRMerge {
     public:
-        ImageLayerer(const Core::MrdContext &context, const Core::NodeParameters &params)
+        ImageLayerer(const Core::MRContext &context, const Core::NodeParameters &params)
             : MRMerge(context, params)
         {}
 

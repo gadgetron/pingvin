@@ -1,10 +1,6 @@
 #pragma once
 
-#include <map>
-#include <memory>
-
-#include "parallel/Merge.h"
-#include "Channel.h"
+#include "MRParallel.h"
 
 namespace Gadgetron::Grappa {
 
@@ -41,7 +37,7 @@ namespace Gadgetron::Grappa {
             float unmixing_scale = 1.0;
         };
 
-        Unmixing(const Core::MrdContext &context, const Parameters& params)
+        Unmixing(const Core::MRContext &context, const Parameters& params)
             : Core::Parallel::MRMerge(context, params)
             , header_(context.header)
             , image_dimensions(create_output_image_dimensions(context.header))

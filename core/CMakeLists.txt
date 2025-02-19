@@ -1,5 +1,4 @@
 add_compile_options(-Wall -Werror)
-add_subdirectory(parallel)
 
 configure_file(pingvin_config.in ${CMAKE_BINARY_DIR}/pingvin_config.h)
 
@@ -11,6 +10,7 @@ add_library(pingvin_core SHARED
         ParallelStream.cpp
         MultiprocessStream.cpp
         PureStream.cpp
+        parallel/UnorderedMerge.cpp
         system_info.cpp
         io/from_string.cpp)
 
@@ -19,7 +19,6 @@ set_target_properties(pingvin_core PROPERTIES
         SOVERSION ${PINGVIN_SOVERSION})
 
 target_link_libraries(pingvin_core
-        mrd::mrd
         pingvin_toolbox_cpucore
         Boost::boost
         Boost::filesystem
@@ -49,7 +48,6 @@ install(FILES
         Message.h
         Message.hpp
         MPMCChannel.h
-        Context.h
         Source.h
         Sink.h
         Node.h
@@ -66,6 +64,12 @@ install(FILES
         system_info.h
 
         DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH} COMPONENT main)
+
+install(FILES
+        parallel/Branch.h
+        parallel/Merge.h
+        parallel/UnorderedMerge.h
+        DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH}/parallel COMPONENT main)
 
 install(FILES
         io/from_string.h

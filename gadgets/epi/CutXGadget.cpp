@@ -4,7 +4,7 @@
 
 namespace Gadgetron{
 
-    CutXGadget::CutXGadget(const Core::MrdContext& context, const Core::NodeParameters& parameters)
+    CutXGadget::CutXGadget(const Core::MRContext& context, const Core::NodeParameters& parameters)
         : CutXGadget::MRChannelGadget(context, parameters)
     {
         auto& h = context.header;

@@ -20,7 +20,7 @@ namespace {
 
 namespace Gadgetron {
 
-    AsymmetricEchoAdjustROGadget::AsymmetricEchoAdjustROGadget(const Core::MrdContext& context, const Parameters& params)
+    AsymmetricEchoAdjustROGadget::AsymmetricEchoAdjustROGadget(const Core::MRContext& context, const Parameters& params)
         : Core::MRChannelGadget<mrd::Acquisition>(context, params)
     {
         auto current_mrd_header = (context.header);

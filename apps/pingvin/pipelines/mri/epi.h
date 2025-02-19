@@ -2,6 +2,9 @@
 
 #include "Pipeline.h"
 
+#include "MRSource.h"
+#include "MRSink.h"
+
 #include "gadgets/mri_core/NoiseAdjustGadget.h"
 #include "gadgets/mri_core/AcquisitionAccumulateTriggerGadget.h"
 #include "gadgets/mri_core/BucketToBufferGadget.h"
@@ -19,9 +22,9 @@ namespace Pingvin {
 
   using namespace Gadgetron;
 
-  static auto epi_2d = PipelineBuilder<Gadgetron::Core::MrdContext>("epi", "Basic EPI Reconstruction")
-                           .withSource<MrdSource>()
-                           .withSink<MrdSink>()
+  static auto epi_2d = PipelineBuilder<Gadgetron::Core::MRContext>("epi", "Basic EPI Reconstruction")
+                           .withSource<MRSource>()
+                           .withSink<MRSink>()
                            .withNode<NoiseAdjustGadget>("noise")
                            .withNode<EPIReconXGadget>("reconx")
                            .withNode<EPICorrGadget>("epicorr")

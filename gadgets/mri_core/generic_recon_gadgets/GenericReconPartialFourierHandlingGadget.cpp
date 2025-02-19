@@ -10,7 +10,7 @@
 
 namespace Gadgetron {
     GenericReconPartialFourierHandlingGadget::GenericReconPartialFourierHandlingGadget(
-        const Core::MrdContext& context, const Parameters& params)
+        const Core::MRContext& context, const Parameters& params)
         : BaseClass(context, params)
         , params_(params)
     {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 
 #include <complex>
@@ -102,7 +102,7 @@ class PhysioInterpolationGadget : public Core::MRChannelGadget<mrd::Image<std::c
             }
         };
 
-        PhysioInterpolationGadget(const Core::MrdContext& context, const Parameters& params)
+        PhysioInterpolationGadget(const Core::MRContext& context, const Parameters& params)
             : Core::MRChannelGadget<mrd::Image<std::complex<float>>>(context, params)
             , parameters_(params)
             {

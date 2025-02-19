@@ -6,11 +6,8 @@
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
-#include "mrd/binary/protocols.h"
-
 #include "system_info.h"
 
-#include "Channel.h"
 #include "Node.h"
 #include "Source.h"
 #include "Sink.h"
@@ -459,7 +456,7 @@ struct PipelineBuilder : public IPipelineBuilder{
         auto pb = std::make_shared<MultiprocessStreamBuilder<CTX>>(*this);
         streambuilder_.append(pb);
         return *pb;
-    } 
+    }
 
     po::options_description collect_options(void) override {
         po::options_description pipeline_desc(this->description_);

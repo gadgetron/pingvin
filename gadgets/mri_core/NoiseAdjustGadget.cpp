@@ -22,8 +22,6 @@
 
 
 using namespace std::string_literals;
-namespace bf = boost::filesystem;
-namespace po = boost::program_options;
 
 namespace Gadgetron {
     namespace {
@@ -181,7 +179,7 @@ namespace Gadgetron {
         }
     }
 
-    NoiseAdjustGadget::NoiseAdjustGadget(const Core::MrdContext& context, const Parameters& params)
+    NoiseAdjustGadget::NoiseAdjustGadget(const Core::MRContext& context, const Parameters& params)
         : Core::MRChannelGadget<mrd::Acquisition>(context, params)
         , parameters_(params)
         , receiver_noise_bandwidth{ bandwidth_from_header(context.header) }

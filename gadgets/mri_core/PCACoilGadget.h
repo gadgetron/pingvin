@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 #include "hoNDKLT.h"
 
@@ -20,7 +20,7 @@ namespace Gadgetron {
       }
     };
 
-    PCACoilGadget(const Core::MrdContext& context, const Parameters& params);
+    PCACoilGadget(const Core::MRContext& context, const Parameters& params);
     ~PCACoilGadget() override;
 
     void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& output) override;

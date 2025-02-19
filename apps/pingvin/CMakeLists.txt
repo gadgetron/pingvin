@@ -1,8 +1,7 @@
 add_executable(pingvin main.cc)
 
 target_link_libraries(pingvin
-        pingvin_core
-        pingvin_core_parallel
+        pingvin_mri
         pingvin_mricore
         pingvin_epi
         pingvin_grappa
@@ -19,7 +18,6 @@ target_include_directories(pingvin
         ${CMAKE_SOURCE_DIR}
         )
 
-
 if (REQUIRE_SIGNED_CONFIG)
     target_link_libraries(pingvin GTBabylon)
 endif()
@@ -35,5 +33,5 @@ endif ()
 
 install(TARGETS pingvin DESTINATION bin COMPONENT main)
 
-file(GLOB_RECURSE PIPELINE_CONFIG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/pipelines/config/*.conf)
+file(GLOB_RECURSE PIPELINE_CONFIG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/pipelines/*/config/*.conf)
 install(FILES ${PIPELINE_CONFIG_FILES} DESTINATION ${PINGVIN_INSTALL_CONFIG_PATH} COMPONENT main)

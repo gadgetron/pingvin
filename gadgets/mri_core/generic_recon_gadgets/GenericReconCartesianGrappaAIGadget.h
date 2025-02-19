@@ -22,7 +22,7 @@ namespace Gadgetron {
             { }
         };
 
-        GenericReconCartesianGrappaAIGadget(const Core::MrdContext& context, const Parameters& params);
+        GenericReconCartesianGrappaAIGadget(const Core::MRContext& context, const Parameters& params);
 
     protected:
 

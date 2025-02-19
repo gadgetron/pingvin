@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 
 #include <complex>
@@ -11,7 +11,7 @@ namespace Gadgetron{
     {
 
     public:
-        FlowPhaseSubtractionGadget(const Core::MrdContext& context, const Core::NodeParameters& params);
+        FlowPhaseSubtractionGadget(const Core::MRContext& context, const Core::NodeParameters& params);
         ~FlowPhaseSubtractionGadget() override = default;
 
         void process(Core::InputChannel<mrd::Image<std::complex<float>>>& in, Core::OutputChannel& out) override;

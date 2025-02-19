@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 
 namespace Gadgetron
 {
@@ -33,7 +33,7 @@ namespace Gadgetron
             float intensity_offset = 2048;
         };
 
-        FloatToFixedPointGadget(const Core::MrdContext& context, const Parameters& params)
+        FloatToFixedPointGadget(const Core::MRContext& context, const Parameters& params)
             : MRChannelGadget(context, params)
             , parameters_(params)
         {}

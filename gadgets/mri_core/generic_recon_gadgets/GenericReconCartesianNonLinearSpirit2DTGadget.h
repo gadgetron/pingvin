@@ -66,7 +66,7 @@ namespace Gadgetron {
             double spirit_reg_N_weighting_ratio = 0;
         };
 
-        GenericReconCartesianNonLinearSpirit2DTGadget(const Core::MrdContext& context, const Parameters& params);
+        GenericReconCartesianNonLinearSpirit2DTGadget(const Core::MRContext& context, const Parameters& params);
 
     protected:
         Parameters params_;

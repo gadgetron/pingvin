@@ -8,7 +8,7 @@
 #pragma once
 
 #include <complex>
-#include "Node.h"
+#include "MRNode.h"
 #include "GadgetronTimer.h"
 
 #include "mri_core_def.h"
@@ -44,7 +44,7 @@ namespace Gadgetron {
             // float time_tick = 2.5;
         };
 
-        GenericReconBase(const Core::MrdContext& context, const Parameters& params)
+        GenericReconBase(const Core::MRContext& context, const Parameters& params)
             : BaseClass(context, params)
             , params_(params)
             , verbose(params_.verbose)
@@ -81,7 +81,7 @@ namespace Gadgetron {
 
         /** TODO: This is a duplicate of this->params_.verbose, for convenience, since it is used
          * by external classes, such as ImageArraySendMixin.
-         * 
+         *
          * This should be fixed...
          */
         const bool verbose;

@@ -3,8 +3,6 @@
 //
 #pragma once
 
-#include "Channel.h"
-#include "Context.h"
 #include "Node.h"
 #include <mrd/types.h>
 #include <array>
@@ -37,8 +35,8 @@ namespace Gadgetron { namespace Test {
         return header;
     }
 
-    inline Core::MrdContext generate_context() {
-        Core::MrdContext context;
+    inline Core::MRContext generate_context() {
+        Core::MRContext context;
         context.header = generate_header();
         return context;
     }
@@ -49,7 +47,7 @@ namespace Gadgetron { namespace Test {
     };
 
     template <class GADGET, class PARAMETERS>
-    inline GadgetChannels<GADGET> setup_gadget(PARAMETERS& params, Core::MrdContext context = generate_context()) {
+    inline GadgetChannels<GADGET> setup_gadget(PARAMETERS& params, Core::MRContext context = generate_context()) {
 
         auto channels  = Core::make_channel();
         auto channels2 = Core::make_channel();

@@ -51,7 +51,7 @@ namespace Gadgetron {
             float scalingFactor_snr_std_map = 1000.0;
         };
 
-        GenericReconImageArrayScalingGadget(const Core::MrdContext &context, const Parameters& params);
+        GenericReconImageArrayScalingGadget(const Core::MRContext &context, const Parameters& params);
 
     protected:
         Parameters params_;

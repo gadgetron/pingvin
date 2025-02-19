@@ -5,8 +5,6 @@
 #include "hoNDArray_math.h"
 #include "hoNDArray_utils.h"
 
-#include "mri_core_utility.h"
-
 using namespace Gadgetron;
 namespace {
 

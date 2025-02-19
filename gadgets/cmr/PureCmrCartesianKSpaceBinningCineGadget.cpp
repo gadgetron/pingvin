@@ -138,7 +138,7 @@ PureCmrCartesianKSpaceBinningCineGadget::BinningResult PureCmrCartesianKSpaceBin
 }
 
 PureCmrCartesianKSpaceBinningCineGadget::PureCmrCartesianKSpaceBinningCineGadget(
-    const Core::MrdContext& context, const Parameters& params)
+    const Core::MRContext& context, const Parameters& params)
     : MRPureGadget(context, params)
     , params_(params)
     , verbose(params_.verbose)

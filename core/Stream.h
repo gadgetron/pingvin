@@ -5,9 +5,6 @@
 
 #include "Node.h"
 
-#include "Channel.h"
-#include "Context.h"
-
 namespace Gadgetron::Core {
 
     class Stream : public Node {

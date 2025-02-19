@@ -5,7 +5,7 @@
 
 namespace Gadgetron {
 
-RateLimitGadget::RateLimitGadget(const Core::MrdContext& context, const Parameters& params)
+RateLimitGadget::RateLimitGadget(const Core::MRContext& context, const Parameters& params)
     : Core::MRChannelGadget<mrd::StreamItem>(context, params)
     , params_(params)
 {

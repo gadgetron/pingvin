@@ -34,7 +34,7 @@ namespace Gadgetron {
             bool partial_fourier_filter_densityComp = false;
         };
 
-        GenericReconPartialFourierHandlingFilterGadget(const Core::MrdContext& context, const Parameters& params)
+        GenericReconPartialFourierHandlingFilterGadget(const Core::MRContext& context, const Parameters& params)
             : BaseClass(context, params)
             , params_(params)
         {}

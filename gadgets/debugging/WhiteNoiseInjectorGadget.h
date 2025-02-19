@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 
 #include <random>
@@ -53,7 +53,7 @@ public:
         bool add_noise_ref_ = false;
     };
 
-    WhiteNoiseInjectorGadget(const Core::MrdContext& context, const Parameters& params);
+    WhiteNoiseInjectorGadget(const Core::MRContext& context, const Parameters& params);
     ~WhiteNoiseInjectorGadget() override;
 
 protected:

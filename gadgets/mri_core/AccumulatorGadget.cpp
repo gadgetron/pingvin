@@ -20,7 +20,7 @@ int addPrePostZeros(size_t centre_column, size_t samples) {
 
 namespace Gadgetron {
 
-AccumulatorGadget::AccumulatorGadget(const Core::MrdContext& context, const Parameters& params)
+AccumulatorGadget::AccumulatorGadget(const Core::MRContext& context, const Parameters& params)
     : AccumulatorGadget::MRChannelGadget(context, params)
     , parameters_(params)
     , image_counter_(0)

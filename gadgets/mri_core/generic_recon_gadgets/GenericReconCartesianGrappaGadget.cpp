@@ -15,7 +15,7 @@
 
 namespace Gadgetron {
 
-    GenericReconCartesianGrappaGadget::GenericReconCartesianGrappaGadget(const Core::MrdContext &context, const Parameters& params)
+    GenericReconCartesianGrappaGadget::GenericReconCartesianGrappaGadget(const Core::MRContext &context, const Parameters& params)
         : BaseClass(context, params)
         , params_(params)
     {

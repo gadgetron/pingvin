@@ -14,7 +14,7 @@ static const int GADGET_FAIL = -1;
 static const int GADGET_OK = 0;
 namespace Gadgetron {
 
-    GenericReconImageArrayScalingGadget::GenericReconImageArrayScalingGadget(const Core::MrdContext &context, const Parameters& params)
+    GenericReconImageArrayScalingGadget::GenericReconImageArrayScalingGadget(const Core::MRContext &context, const Parameters& params)
         : BaseClass(context, params)
         , params_(params)
     {

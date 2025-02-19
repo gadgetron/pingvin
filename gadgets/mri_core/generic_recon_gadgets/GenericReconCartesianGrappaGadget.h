@@ -89,7 +89,7 @@ namespace Gadgetron {
             size_t downstream_coil_compression_num_modesKept = 0;
         };
 
-        GenericReconCartesianGrappaGadget(const Core::MrdContext &context, const Parameters& params);
+        GenericReconCartesianGrappaGadget(const Core::MRContext &context, const Parameters& params);
         ~GenericReconCartesianGrappaGadget() override;
 
     protected:

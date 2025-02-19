@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PureGadget.h"
+#include "MRPureNode.h"
 
 namespace Gadgetron {
     using PercentileScaleImageTypes = std::variant<mrd::Image<float>, mrd::ImageArray>;
@@ -19,7 +19,7 @@ namespace Gadgetron {
             }
         };
 
-        ScaleGadget(const Core::MrdContext& context, const Parameters& params)
+        ScaleGadget(const Core::MRContext& context, const Parameters& params)
             : Core::MRPureGadget<PercentileScaleImageTypes, PercentileScaleImageTypes >(context, params)
             , parameters_(params)
         {}

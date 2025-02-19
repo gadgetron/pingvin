@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "EPIReconXObjectTrapezoid.h"
 #include "EPIReconXObjectFlat.h"
 
@@ -8,7 +8,7 @@ namespace Gadgetron {
 
     class EPIReconXGadget : public Core::MRChannelGadget<mrd::Acquisition> {
     public:
-        EPIReconXGadget(const Core::MrdContext& context, const Core::NodeParameters& parameters);
+        EPIReconXGadget(const Core::MRContext& context, const Core::NodeParameters& parameters);
 
     protected:
         void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& out) override;

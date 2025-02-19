@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -25,7 +25,7 @@ namespace Gadgetron{
 
         };
 
-        CoilReductionGadget(const Core::MrdContext& context, const Parameters& params);
+        CoilReductionGadget(const Core::MRContext& context, const Parameters& params);
         ~CoilReductionGadget() override = default;
 
         void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& output) override;

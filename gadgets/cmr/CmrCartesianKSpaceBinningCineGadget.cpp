@@ -6,7 +6,7 @@ namespace Gadgetron {
     static const int GADGET_FAIL = -1;
     static const int GADGET_OK = 0;
 
-    CmrCartesianKSpaceBinningCineGadget::CmrCartesianKSpaceBinningCineGadget(const Core::MrdContext &context, const Parameters& params)
+    CmrCartesianKSpaceBinningCineGadget::CmrCartesianKSpaceBinningCineGadget(const Core::MRContext &context, const Parameters& params)
         : BaseClass(context, params)
         , params_(params)
         , send_out_multiple_series_by_slice_(false)

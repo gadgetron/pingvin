@@ -15,7 +15,7 @@ static const int GADGET_FAIL = -1;
 static const int GADGET_OK = 0;
 namespace Gadgetron {
 
-    GenericReconFieldOfViewAdjustmentGadget::GenericReconFieldOfViewAdjustmentGadget(const Core::MrdContext& context, const Parameters& params)
+    GenericReconFieldOfViewAdjustmentGadget::GenericReconFieldOfViewAdjustmentGadget(const Core::MRContext& context, const Parameters& params)
         : BaseClass(context, params)
     {
         auto& h = context.header;

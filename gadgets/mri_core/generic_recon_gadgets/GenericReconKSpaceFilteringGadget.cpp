@@ -12,7 +12,7 @@
 
 namespace Gadgetron {
 
-    GenericReconKSpaceFilteringGadget::GenericReconKSpaceFilteringGadget(const Core::MrdContext &context, const Parameters& params)
+    GenericReconKSpaceFilteringGadget::GenericReconKSpaceFilteringGadget(const Core::MRContext &context, const Parameters& params)
         : BaseClass(context, params)
         , params_(params)
     {

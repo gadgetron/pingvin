@@ -47,7 +47,7 @@ namespace Gadgetron {
             bool prepare_ref_always = true;
         };
 
-        GenericReconCartesianReferencePrepGadget(const Core::MrdContext &context, const Parameters& params);
+        GenericReconCartesianReferencePrepGadget(const Core::MRContext &context, const Parameters& params);
 
     protected:
         const Parameters params_;

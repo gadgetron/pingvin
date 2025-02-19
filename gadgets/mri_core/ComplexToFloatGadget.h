@@ -5,14 +5,14 @@
 
 #pragma once
 
-#include "PureGadget.h"
+#include "MRPureNode.h"
 
 namespace Gadgetron
 {
 class ComplexToFloatGadget: public Core::MRPureGadget<mrd::Image<float>,mrd::Image<std::complex<float>>>
     {
     public:
-        ComplexToFloatGadget(const Core::MrdContext&, const Parameters&);
+        ComplexToFloatGadget(const Core::MRContext&, const Parameters&);
 
         mrd::Image<float> process_function(mrd::Image<std::complex<float>> args) const override;
     private:
