@@ -36,12 +36,3 @@ install(TARGETS pingvin_grappa
 	RUNTIME DESTINATION bin
 	COMPONENT main
 )
-
-install(FILES
-        config/grappa.xml
-        config/grappa_cpu.xml
-        config/grappa_float.xml
-        config/grappa_float_cpu.xml
-        config/grappa_unoptimized.xml
-        config/grappa_unoptimized_float.xml
-        DESTINATION ${PINGVIN_INSTALL_CONFIG_PATH} COMPONENT main)

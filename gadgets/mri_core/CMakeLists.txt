@@ -67,11 +67,6 @@ set(pingvin_mricore_src_files
         ScaleGadget.cpp
         )
 
-set(pingvin_mricore_config_files
-        config/default.xml
-        config/default_optimized.xml
-        config/default_measurement_dependencies.xml
-        )
 set(pingvin_mricore_generic_recon_gadgets_header_files
         generic_recon_gadgets/GenericReconBase.h
         generic_recon_gadgets/GenericReconGadget.h
@@ -106,25 +101,6 @@ set(pingvin_mricore_generic_recon_gadgets_src_files
         generic_recon_gadgets/GenericReconNoiseStdMapComputingGadget.cpp
 )
 
-set(pingvin_mricore_generic_recon_gadgets_config_files
-        generic_recon_gadgets/config/Generic_Cartesian_FFT.xml
-        generic_recon_gadgets/config/Generic_Cartesian_Grappa_Cine_Denoise.xml
-        generic_recon_gadgets/config/Generic_Cartesian_Grappa_Complex.xml
-        generic_recon_gadgets/config/Generic_Cartesian_Grappa_EPI_AVE.xml
-        generic_recon_gadgets/config/Generic_Cartesian_Grappa_EPI.xml
-        generic_recon_gadgets/config/Generic_Cartesian_Grappa_ImageArray.xml
-        generic_recon_gadgets/config/Generic_Cartesian_Grappa_RealTimeCine.xml
-        generic_recon_gadgets/config/Generic_Cartesian_Grappa_SNR.xml
-        generic_recon_gadgets/config/Generic_Cartesian_Grappa_T2W.xml
-        generic_recon_gadgets/config/Generic_Cartesian_Grappa.xml
-        generic_recon_gadgets/config/Generic_Cartesian_Image_Chain_FFT.xml
-        generic_recon_gadgets/config/Generic_Cartesian_NonLinear_Spirit_RealTimeCine.xml
-        generic_recon_gadgets/config/Generic_Cartesian_RandomSampling_NonLinear_Spirit_RealTimeCine.xml
-        generic_recon_gadgets/config/Generic_Cartesian_Spirit_RealTimeCine.xml
-        generic_recon_gadgets/config/Generic_Cartesian_Spirit_SASHA.xml
-        generic_recon_gadgets/config/Generic_Cartesian_Spirit.xml
-)
-
 # if there is python, add gadgets using python
 if (BUILD_PYTHON_SUPPORT)
     message(STATUS "Build python generic gadgets ... ")
@@ -138,17 +114,14 @@ if (BUILD_PYTHON_SUPPORT)
 
       set( pingvin_mricore_generic_recon_gadgets_header_files ${pingvin_mricore_generic_recon_gadgets_header_files} generic_recon_gadgets/GenericReconCartesianGrappaAIGadget.h)
       set( pingvin_mricore_generic_recon_gadgets_src_files ${pingvin_mricore_generic_recon_gadgets_src_files} generic_recon_gadgets/GenericReconCartesianGrappaAIGadget.cpp)
-      set( pingvin_mricore_generic_recon_gadgets_config_files ${pingvin_mricore_generic_recon_gadgets_config_files} generic_recon_gadgets/config/Generic_Cartesian_Grappa_AI.xml)
       set( pingvin_python_models_files models/grappa_ai.py )
 endif ()
 
 add_library(pingvin_mricore SHARED
     ${pingvin_mricore_header_files}
     ${pingvin_mricore_src_files}
-    ${pingvin_mricore_config_files}
     ${pingvin_mricore_generic_recon_gadgets_header_files}
     ${pingvin_mricore_generic_recon_gadgets_src_files}
-    ${pingvin_mricore_generic_recon_gadgets_config_files}
 )
 
 set_target_properties(pingvin_mricore PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
@@ -183,12 +156,6 @@ install(FILES
 install(FILES
         ${pingvin_mricore_generic_recon_gadgets_header_files}
         DESTINATION ${PINGVIN_INSTALL_INCLUDE_PATH}/generic_recon_gadgets COMPONENT main)
-
-
-install(FILES
-        ${pingvin_mricore_config_files}
-        ${pingvin_mricore_generic_recon_gadgets_config_files}
-         DESTINATION ${PINGVIN_INSTALL_CONFIG_PATH} COMPONENT main)
 
 install(TARGETS pingvin_mricore
         EXPORT pingvin-export

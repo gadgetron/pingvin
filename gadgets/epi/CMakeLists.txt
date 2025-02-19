@@ -5,8 +5,6 @@ add_library(pingvin_epi SHARED
   FFTXGadget.h FFTXGadget.cpp
   CutXGadget.h CutXGadget.cpp
   OneEncodingGadget.h OneEncodingGadget.cpp
-  epi.xml
-  epi_gtplus_grappa.xml
 )
 
 set_target_properties(pingvin_epi PROPERTIES VERSION ${PINGVIN_VERSION_STRING} SOVERSION ${PINGVIN_SOVERSION})
@@ -21,7 +19,6 @@ target_link_libraries(pingvin_epi
   pingvin_toolbox_epi
 )
 
-
 install(FILES
   EPIReconXGadget.h
   EPICorrGadget.h
@@ -35,8 +32,3 @@ install(TARGETS pingvin_epi
 	RUNTIME DESTINATION bin
 	COMPONENT main
 )
-
-install(FILES
-  epi.xml
-  epi_gtplus_grappa.xml
-  DESTINATION ${PINGVIN_INSTALL_CONFIG_PATH} COMPONENT main)
