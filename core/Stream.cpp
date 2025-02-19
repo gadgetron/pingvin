@@ -12,7 +12,7 @@ namespace Gadgetron::Core {
         input_channels.emplace_back(std::move(input));
         std::vector<OutputChannel> output_channels{};
 
-        for (auto i = 0; i < nodes.size()-1; i++) {
+        for (size_t i = 0; i < nodes.size()-1; i++) {
             auto channel = make_channel<MessageChannel>();
             input_channels.emplace_back(std::move(channel.input));
             output_channels.emplace_back(std::move(channel.output));
@@ -21,7 +21,7 @@ namespace Gadgetron::Core {
         output_channels.emplace_back(std::move(output));
 
         std::vector<std::thread> threads(nodes.size());
-        for (auto i = 0; i < nodes.size(); i++) {
+        for (size_t i = 0; i < nodes.size(); i++) {
             threads[i] = std::thread(
                 [](auto node, auto input_channel, auto output_channel) {
                     try {

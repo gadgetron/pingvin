@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pipeline.h"
+#include "Pipeline.h"
 
 #include "gadgets/mri_core/NoiseAdjustGadget.h"
 #include "gadgets/mri_core/AsymmetricEchoAdjustROGadget.h"
@@ -21,9 +21,9 @@
 #include "gadgets/cmr/CmrParametricT1SRMappingGadget.h"
 #include "gadgets/cmr/CmrRealTimeLAXCineAIAnalysisGadget.h"
 
-namespace pingvin {
+namespace Pingvin {
 
-static auto cmr_cine_binning = PipelineBuilder<MrdContext>("cmr-cine-binning", "CMR cine binning 2slices")
+static auto cmr_cine_binning = PipelineBuilder<Gadgetron::Core::MrdContext>("cmr-cine-binning", "CMR cine binning 2slices")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<NoiseAdjustGadget>("noise")
@@ -43,7 +43,7 @@ static auto cmr_cine_binning = PipelineBuilder<MrdContext>("cmr-cine-binning", "
         .withNode<FloatToFixedPointGadget>("convert")
         ;
 
-static auto cmr_mapping_t1_sr = PipelineBuilder<MrdContext>("cmr-mapping-t1-sr", "CMR 2DT T1 mapping SASHA")
+static auto cmr_mapping_t1_sr = PipelineBuilder<Gadgetron::Core::MrdContext>("cmr-mapping-t1-sr", "CMR 2DT T1 mapping SASHA")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<NoiseAdjustGadget>("noise")
@@ -64,7 +64,7 @@ static auto cmr_mapping_t1_sr = PipelineBuilder<MrdContext>("cmr-mapping-t1-sr",
         .withNode<FloatToFixedPointGadget>("convert")
         ;
 
-static auto cmr_rtcine_lax_ai = PipelineBuilder<MrdContext>("cmr-rtcine-lax-ai", "CMR real-time cine LAX AI")
+static auto cmr_rtcine_lax_ai = PipelineBuilder<Gadgetron::Core::MrdContext>("cmr-rtcine-lax-ai", "CMR real-time cine LAX AI")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<NoiseAdjustGadget>("noise")

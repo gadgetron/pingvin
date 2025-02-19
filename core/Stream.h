@@ -14,7 +14,9 @@ namespace Gadgetron::Core {
     public:
         const std::string key;
 
-        Stream(std::vector<std::shared_ptr<Node>> nodes, const std::string key=""): nodes(std::move(nodes)), key(key) {}
+        Stream(std::vector<std::shared_ptr<Node>> nodes, const std::string key="")
+            : key(key), nodes(std::move(nodes))
+        {}
 
         void process(
                 Core::GenericInputChannel& input,

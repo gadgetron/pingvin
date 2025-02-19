@@ -1,20 +1,4 @@
-configure_file(pingvin_config.in pingvin_config.h)
-
-add_executable(pingvin
-        main.cc
-
-        initialization.cpp
-        system_info.cpp
-
-        nodes/Stream.cpp
-        nodes/Stream.h
-        nodes/ParallelStream.cpp
-        nodes/ParallelStream.h
-        nodes/MultiprocessStream.cpp
-        nodes/MultiprocessStream.h
-        nodes/PureStream.cpp
-        nodes/PureStream.h
-        )
+add_executable(pingvin main.cc)
 
 target_link_libraries(pingvin
         pingvin_core
@@ -31,7 +15,7 @@ target_link_libraries(pingvin
 target_include_directories(pingvin
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
+        ${CMAKE_BINARY_DIR}
         ${CMAKE_SOURCE_DIR}
         )
 

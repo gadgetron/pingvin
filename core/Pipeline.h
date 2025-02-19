@@ -10,157 +10,24 @@ namespace po = boost::program_options;
 
 #include "system_info.h"
 
-#include "nodes/Stream.h"
-#include "nodes/ParallelStream.h"
-#include "nodes/MultiprocessStream.h"
 #include "Channel.h"
-
 #include "Node.h"
+#include "Source.h"
+#include "Sink.h"
+#include "Stream.h"
+#include "ParallelStream.h"
 #include "parallel/Branch.h"
 #include "parallel/Merge.h"
+#include "MultiprocessStream.h"
 
 
-namespace pingvin {
+namespace Pingvin {
 
+template <typename CLS>
+struct NodeParametersBuilder {
+    NodeParametersBuilder(const std::string& label): label_(label), parameters_(label) {}
 
-struct ISource {
-    virtual ~ISource() = default;
-    virtual void consume_input(Gadgetron::Core::ChannelPair& input_channel) = 0;
-};
-
-template <typename CTX>
-struct Source : public ISource {
-    virtual void initContext(CTX&) = 0;
-};
-
-struct ISink {
-    virtual ~ISink() = default;
-    virtual void produce_output(Gadgetron::Core::ChannelPair& output_channel) = 0;
-};
-
-
-
-///// BEGIN MRD /////
-
-#include "mrd/types.h"
-
-using MrdContext = Gadgetron::Core::MrdContext;
-
-struct MrdSource : public Source<MrdContext> {
-    MrdSource(std::istream& input_stream): mrd_reader_(input_stream) {}
-
-    void initContext(MrdContext& ctx) override {
-        std::optional<mrd::Header> hdr;
-        mrd_reader_.ReadHeader(hdr);
-        if (!hdr.has_value()) {
-            GADGET_THROW("Failed to read MRD header");
-        }
-
-        ctx.header = hdr.value();
-
-        for (char** raw = environ; *raw; ++raw) {
-            std::string s(*raw);
-            auto pos = s.find('=');
-            if (pos != std::string::npos) {
-                ctx.env[s.substr(0, pos)] = s.substr(pos + 1);
-            }
-        }
-
-        ctx.paths.pingvin_home = Gadgetron::Main::Info::get_pingvin_home();
-    }
-
-    void consume_input(Gadgetron::Core::ChannelPair& input_channel) override
-    {
-        mrd::StreamItem stream_item;
-        while (mrd_reader_.ReadData(stream_item)) {
-            std::visit([&](auto&& arg) {
-                Gadgetron::Core::Message msg(std::move(arg));
-                input_channel.output.push_message(std::move(msg));
-            }, stream_item);
-        }
-        mrd_reader_.Close();
-        auto destruct_me = std::move(input_channel.output);
-    }
-
-private:
-    mrd::binary::MrdReader mrd_reader_;
-};
-
-struct MrdSink : public ISink {
-    MrdSink(std::ostream& output_stream, const MrdContext& ctx)
-        : mrd_writer_(output_stream)
-    {
-        mrd_writer_.WriteHeader(ctx.header);
-    }
-
-    void produce_output(Gadgetron::Core::ChannelPair& output_channel) override
-    {
-        while (true) {
-            try {
-                auto message = output_channel.input.pop();
-
-                using namespace Gadgetron::Core;
-
-                if (convertible_to<mrd::Acquisition>(message) ) {
-                    mrd_writer_.WriteData(force_unpack<mrd::Acquisition>(std::move(message)));
-                } else if (convertible_to<mrd::WaveformUint32>(message) ) {
-                    mrd_writer_.WriteData(force_unpack<mrd::WaveformUint32>(std::move(message)));
-                } else if (convertible_to<mrd::ImageUint16>(message) ) {
-                    mrd_writer_.WriteData(force_unpack<mrd::ImageUint16>(std::move(message)));
-                } else if (convertible_to<mrd::ImageInt16>(message) ) {
-                    mrd_writer_.WriteData(force_unpack<mrd::ImageInt16>(std::move(message)));
-                } else if (convertible_to<mrd::ImageUint32>(message) ) {
-                    mrd_writer_.WriteData(force_unpack<mrd::ImageUint32>(std::move(message)));
-                } else if (convertible_to<mrd::ImageInt32>(message) ) {
-                    mrd_writer_.WriteData(force_unpack<mrd::ImageInt32>(std::move(message)));
-                } else if (convertible_to<mrd::ImageFloat>(message) ) {
-                    mrd_writer_.WriteData(force_unpack<mrd::ImageFloat>(std::move(message)));
-                } else if (convertible_to<mrd::ImageDouble>(message) ) {
-                    mrd_writer_.WriteData(force_unpack<mrd::ImageDouble>(std::move(message)));
-                } else if (convertible_to<mrd::ImageComplexFloat>(message) ) {
-                    mrd_writer_.WriteData(force_unpack<mrd::ImageComplexFloat>(std::move(message)));
-                } else if (convertible_to<mrd::ImageComplexDouble>(message) ) {
-                    mrd_writer_.WriteData(force_unpack<mrd::ImageComplexDouble>(std::move(message)));
-                } else if (convertible_to<mrd::AcquisitionBucket>(message) ) {
-                    mrd_writer_.WriteData(force_unpack<mrd::AcquisitionBucket>(std::move(message)));
-                } else if (convertible_to<mrd::ImageArray>(message) ) {
-                    mrd_writer_.WriteData(force_unpack<mrd::ImageArray>(std::move(message)));
-                } else {
-                    GADGET_THROW("Unsupported Message type for MrdWriter! Check that the last Gadget emits a valid MRD type.");
-                }
-            } catch (const Gadgetron::Core::ChannelClosed& exc) {
-                break;
-            }
-        }
-
-        mrd_writer_.EndData();
-        mrd_writer_.Close();
-    }
-
-private:
-    mrd::binary::MrdWriter mrd_writer_;
-};
-
-///// END MRD /////
-
-template <typename C>
-struct INodeBuilder {
-    virtual ~INodeBuilder() = default;
-    virtual std::shared_ptr<Gadgetron::Core::Node> build(const C& ctx) const = 0;
-    virtual void collect_options(po::options_description& parent) = 0;
-    virtual void dump_config(std::ostream& os, bool only_modified=false) = 0;
-};
-
-template <typename N, typename CTX>
-class NodeBuilder : public INodeBuilder<CTX> {
-public:
-    NodeBuilder(const std::string& label): label_(label), parameters_(label) {}
-
-    std::shared_ptr<Gadgetron::Core::Node> build(const CTX& ctx) const override {
-        return std::make_shared<N>(ctx, this->parameters_);
-    }
-
-    void collect_options(po::options_description& parent) override {
+    void collect_options(po::options_description& parent) {
         po::options_description desc(parameters_.description());
 
         if (parameters_.parameters().size() > 0) {
@@ -172,7 +39,7 @@ public:
         }
     }
 
-    void dump_config(std::ostream& os, bool only_modified) override {
+    void dump_config(std::ostream& os, bool only_modified) {
         std::stringstream ss;
         ss.imbue(std::locale::classic());
         for (auto& p: parameters_.parameters()) {
@@ -189,9 +56,34 @@ public:
         }
     }
 
-private:
-    std::string label_;
-    typename N::Parameters parameters_;
+    const std::string label_;
+    typename CLS::Parameters parameters_;
+};
+
+template <typename C>
+struct INodeBuilder {
+    virtual ~INodeBuilder() = default;
+    virtual std::shared_ptr<Gadgetron::Core::Node> build(const C& ctx) const = 0;
+    virtual void collect_options(po::options_description& parent) = 0;
+    virtual void dump_config(std::ostream& os, bool only_modified=false) = 0;
+};
+
+template <typename N, typename CTX>
+class NodeBuilder : public INodeBuilder<CTX>, NodeParametersBuilder<N> {
+public:
+    NodeBuilder(const std::string& label): NodeParametersBuilder<N>(label) {}
+
+    std::shared_ptr<Gadgetron::Core::Node> build(const CTX& ctx) const override {
+        return std::make_shared<N>(ctx, this->parameters_);
+    }
+
+    void collect_options(po::options_description& parent) override {
+        NodeParametersBuilder<N>::collect_options(parent);
+    }
+
+    void dump_config(std::ostream& os, bool only_modified) override {
+        NodeParametersBuilder<N>::dump_config(os, only_modified);
+    }
 };
 
 template <typename CTX>
@@ -240,41 +132,21 @@ struct IBranchBuilder {
 };
 
 template <typename N, typename CTX>
-class BranchBuilder : public IBranchBuilder<CTX> {
+class BranchBuilder : public IBranchBuilder<CTX>, NodeParametersBuilder<N> {
 public:
-    BranchBuilder(const std::string& label): label_(label), parameters_(label) {}
+    BranchBuilder(const std::string& label): NodeParametersBuilder<N>(label) {}
 
     std::unique_ptr<Gadgetron::Core::Parallel::Branch> build(const CTX& ctx) const override {
         return std::move(std::make_unique<N>(ctx, this->parameters_));
     }
 
     void collect_options(po::options_description& parent) override {
-        po::options_description desc(parameters_.description());
-
-        if (parameters_.parameters().size() > 0) {
-            for (auto& p: parameters_.parameters()) {
-                desc.add(p->as_boost_option());
-            }
-
-            parent.add(desc);
-        }
+        NodeParametersBuilder<N>::collect_options(parent);
     }
 
     void dump_config(std::ostream& os, bool only_modified) override {
-        os << "[" << parameters_.prefix() << "]" << std::endl;
-        for (auto& p: parameters_.parameters()) {
-            if (!p->modified() && only_modified) {
-                continue;
-            }
-            p->print(os);
-            os << std::endl;
-        }
-        os << std::endl;
+        NodeParametersBuilder<N>::dump_config(os, only_modified);
     }
-
-private:
-    std::string label_;
-    typename N::Parameters parameters_;
 };
 
 template <typename CTX>
@@ -286,41 +158,21 @@ struct IMergeBuilder {
 };
 
 template <typename N, typename CTX>
-class MergeBuilder : public IMergeBuilder<CTX> {
+class MergeBuilder : public IMergeBuilder<CTX>, NodeParametersBuilder<N> {
 public:
-    MergeBuilder(const std::string& label): label_(label), parameters_(label) {}
+    MergeBuilder(const std::string& label): NodeParametersBuilder<N>(label) {}
 
     std::unique_ptr<Gadgetron::Core::Parallel::Merge> build(const CTX& ctx) const override {
         return std::move(std::make_unique<N>(ctx, this->parameters_));
     }
 
     void collect_options(po::options_description& parent) override {
-        po::options_description desc(parameters_.description());
-
-        if (parameters_.parameters().size() > 0) {
-            for (auto& p: parameters_.parameters()) {
-                desc.add(p->as_boost_option());
-            }
-
-            parent.add(desc);
-        }
+        NodeParametersBuilder<N>::collect_options(parent);
     }
 
     void dump_config(std::ostream& os, bool only_modified) override {
-        os << "[" << parameters_.prefix() << "]" << std::endl;
-        for (auto& p: parameters_.parameters()) {
-            if (!p->modified() && only_modified) {
-                continue;
-            }
-            p->print(os);
-            os << std::endl;
-        }
-        os << std::endl;
+        NodeParametersBuilder<N>::dump_config(os, only_modified);
     }
-
-private:
-    std::string label_;
-    typename N::Parameters parameters_;
 };
 
 template <typename CTX>
@@ -375,7 +227,7 @@ public:
         }
         auto merge = merge_builder_->build(ctx);
 
-        return std::make_shared<Gadgetron::Core::ParallelStream>(std::move(branch), std::move(merge), streams);
+        return std::make_shared<Gadgetron::Core::ParallelStream>(std::move(branch), std::move(merge), std::move(streams));
     }
 
     void collect_options(po::options_description& parent) override {
@@ -417,41 +269,21 @@ struct IPureNodeBuilder {
 };
 
 template <typename N, typename CTX>
-class PureNodeBuilder : public IPureNodeBuilder<CTX> {
+class PureNodeBuilder : public IPureNodeBuilder<CTX>, NodeParametersBuilder<N> {
 public:
-    PureNodeBuilder(const std::string& label): label_(label), parameters_(label) {}
+    PureNodeBuilder(const std::string& label): NodeParametersBuilder<N>(label) {}
 
     std::unique_ptr<Gadgetron::Core::GenericPureGadget> build(const CTX& ctx) const override {
         return std::move(std::make_unique<N>(ctx, this->parameters_));
     }
 
     void collect_options(po::options_description& parent) override {
-        po::options_description desc(parameters_.description());
-
-        if (parameters_.parameters().size() > 0) {
-            for (auto& p: parameters_.parameters()) {
-                desc.add(p->as_boost_option());
-            }
-
-            parent.add(desc);
-        }
+        NodeParametersBuilder<N>::collect_options(parent);
     }
 
     void dump_config(std::ostream& os, bool only_modified) override {
-        os << "[" << parameters_.prefix() << "]" << std::endl;
-        for (auto& p: parameters_.parameters()) {
-            if (!p->modified() && only_modified) {
-                continue;
-            }
-            p->print(os);
-            os << std::endl;
-        }
-        os << std::endl;
+        NodeParametersBuilder<N>::dump_config(os, only_modified);
     }
-
-private:
-    std::string label_;
-    typename N::Parameters parameters_;
 };
 
 template <typename CTX>
@@ -658,6 +490,7 @@ struct PipelineBuilder : public IPipelineBuilder{
         return std::move(pipeline);
     }
 
+private:
     std::function<std::shared_ptr<Source<CTX>>(std::istream&)> source_builder_;
     std::function<std::shared_ptr<ISink>(std::ostream&, const CTX&)> sink_builder_;
 
@@ -667,4 +500,4 @@ struct PipelineBuilder : public IPipelineBuilder{
 };
 
 
-} // namespace pingvin
+} // namespace Pingvin

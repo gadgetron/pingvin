@@ -1,8 +1,8 @@
 #pragma once
 
-#include "pipeline.h"
+#include "Pipeline.h"
 
-namespace pingvin {
+namespace Pingvin {
 
   using namespace Gadgetron;
 

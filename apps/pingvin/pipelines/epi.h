@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pipeline.h"
+#include "Pipeline.h"
 
 #include "gadgets/mri_core/NoiseAdjustGadget.h"
 #include "gadgets/mri_core/AcquisitionAccumulateTriggerGadget.h"
@@ -15,11 +15,11 @@
 #include "gadgets/epi/EPICorrGadget.h"
 #include "gadgets/epi/FFTXGadget.h"
 
-namespace pingvin {
+namespace Pingvin {
 
   using namespace Gadgetron;
 
-  static auto epi_2d = PipelineBuilder<MrdContext>("epi", "Basic EPI Reconstruction")
+  static auto epi_2d = PipelineBuilder<Gadgetron::Core::MrdContext>("epi", "Basic EPI Reconstruction")
                            .withSource<MrdSource>()
                            .withSink<MrdSink>()
                            .withNode<NoiseAdjustGadget>("noise")

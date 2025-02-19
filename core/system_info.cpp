@@ -24,7 +24,7 @@
 #endif
 
 
-namespace Gadgetron::Main::Info {
+namespace Pingvin::Main {
 
     std::string pingvin_version() {
         return PINGVIN_VERSION_STRING;
@@ -228,13 +228,9 @@ namespace Gadgetron::Main::Info {
 
         std::filesystem::path executable_path = get_executable_path();
 
-        GDEBUG_STREAM("Executable path: " << executable_path);
-
         std::filesystem::path pingvin_home = executable_path
                 .parent_path()
                 .parent_path();
-
-        GDEBUG_STREAM("Default Pingvin home: " << pingvin_home);
 
         return pingvin_home;
     }

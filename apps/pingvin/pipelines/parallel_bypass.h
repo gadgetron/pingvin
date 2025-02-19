@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pipeline.h"
+#include "Pipeline.h"
 
 #include "gadgets/mri_core/NoiseAdjustGadget.h"
 #include "gadgets/mri_core/PCACoilGadget.h"
@@ -15,11 +15,11 @@
 #include "gadgets/examples/ImageInverter.h"
 #include "gadgets/examples/ImageLayerer.h"
 
-namespace pingvin {
+namespace Pingvin {
 
   using namespace Gadgetron;
 
-static auto example_parallel_bypass = PipelineBuilder<MrdContext>("parallel-bypass", "Basic Parallel Bypass Example")
+static auto example_parallel_bypass = PipelineBuilder<Gadgetron::Core::MrdContext>("parallel-bypass", "Basic Parallel Bypass Example")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<NoiseAdjustGadget>("noise")

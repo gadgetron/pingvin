@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pipeline.h"
+#include "Pipeline.h"
 
 #include "gadgets/mri_core/NoiseAdjustGadget.h"
 #include "gadgets/mri_core/AsymmetricEchoAdjustROGadget.h"
@@ -20,11 +20,11 @@
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconImageArrayScalingGadget.h"
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconNoiseStdMapComputingGadget.h"
 
-namespace pingvin {
+namespace Pingvin {
 
 using namespace Gadgetron;
 
-static auto grappa_denoise = PipelineBuilder<MrdContext>("cartesian-grappa-cine-denoise", "Cartesian Grappa with Cine Denoising")
+static auto grappa_denoise = PipelineBuilder<Gadgetron::Core::MrdContext>("cartesian-grappa-cine-denoise", "Cartesian Grappa with Cine Denoising")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<NoiseAdjustGadget>("noise")

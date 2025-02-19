@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pipeline.h"
+#include "Pipeline.h"
 
 #include "gadgets/epi/EPIReconXGadget.h"
 #include "gadgets/epi/EPICorrGadget.h"
@@ -22,11 +22,11 @@
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconFieldOfViewAdjustmentGadget.h"
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconImageArrayScalingGadget.h"
 
-namespace pingvin {
+namespace Pingvin {
 
   using namespace Gadgetron;
 
-  static auto grappa_epi = PipelineBuilder<MrdContext>("grappa-epi", "Basic EPI Reconstruction")
+  static auto grappa_epi = PipelineBuilder<Gadgetron::Core::MrdContext>("grappa-epi", "Basic EPI Reconstruction")
                            .withSource<MrdSource>()
                            .withSink<MrdSink>()
                            .withNode<NoiseAdjustGadget>("noise")

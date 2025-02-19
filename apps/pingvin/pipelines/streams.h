@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pipeline.h"
+#include "Pipeline.h"
 
 #include "gadgets/mri_core/NoiseAdjustGadget.h"
 #include "gadgets/mri_core/AsymmetricEchoAdjustROGadget.h"
@@ -20,9 +20,9 @@
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconImageArrayScalingGadget.h"
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconNoiseStdMapComputingGadget.h"
 
-namespace pingvin {
+namespace Pingvin {
 
-static auto stream_cartesian_grappa_imagearray = PipelineBuilder<MrdContext>("stream-cartesian-grappa-imagearray", "Cartesian Grappa Recon to ImageArray")
+static auto stream_cartesian_grappa_imagearray = PipelineBuilder<Gadgetron::Core::MrdContext>("stream-cartesian-grappa-imagearray", "Cartesian Grappa Recon to ImageArray")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<NoiseAdjustGadget>("noise")
@@ -45,25 +45,25 @@ static auto stream_cartesian_grappa = stream_cartesian_grappa_imagearray
         .withNode<AugmentImageMetadataGadget>("augment-metadata")
         ;
 
-static auto stream_image_array_scaling = PipelineBuilder<MrdContext>("stream-image-array-scaling", "Image Array Scaling")
+static auto stream_image_array_scaling = PipelineBuilder<Gadgetron::Core::MrdContext>("stream-image-array-scaling", "Image Array Scaling")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<GenericReconImageArrayScalingGadget>("scale")
         ;
 
-static auto stream_image_array_split = PipelineBuilder<MrdContext>("stream-image-array-split", "Image Array split")
+static auto stream_image_array_split = PipelineBuilder<Gadgetron::Core::MrdContext>("stream-image-array-split", "Image Array split")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<ImageArraySplitGadget>("split")
         ;
 
-static auto stream_complex_to_float = PipelineBuilder<MrdContext>("stream-complex-to-float", "Complex to Float")
+static auto stream_complex_to_float = PipelineBuilder<Gadgetron::Core::MrdContext>("stream-complex-to-float", "Complex to Float")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<ComplexToFloatGadget>("complex-to-float")
         ;
 
-static auto stream_float_to_fixed_point = PipelineBuilder<MrdContext>("stream-float-to-fixed-point", "Float to Fixed-Point")
+static auto stream_float_to_fixed_point = PipelineBuilder<Gadgetron::Core::MrdContext>("stream-float-to-fixed-point", "Float to Fixed-Point")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<FloatToFixedPointGadget>("convert")

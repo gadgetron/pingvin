@@ -1,21 +1,7 @@
-#include "pipelines/noise.h"
-#include "pipelines/grappa.h"
-#include "pipelines/default.h"
-#include "pipelines/epi.h"
-#include "pipelines/cartesian_grappa.h"
-#include "pipelines/cartesian_spirit.h"
-#include "pipelines/grappa_epi.h"
-#include "pipelines/cmr.h"
-#include "pipelines/parallel_bypass.h"
-#include "pipelines/streams.h"
-#include "pipelines/denoise.h"
-
-#include "pipelines/file_search.h"
-
 #include "log.h"
-#include "initialization.h"
 #include "system_info.h"
 #include "pingvin_config.h"
+#include "pipeline_registry.h"
 
 #include <boost/program_options.hpp>
 
@@ -25,9 +11,32 @@
 
 namespace po = boost::program_options;
 
-using namespace pingvin;
+using namespace Pingvin;
 
 namespace {
+
+void set_locale() {
+    try {
+        std::locale::global(std::locale(""));
+    } catch (...) {
+        std::locale::global(std::locale::classic());
+    }
+}
+
+/** TODO: Is this still relevant and necessary in 2025? */
+void check_environment_variables() {
+
+    auto get_policy = []() -> std::string {
+        auto raw = std::getenv("OMP_WAIT_POLICY");
+        return boost::algorithm::to_lower_copy(raw ? std::string(raw) : std::string());
+    };
+
+    if ("passive" != get_policy()) {
+        GWARN_STREAM("Environment variable 'OMP_WAIT_POLICY' not set to 'PASSIVE'.");
+        GWARN_STREAM("Pingvin may experience serious performance issues under heavy load " <<
+                        "(multiple simultaneous reconstructions, etc.)")
+    }
+}
 
 /// Parses a "PINGVIN_*" environment variable into a CLI parameter
 std::string envvar_to_node_parameter(const std::string& env_var)
@@ -61,19 +70,26 @@ std::string envvar_to_node_parameter(const std::string& env_var)
 
 int main(int argc, char** argv)
 {
+    set_locale();
+
     po::options_description global("Global options");
 
     global.add_options()
         ("help,h", "Prints this help message")
         ("info", "Prints build info about Pingvin")
-        ("home",
-            po::value<std::filesystem::path>()->default_value(Gadgetron::Main::Info::get_pingvin_home()),
-            "Set the Pingvin home directory")
+        ("list,l", "List available pipelines")
         ("genconf,g", "Generate a full configuration file for the given pipeline")
         ("dumpconf,d", "Dump the current configuration for the given pipeline")
+        ;
+
+    po::options_description pipeline_opts("Pipeline options");
+    pipeline_opts.add_options()
         ("config,c", po::value<std::string>(), "Pipeline configuration file")
         ("input,i", po::value<std::string>(), "Input stream (default=stdin)")
         ("output,o", po::value<std::string>(), "Output stream (default=stdout)")
+        ("home",
+            po::value<std::filesystem::path>()->default_value(Pingvin::Main::get_pingvin_home()),
+            "(Deprecated) Set the Pingvin home directory")
         ;
 
     po::options_description hidden("Hidden options");
@@ -86,7 +102,7 @@ int main(int argc, char** argv)
     help_options.add(global);
 
     po::options_description allowed_options;
-    allowed_options.add(global).add(hidden);
+    allowed_options.add(global).add(pipeline_opts).add(hidden);
 
     po::positional_options_description pos;
     pos.add("pipeline", 1)
@@ -113,75 +129,34 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    Gadgetron::Main::check_environment_variables();
-    Gadgetron::Main::configure_blas_libraries();
-    Gadgetron::Main::set_locale();
-
-    GINFO_STREAM("Pingvin " << PINGVIN_VERSION_STRING << " [" << PINGVIN_GIT_SHA1_HASH << "]");
-
     if (vm.count("info")) {
         std::stringstream str;
-        Gadgetron::Main::Info::print_system_information(str);
+        Pingvin::Main::print_system_information(str);
         GINFO_STREAM(str.str());
         return 0;
     }
 
     if (vm.count("home") && !vm["home"].defaulted()) {
-        Gadgetron::Main::Info::set_pingvin_home(vm["home"].as<std::filesystem::path>());
-        GINFO_STREAM("Set Pingvin home to: " << Gadgetron::Main::Info::get_pingvin_home());
+        Pingvin::Main::set_pingvin_home(vm["home"].as<std::filesystem::path>());
+        GINFO_STREAM("Set Pingvin home to: " << Pingvin::Main::get_pingvin_home());
     }
 
-    // "Choose" a Pipeline
-    std::vector<IPipelineBuilder*> builders{
-        &file_search,
+    PipelineRegistry registry;
 
-        &noise_dependency,
-        &default_mr,
-        &default_mr_optimized,
-
-        &epi_2d,
-
-        &grappa,
-        &grappa_cpu,
-
-        &cartesian_grappa,
-        &cartesian_grappa_snr,
-        &grappa_denoise,
-
-        &cartesian_spirit,
-        &cartesian_spirit_nonlinear,
-
-        &grappa_epi,
-
-        &cmr_cine_binning,
-        &cmr_mapping_t1_sr,
-        &cmr_rtcine_lax_ai,
-
-        &example_parallel_bypass,
-
-        &stream_cartesian_grappa_imagearray,
-        &stream_cartesian_grappa,
-        &stream_image_array_scaling,
-        &stream_image_array_split,
-        &stream_complex_to_float,
-        &stream_float_to_fixed_point,
-    };
-    std::map<std::string, IPipelineBuilder*> builder_map;
-    for (auto& builder : builders) {
-        builder_map[builder->name()] = builder;
+    if (vm.count("list")) {
+        std::cout << "Pipeline / Description" << std::endl;
+        for (auto& builder : registry.builders()) {
+            std::cout << builder->name() << " / " << builder->description() << std::endl;
+        }
+        return 0;
     }
 
     if (!vm.count("pipeline")) {
         if (vm.count("help")) {
             std::filesystem::path progpath(argv[0]);
-            std::cerr << "Usage: " << progpath.filename().string() << " [global options] <PIPELINE> [pipeline options]"
-                        << std::endl;
-            std::cerr << help_options << std::endl;
-            std::cerr << "Pipelines:" << std::endl;
-            for (auto& builder : builders) {
-                // std::cerr << "┌ " << builder->name << std::endl << "└──── " << builder->description << std::endl;
-                std::cerr << "- " << builder->name() << std::endl << "  └── " << builder->description() << std::endl;
-            }
+            std::cout << "Usage: "
+                    << progpath.filename().string() << " [global options] <PIPELINE> [pipeline options]" << std::endl
+                    << help_options << std::endl;
             return 0;
         } else {
             std::cerr << "No pipeline specified" << std::endl;
@@ -189,12 +164,13 @@ int main(int argc, char** argv)
         }
     }
 
+    // "Choose" a Pipeline
     std::string subcmd = vm["pipeline"].as<std::string>();
-    if (!builder_map.count(subcmd)) {
+    auto builder = registry.get(subcmd);
+    if (!builder) {
         std::cerr << "Unknown pipeline: " << subcmd << std::endl;
         return 1;
     }
-    auto& builder = builder_map[subcmd];
 
     po::options_description pipeline_options = builder->collect_options();
 
@@ -203,15 +179,16 @@ int main(int argc, char** argv)
         po::parsed_options parsed = po::basic_command_line_parser(unrecognized).options(pipeline_options).run();
         po::store(parsed, vm);
 
-
         if (vm.count("help")) {
-            std::cerr << help_options << std::endl;
-            std::cerr << "--- " << subcmd << " ---" << std::endl;
-            std::cerr << pipeline_options << std::endl;
+            std::filesystem::path progpath(argv[0]);
+            std::cout << "Usage: "
+                    << progpath.filename().string() << " " << subcmd << " [pipeline options]" << std::endl << std::endl
+                    << pipeline_opts << std::endl
+                    << subcmd << " - " << pipeline_options << std::endl;
             return 0;
         }
 
-        po::store(po::parse_environment(pipeline_options, 
+        po::store(po::parse_environment(pipeline_options,
             // This ceremony enables defining PINGVIN_ env vars that don't map directly to CLI options
             // Otherwise, boost::program_options will complain about unrecognized PINGVIN_ env vars
             [&pipeline_options](const std::string& var) {
@@ -248,6 +225,10 @@ int main(int argc, char** argv)
         builder->dump_config(std::cout, false);
         return 0;
     }
+
+    check_environment_variables();
+
+    GINFO_STREAM("Pingvin " << PINGVIN_VERSION_STRING << " [" << PINGVIN_GIT_SHA1_HASH << "]");
 
     std::unique_ptr<std::istream> input_file;
     if (vm.count("input")) {

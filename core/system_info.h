@@ -3,7 +3,7 @@
 #include <ostream>
 #include <filesystem>
 
-namespace Gadgetron::Main::Info {
+namespace Pingvin::Main {
 
     void print_system_information(std::ostream &);
 
@@ -11,8 +11,6 @@ namespace Gadgetron::Main::Info {
     std::string pingvin_build();
 
     size_t system_memory();
-    bool python_support();
-    bool matlab_support();
 
     void set_pingvin_home(const std::filesystem::path&);
     const std::filesystem::path get_pingvin_home();

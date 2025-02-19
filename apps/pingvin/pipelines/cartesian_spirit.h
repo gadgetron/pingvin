@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pipeline.h"
+#include "Pipeline.h"
 
 #include "gadgets/mri_core/NoiseAdjustGadget.h"
 #include "gadgets/mri_core/AsymmetricEchoAdjustROGadget.h"
@@ -19,9 +19,9 @@
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconFieldOfViewAdjustmentGadget.h"
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconImageArrayScalingGadget.h"
 
-namespace pingvin {
+namespace Pingvin {
 
-static auto cartesian_spirit = PipelineBuilder<MrdContext>("cartesian-spirit", "Cartesian SPIRIT Recon")
+static auto cartesian_spirit = PipelineBuilder<Gadgetron::Core::MrdContext>("cartesian-spirit", "Cartesian SPIRIT Recon")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<NoiseAdjustGadget>("noise")
@@ -41,7 +41,7 @@ static auto cartesian_spirit = PipelineBuilder<MrdContext>("cartesian-spirit", "
         .withNode<FloatToFixedPointGadget>("convert")
         ;
 
-static auto cartesian_spirit_nonlinear = PipelineBuilder<MrdContext>("cartesian-nonlinear-spirit", "Cartesian NonLinear Spirit RealTimeCine")
+static auto cartesian_spirit_nonlinear = PipelineBuilder<Gadgetron::Core::MrdContext>("cartesian-nonlinear-spirit", "Cartesian NonLinear Spirit RealTimeCine")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<NoiseAdjustGadget>("noise")

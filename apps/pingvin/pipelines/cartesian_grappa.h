@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pipeline.h"
+#include "Pipeline.h"
 
 #include "gadgets/mri_core/NoiseAdjustGadget.h"
 #include "gadgets/mri_core/AsymmetricEchoAdjustROGadget.h"
@@ -19,9 +19,9 @@
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconImageArrayScalingGadget.h"
 #include "gadgets/mri_core/generic_recon_gadgets/GenericReconNoiseStdMapComputingGadget.h"
 
-namespace pingvin {
+namespace Pingvin {
 
-static auto cartesian_grappa = PipelineBuilder<MrdContext>("cartesian-grappa", "Cartesian Grappa Recon")
+static auto cartesian_grappa = PipelineBuilder<Gadgetron::Core::MrdContext>("cartesian-grappa", "Cartesian Grappa Recon")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<NoiseAdjustGadget>("noise")
@@ -41,7 +41,7 @@ static auto cartesian_grappa = PipelineBuilder<MrdContext>("cartesian-grappa", "
         .withNode<FloatToFixedPointGadget>("convert")
         ;
 
-static auto cartesian_grappa_snr = PipelineBuilder<MrdContext>("cartesian-grappa-snr", "Cartesian Grappa Recon with SNR")
+static auto cartesian_grappa_snr = PipelineBuilder<Gadgetron::Core::MrdContext>("cartesian-grappa-snr", "Cartesian Grappa Recon with SNR")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<NoiseAdjustGadget>("noise")

@@ -13,14 +13,14 @@ class ExtractGadget : public Core::MRChannelGadget<mrd::Image<std::complex<float
         using NodeParameters::NodeParameters;
         Parameters(const std::string& prefix) : NodeParameters(prefix, "Extract Options") {
             register_parameter("mask", &extract_mask, "(DEPRECATED) Extract mask, bitmask MAG=1, REAL=2, IMAG=4, PHASE=8");
-            register_flag("magnitude", &extract_magnitude, "Extract absolute value");
-            register_flag("real", &extract_real, "Extract real components");
-            register_flag("imag", &extract_imag, "Extract imaginary component");
-            register_flag("phase", &extract_phase, "Extract phase");
+            register_parameter("magnitude", &extract_magnitude, "Extract absolute value");
+            register_parameter("real", &extract_real, "Extract real components");
+            register_parameter("imag", &extract_imag, "Extract imaginary component");
+            register_parameter("phase", &extract_phase, "Extract phase");
             register_parameter("real-imag-offset", &real_imag_offset, "Offset to add to real and imag images");
         }
         std::bitset<4> extract_mask = 0;
-        bool extract_magnitude = false;
+        bool extract_magnitude = true;
         bool extract_real = false;
         bool extract_imag = false;
         bool extract_phase = false;

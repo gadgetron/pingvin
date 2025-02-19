@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pipeline.h"
+#include "Pipeline.h"
 
 #include "gadgets/mri_core/NoiseAdjustGadget.h"
 #include "gadgets/mri_core/PCACoilGadget.h"
@@ -16,11 +16,11 @@
 #include "gadgets/mri_core/AutoScaleGadget.h"
 #include "gadgets/mri_core/FloatToFixedPointGadget.h"
 
-namespace pingvin {
+namespace Pingvin {
 
 using namespace Gadgetron;
 
-static auto grappa = PipelineBuilder<MrdContext>("grappa", "Basic GRAPPA Reconstruction")
+static auto grappa = PipelineBuilder<Gadgetron::Core::MrdContext>("grappa", "Basic GRAPPA Reconstruction")
                         .withSource<MrdSource>()
                         .withSink<MrdSink>()
                         .withNode<NoiseAdjustGadget>("noise-adjust")
@@ -46,7 +46,7 @@ static auto grappa = PipelineBuilder<MrdContext>("grappa", "Basic GRAPPA Reconst
                         .withNode<ExtractGadget>("extract")
                         ;
 
-static auto grappa_cpu = PipelineBuilder<MrdContext>("grappa-cpu", "Basic GRAPPA Reconstruction")
+static auto grappa_cpu = PipelineBuilder<Gadgetron::Core::MrdContext>("grappa-cpu", "Basic GRAPPA Reconstruction")
                         .withSource<MrdSource>()
                         .withSink<MrdSink>()
                         .withNode<NoiseAdjustGadget>("noise-adjust")

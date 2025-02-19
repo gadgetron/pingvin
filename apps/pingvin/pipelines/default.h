@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pipeline.h"
+#include "Pipeline.h"
 
 #include "gadgets/mri_core/NoiseAdjustGadget.h"
 #include "gadgets/mri_core/PCACoilGadget.h"
@@ -12,11 +12,11 @@
 #include "gadgets/mri_core/ImageArraySplitGadget.h"
 #include "gadgets/mri_core/ExtractGadget.h"
 
-namespace pingvin {
+namespace Pingvin {
 
   using namespace Gadgetron;
 
-static auto default_mr = PipelineBuilder<MrdContext>("default", "Basic Cartesian Reconstruction")
+static auto default_mr = PipelineBuilder<Gadgetron::Core::MrdContext>("default", "Basic Cartesian Reconstruction")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<RemoveROOversamplingGadget>("ros")
@@ -27,7 +27,7 @@ static auto default_mr = PipelineBuilder<MrdContext>("default", "Basic Cartesian
         .withNode<ExtractGadget>("extract")
         ;
 
-static auto default_mr_optimized = PipelineBuilder<MrdContext>("default-optimized", "Basic Cartesian Reconstruction")
+static auto default_mr_optimized = PipelineBuilder<Gadgetron::Core::MrdContext>("default-optimized", "Basic Cartesian Reconstruction")
         .withSource<MrdSource>()
         .withSink<MrdSink>()
         .withNode<NoiseAdjustGadget>("noise-adjust")
