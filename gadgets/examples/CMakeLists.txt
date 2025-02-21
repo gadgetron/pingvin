@@ -13,9 +13,7 @@ set_target_properties(pingvin_examples PROPERTIES
         SOVERSION ${PINGVIN_SOVERSION})
 
 target_link_libraries(pingvin_examples
-        pingvin_core
-        pingvin_core_parallel
-        pingvin_mricore
+        pingvin_mri
         pingvin_toolbox_cpucore)
 
 install(TARGETS pingvin_examples
@@ -24,11 +22,3 @@ install(TARGETS pingvin_examples
         RUNTIME DESTINATION bin
         COMPONENT main
 )
-
-install(FILES
-        config/parallel_bypass_example.xml
-        config/stream_complex_to_float.xml
-        config/stream_float_to_short.xml
-        config/stream_image_array_split.xml
-        config/stream_image_array_scaling.xml
-        DESTINATION ${PINGVIN_INSTALL_CONFIG_PATH} COMPONENT main)

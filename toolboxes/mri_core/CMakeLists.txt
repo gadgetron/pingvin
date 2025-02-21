@@ -28,6 +28,7 @@ set_target_properties(pingvin_toolbox_mri_core PROPERTIES VERSION ${PINGVIN_VERS
 set_target_properties(pingvin_toolbox_mri_core PROPERTIES LINKER_LANGUAGE CXX)
 
 target_link_libraries(pingvin_toolbox_mri_core
+        mrd::mrd
         pingvin_core
         pingvin_toolbox_cpucore
         pingvin_toolbox_cpucore_math

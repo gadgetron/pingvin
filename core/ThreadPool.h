@@ -87,7 +87,7 @@ namespace Gadgetron::Core {
             auto work = std::make_unique<ConcreteWork<F, ARGS...>>(std::forward<F>(f), std::forward<ARGS>(args)...);
             auto future_result = work->get_future();
             work_queue.push(std::move(work));
-            return std::move(future_result);
+            return future_result;
         }
 
         void join(){

@@ -9,11 +9,6 @@ namespace {
 
 namespace Gadgetron::Examples {
 
-    AcquisitionWaveformBranch::AcquisitionWaveformBranch(
-            const Core::Context &,
-            const Core::GadgetProperties &properties
-    ) : TypedBranch<AcquisitionOrWaveform>(properties) {}
-
     void AcquisitionWaveformBranch::process(
         Core::InputChannel<AcquisitionOrWaveform> &input,
             std::map<std::string, Core::OutputChannel> output
@@ -23,6 +18,4 @@ namespace Gadgetron::Examples {
             channel.push(std::move(acq_or_wav));
         }
     }
-
-    GADGETRON_BRANCH_EXPORT(AcquisitionWaveformBranch)
 }

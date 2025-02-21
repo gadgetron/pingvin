@@ -3,7 +3,6 @@
 #include <set>
 
 #include "common/AcquisitionBuffer.h"
-#include "common/grappa_common.h"
 
 #ifdef USE_CUDA
 #include "gpu/WeightsCore.h"
@@ -14,6 +13,51 @@
 #include "SliceAccumulator.h"
 #include "Unmixing.h"
 
+
+namespace Gadgetron::Grappa {
+
+    bool is_last_in_slice(const mrd::Acquisition &acquisition) {
+        return acquisition.head.flags.HasFlags(mrd::AcquisitionFlags::kLastInSlice);
+    }
+
+    uint16_t slice_of(const mrd::Acquisition &acquisition) {
+        return acquisition.head.idx.slice.value_or(0);
+    }
+
+    uint16_t line_of(const mrd::Acquisition &acquisition) {
+        return acquisition.head.idx.kspace_encode_step_1.value_or(0);
+    }
+
+    uint16_t samples_in(const mrd::Acquisition &acquisition) {
+        return acquisition.Samples();
+    }
+
+    uint16_t channels_in(const mrd::Acquisition &acquisition) {
+        return acquisition.Coils();
+    }
+
+    uint64_t combined_channels(const mrd::Acquisition &acquisition) {
+        return channels_in(acquisition);
+    }
+
+    uint64_t uncombined_channels(const mrd::Acquisition &acquisition) {
+        return 0;
+    }
+
+    template<class Coll>
+    std::string to_string(Coll collection) {
+
+        if (collection.empty()) return "[]";
+
+        std::stringstream stream;
+
+        stream << "[";
+        for (auto i : collection) stream << i << ", ";
+        stream << "\b\b]";
+
+        return stream.str();
+    }
+}
 
 namespace {
     using namespace Gadgetron;
@@ -52,17 +96,17 @@ namespace {
             acceleration = std::vector<std::optional<size_t>>(max_slices, std::nullopt);
         }
 
-        void operator()(const Grappa::AnnotatedAcquisition &acquisition) {
+        void operator()(const mrd::Acquisition& acquisition) {
 
-            if(previous_line[slice_of(acquisition)]) {
-                if (line_of(acquisition) < previous_line[slice_of(acquisition)].value()) {
-                    acceleration[slice_of(acquisition)] = std::nullopt;
+            if(previous_line[Grappa::slice_of(acquisition)]) {
+                if (Grappa::line_of(acquisition) < previous_line[Grappa::slice_of(acquisition)].value()) {
+                    acceleration[Grappa::slice_of(acquisition)] = std::nullopt;
                 }
                 else {
-                    acceleration[slice_of(acquisition)] = line_of(acquisition) - previous_line[slice_of(acquisition)].value();
+                    acceleration[Grappa::slice_of(acquisition)] = Grappa::line_of(acquisition) - previous_line[Grappa::slice_of(acquisition)].value();
                 }
             }
-            previous_line[slice_of(acquisition)] = line_of(acquisition);
+            previous_line[Grappa::slice_of(acquisition)] = Grappa::line_of(acquisition);
         }
 
         size_t acceleration_factor(size_t slice) const {
@@ -85,11 +129,11 @@ namespace {
 
         }
 
-        void operator()(const Grappa::AnnotatedAcquisition &acquisition) {
+        void operator()(const mrd::Acquisition &acquisition) {
 
-            auto header = std::get<mrd::Acquisition>(acquisition).head;
+            auto header = acquisition.head;
 
-            auto& [position, read_dir, slice_dir,phase_dir] = orientations.at(slice_of(acquisition));
+            auto& [position, read_dir, slice_dir,phase_dir] = orientations.at(Grappa::slice_of(acquisition));
 
             std::array<float, 3> header_position;
             std::copy(std::begin(header.position), std::end(header.position), std::begin(header_position));
@@ -112,7 +156,7 @@ namespace {
             phase_dir = header_phase_dir;
             slice_dir = header_slice_dir;
 
-            clear(slice_of(acquisition));
+            clear(Grappa::slice_of(acquisition));
         }
 
         void clear(size_t slice) {
@@ -163,21 +207,15 @@ namespace Gadgetron::Grappa {
     }
 
     template<class WeightsCore>
-    WeightsCalculator<WeightsCore>::WeightsCalculator(
-            const Core::Context &context,
-            const std::unordered_map<std::string, std::string> &props
-    ) : ChannelGadget<Grappa::Slice>(context,props), context(context) {}
-
-    template<class WeightsCore>
     void WeightsCalculator<WeightsCore>::process(Core::InputChannel<Grappa::Slice> &in, Core::OutputChannel &out) {
 
         std::set<uint16_t> updated_slices{};
         uint16_t n_combined_channels = 0, n_uncombined_channels = 0;
 
-        const auto slice_limits = context.header.encoding[0].encoding_limits.slice;
-        const size_t max_slices = slice_limits ? context.header.encoding[0].encoding_limits.slice->maximum+1 : 1;
+        const auto slice_limits = header_.encoding[0].encoding_limits.slice;
+        const size_t max_slices = slice_limits ? header_.encoding[0].encoding_limits.slice->maximum+1 : 1;
 
-        AcquisitionBuffer buffer{context};
+        AcquisitionBuffer buffer{header_};
         AccelerationMonitor acceleration_monitor{max_slices};
 
         buffer.add_pre_update_callback(DirectionMonitor{buffer, acceleration_monitor,max_slices});
@@ -189,8 +227,8 @@ namespace Gadgetron::Grappa {
         });
 
         WeightsCore core{
-                {coil_map_estimation_ks, coil_map_estimation_power},
-                {block_size_samples, block_size_lines, convolution_kernel_threshold}
+                {parameters_.coil_map_estimation_ks, parameters_.coil_map_estimation_power},
+                {parameters_.block_size_samples, parameters_.block_size_lines, parameters_.convolution_kernel_threshold}
         };
 
         while (true) {
@@ -213,11 +251,9 @@ namespace Gadgetron::Grappa {
         }
     }
 
-    using cpuWeightsCalculator = WeightsCalculator<CPU::WeightsCore>;
-    GADGETRON_GADGET_EXPORT(cpuWeightsCalculator);
+template class WeightsCalculator<CPU::WeightsCore>;
 
 #ifdef USE_CUDA
-    using gpuWeightsCalculator = WeightsCalculator<GPU::WeightsCore>;
-    GADGETRON_GADGET_EXPORT(gpuWeightsCalculator);
+    template class WeightsCalculator<GPU::WeightsCore>;
 #endif
 }

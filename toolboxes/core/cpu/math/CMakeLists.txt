@@ -1,6 +1,3 @@
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
-# TODO: DELETE ^^^^^
-
 set(cpucore_math_header_files
     hoNDArray_math.h
     hoNDImage_util.h

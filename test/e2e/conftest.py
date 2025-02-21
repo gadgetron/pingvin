@@ -88,6 +88,14 @@ def cache_path(request, cache_disable) -> Path:
     return Path(os.path.abspath(request.config.getoption('--cache-path')))
 
 @pytest.fixture(scope="session")
+def test_env(request) -> Dict[str,str]:
+    pingvin_path = Path(shutil.which("pingvin"))
+    config_path = pingvin_path.parent.parent / "share" / "pingvin" / "config"
+    env = os.environ.copy()
+    env["PINGVIN_CONFIG_DIR"] = str(config_path)
+    return env
+
+@pytest.fixture(scope="session")
 def ignore_requirements(request) -> Set[str]:
     reqs = request.config.getoption('--ignore-requirements')
     if not reqs:

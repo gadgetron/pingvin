@@ -85,7 +85,7 @@ namespace Gadgetron {
         using Trigger = std::variant<EqualityTrigger, NumAcquisitionsTrigger, NoneTrigger>;
 
         Trigger get_trigger(const AcquisitionAccumulateTriggerGadget& gadget) {
-            switch (gadget.trigger_dimension) {
+            switch (gadget.parameters_.trigger_dimension) {
 
             case TriggerDimension::kspace_encode_step_1:
             case TriggerDimension::kspace_encode_step_2:
@@ -103,8 +103,8 @@ namespace Gadgetron {
             case TriggerDimension::user_4:
             case TriggerDimension::user_5:
             case TriggerDimension::user_6:
-            case TriggerDimension::user_7: return EqualityTrigger(gadget.trigger_dimension);
-            case TriggerDimension::n_acquisitions: return NumAcquisitionsTrigger(gadget.n_acquisitions_before_trigger,gadget.n_acquisitions_before_ongoing_trigger);
+            case TriggerDimension::user_7: return EqualityTrigger(gadget.parameters_.trigger_dimension);
+            case TriggerDimension::n_acquisitions: return NumAcquisitionsTrigger(gadget.parameters_.n_acquisitions_before_trigger, gadget.parameters_.n_acquisitions_before_ongoing_trigger);
             case TriggerDimension::none: return NoneTrigger();
             default: throw std::runtime_error("ENUM TriggerDimension is in an invalid state.");
             }
@@ -133,6 +133,7 @@ namespace Gadgetron {
 
         buckets.clear();
     }
+
     void AcquisitionAccumulateTriggerGadget::process(Core::InputChannel<std::variant<mrd::Acquisition, mrd::WaveformUint32>>& in, Core::OutputChannel& out)
     {
         auto waveforms = std::vector<mrd::WaveformUint32>{};
@@ -155,7 +156,7 @@ namespace Gadgetron {
                 send_data(out, buckets, waveforms);
             }
             // It is enough to put the first one, since they are linked
-            auto sorting_index = get_index(acq.head, sorting_dimension);
+            auto sorting_index = get_index(acq.head, parameters_.sorting_dimension);
 
             mrd::AcquisitionBucket& bucket = buckets[sorting_index];
             Gadgetron::add_acquisition_to_bucket(bucket, std::move(acq));
@@ -168,7 +169,7 @@ namespace Gadgetron {
         GDEBUG_STREAM("AcquisitionAccumulateTriggerGadget processed " << count << " Acquisitions total");
         send_data(out, buckets, waveforms);
     }
-    GADGETRON_GADGET_EXPORT(AcquisitionAccumulateTriggerGadget);
+
 
     namespace {
         const std::map<std::string, TriggerDimension> triggerdimension_from_name = {
@@ -190,6 +191,33 @@ namespace Gadgetron {
         auto lower = str;
         boost::to_lower(lower);
         trigger = triggerdimension_from_name.at(lower);
+    }
+
+    std::ostream& operator<<(std::ostream& out, const TriggerDimension& param) {
+        for (auto it = triggerdimension_from_name.begin(); it != triggerdimension_from_name.end(); ++it) {
+            if (it->second == param) {
+                out << it->first;
+                break;
+            }
+        }
+        return out;
+    }
+
+    void validate(boost::any& v, const std::vector<std::string>& values, TriggerDimension*, int)
+    {
+        // Make sure no previous assignment to 'a' was made.
+        po::validators::check_first_occurrence(v);
+        // Extract the first string from 'values'. If there is more than
+        // one string, it's an error, and exception will be thrown.
+        const std::string& s = po::validators::get_single_string(values);
+
+        TriggerDimension td;
+        try {
+            Gadgetron::from_string(s, td);
+        } catch (std::exception& e) {
+            throw po::validation_error(po::validation_error::invalid_option_value);
+        }
+        v = boost::any(td);
     }
 
 } // namespace Gadgetron

@@ -1,21 +1,23 @@
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 
 #include <complex>
 
 namespace Gadgetron{
 
-    class FlowPhaseSubtractionGadget : public Core::ChannelGadget<mrd::Image<std::complex<float>>>
+    class FlowPhaseSubtractionGadget : public Core::MRChannelGadget<mrd::Image<std::complex<float>>>
     {
 
     public:
-        using Core::ChannelGadget<mrd::Image<std::complex<float>>>::ChannelGadget;
-
+        FlowPhaseSubtractionGadget(const Core::MRContext& context, const Core::NodeParameters& params);
         ~FlowPhaseSubtractionGadget() override = default;
 
         void process(Core::InputChannel<mrd::Image<std::complex<float>>>& in, Core::OutputChannel& out) override;
+
+    protected:
+        uint32_t sets_;
     };
 }
 

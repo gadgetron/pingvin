@@ -1,0 +1,41 @@
+#pragma once
+
+#include "Pipeline.h"
+
+#include "MRSource.h"
+#include "MRSink.h"
+
+#include "gadgets/mri_core/NoiseAdjustGadget.h"
+#include "gadgets/mri_core/AcquisitionAccumulateTriggerGadget.h"
+#include "gadgets/mri_core/BucketToBufferGadget.h"
+#include "gadgets/mri_core/ExtractGadget.h"
+#include "gadgets/mri_core/FFTGadget.h"
+#include "gadgets/mri_core/CombineGadget.h"
+#include "gadgets/mri_core/AutoScaleGadget.h"
+#include "gadgets/mri_core/FloatToFixedPointGadget.h"
+
+#include "gadgets/epi/EPIReconXGadget.h"
+#include "gadgets/epi/EPICorrGadget.h"
+#include "gadgets/epi/FFTXGadget.h"
+
+namespace Pingvin {
+
+  using namespace Gadgetron;
+
+  static auto epi_2d = PipelineBuilder<Gadgetron::Core::MRContext>("epi", "Basic EPI Reconstruction")
+                           .withSource<MRSource>()
+                           .withSink<MRSink>()
+                           .withNode<NoiseAdjustGadget>("noise")
+                           .withNode<EPIReconXGadget>("reconx")
+                           .withNode<EPICorrGadget>("epicorr")
+                           .withNode<FFTXGadget>("fftx")
+                           .withNode<AcquisitionAccumulateTriggerGadget>("acctrig")
+                           .withNode<BucketToBufferGadget>("buffer")
+                           .withNode<FFTGadget>("fft")
+                           .withNode<CombineGadget>("combine")
+                           .withNode<ExtractGadget>("extract")
+                           .withNode<AutoScaleGadget>("autoscale")
+                           .withNode<FloatToFixedPointGadget>("convert")
+                           ;
+
+} // namespace pingvin

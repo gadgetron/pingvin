@@ -1,23 +1,16 @@
 #pragma once
 
-#include <vector>
-
-#include "ChannelReorderer.h"
-
-#include "Node.h"
+#include "MRNode.h"
 
 namespace Gadgetron::Grappa {
 
-    using Slice = std::vector<AnnotatedAcquisition>;
+    using Slice = std::vector<mrd::Acquisition>;
 
-    class SliceAccumulator : public Core::ChannelGadget<AnnotatedAcquisition> {
+    class SliceAccumulator : public Core::MRChannelGadget<mrd::Acquisition> {
     public:
-        SliceAccumulator(const Core::Context &, const std::unordered_map<std::string, std::string> &);
+        using Core::MRChannelGadget<mrd::Acquisition>::MRChannelGadget;
 
-        void process(Core::InputChannel<AnnotatedAcquisition> &in, Core::OutputChannel &out) override;
-
-    private:
-        const Core::Context context;
+        void process(Core::InputChannel<mrd::Acquisition> &in, Core::OutputChannel &out) override;
     };
 }
 

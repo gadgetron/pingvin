@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 #include "hoArmadillo.h"
 
@@ -8,9 +8,9 @@
 
 namespace Gadgetron{
 
-  class EPIPackNavigatorGadget : public Core::ChannelGadget<mrd::Acquisition> {
+  class EPIPackNavigatorGadget : public Core::MRChannelGadget<mrd::Acquisition> {
     public:
-      EPIPackNavigatorGadget(const Core::Context& context, const Core::GadgetProperties& props);
+      EPIPackNavigatorGadget(const Core::MRContext& context, const Core::NodeParameters& parameters);
 
     protected:
       void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& out) override;

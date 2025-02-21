@@ -43,7 +43,7 @@ namespace Gadgetron {
             case IMTYPE::kImag:
                 return extract(data, [&](auto& val) { return std::imag(val) + offset; });
             default:
-                throw std::runtime_error("Illegal image type encountered in extract_image");
+                GADGET_THROW("Illegal image type encountered in extract_image");
             }
         }
 
@@ -57,7 +57,7 @@ namespace Gadgetron {
                 extracted.head = image.head;
                 extracted.head.image_type = imtype;
                 extracted.head.image_series_index = image.head.image_series_index.value_or(0) + series_offset.at(imtype);
-                extracted.data = extract_image(image.data, imtype, real_imag_offset);
+                extracted.data = extract_image(image.data, imtype, parameters_.real_imag_offset);
                 extracted.meta = image.meta;
 
                 out.push(std::move(extracted));
@@ -65,26 +65,27 @@ namespace Gadgetron {
         }
     }
 
-    ExtractGadget::ExtractGadget(const Core::Context& context, const Core::GadgetProperties& props)
-        : Core::ChannelGadget<mrd::Image<std::complex<float>>>(context, props) {
-
-        for (int i = 0; i < extract_mask.size(); i++) {
-            if (extract_mask[i])
+    ExtractGadget::ExtractGadget(const Core::MRContext& context, const Parameters& params)
+        : Core::MRChannelGadget<mrd::Image<std::complex<float>>>(context, params)
+        , parameters_(params)
+    {
+        for (int i = 0; i < parameters_.extract_mask.size(); i++) {
+            if (parameters_.extract_mask[i]) {
                 image_types.insert(mask_to_imtype.at(i));
+            }
         }
-        if (extract_magnitude)
+        if (parameters_.extract_magnitude)
             image_types.insert(mrd::ImageType::kMagnitude);
-        if (extract_real)
+        if (parameters_.extract_real)
             image_types.insert(mrd::ImageType::kReal);
-        if (extract_imag)
+        if (parameters_.extract_imag)
             image_types.insert(mrd::ImageType::kImag);
-        if (extract_phase)
+        if (parameters_.extract_phase)
             image_types.insert(mrd::ImageType::kPhase);
 
-        if (image_types.empty())
-            throw std::runtime_error("ExctractGadget: No valid extract functions specified");
+        if (image_types.empty()) {
+            GADGET_THROW("No valid extract functions specified");
+        }
     }
-
-    GADGETRON_GADGET_EXPORT(ExtractGadget)
 
 }

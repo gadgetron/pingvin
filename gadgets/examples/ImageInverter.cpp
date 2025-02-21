@@ -32,6 +32,5 @@ namespace Gadgetron::Examples {
         return visit([](const auto &image) -> mrd::AnyImage { return invert_image(image); }, image);
     }
 
-    GADGETRON_GADGET_EXPORT(ImageInverter);
 }
 

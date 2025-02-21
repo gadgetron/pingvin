@@ -1,14 +1,11 @@
-#include "AcquisitionBuffer.h"
-
 #include <map>
 #include <set>
 
-#include "Context.h"
 #include "Channel.h"
 
 #include "hoNDArray.h"
 
-#include "grappa_common.h"
+#include "AcquisitionBuffer.h"
 
 #include <range/v3/algorithm/max_element.hpp>
 #include <range/v3/numeric.hpp>
@@ -29,18 +26,19 @@ namespace {
 
 namespace Gadgetron::Grappa {
 
-    AcquisitionBuffer::AcquisitionBuffer(Core::Context ctx) : context(std::move(ctx)) {
-
-        if (context.header.encoding.size() != 1) {
+    AcquisitionBuffer::AcquisitionBuffer(const mrd::Header& header)
+        : header_(std::move(header))
+    {
+        if (header.encoding.size() != 1) {
             throw std::runtime_error(
                     "This gadget only supports one encoding space; found " +
-                    std::to_string(context.header.encoding.size())
+                    std::to_string(header.encoding.size())
             );
         }
 
-        auto r_space  = context.header.encoding[0].recon_space;
-        auto e_space  = context.header.encoding[0].encoded_space;
-        auto e_limits = context.header.encoding[0].encoding_limits;
+        auto r_space  = header.encoding[0].recon_space;
+        auto e_space  = header.encoding[0].encoded_space;
+        auto e_limits = header.encoding[0].encoding_limits;
 
         if (r_space.matrix_size.z != 1) {
             throw std::runtime_error("RT Grappa works only with 2D images. 3D output requested.");
@@ -58,11 +56,10 @@ namespace Gadgetron::Grappa {
         buffers = std::map<size_t, buffer>{};
     }
 
-    void AcquisitionBuffer::add(const AnnotatedAcquisition &acquisition) {
+    void AcquisitionBuffer::add(const mrd::Acquisition &acq) {
 
-        for (auto &fn : pre_update_callbacks) fn(acquisition);
+        for (auto &fn : pre_update_callbacks) fn(acq);
 
-        auto& acq = std::get<mrd::Acquisition>(acquisition);
         auto &header = acq.head;
         const auto &data = acq.data;
 
@@ -91,7 +88,7 @@ namespace Gadgetron::Grappa {
             buffer.data(slice,current_line,channel) = data(slice,channel);
         }
 
-        for (auto &fn : post_update_callbacks) fn(acquisition);
+        for (auto &fn : post_update_callbacks) fn(acq);
     }
 
     hoNDArray<std::complex<float>> AcquisitionBuffer::take(size_t index) {
@@ -110,7 +107,7 @@ namespace Gadgetron::Grappa {
 
     std::pair<uint32_t,uint32_t> AcquisitionBuffer::fully_sampled_region(size_t slice) const {
 
-        const auto& e_limits = context.header.encoding[0].encoding_limits;
+        const auto& e_limits = header_.encoding[0].encoding_limits;
         const auto& sampled_lines = buffers.at(slice).sampled_lines;
 
         uint32_t lower_limit;
@@ -150,11 +147,11 @@ namespace Gadgetron::Grappa {
     }
 
 
-    void AcquisitionBuffer::add_pre_update_callback(std::function<void(const AnnotatedAcquisition &)> fn) {
+    void AcquisitionBuffer::add_pre_update_callback(std::function<void(const mrd::Acquisition &)> fn) {
         pre_update_callbacks.emplace_back(std::move(fn));
     }
 
-    void AcquisitionBuffer::add_post_update_callback(std::function<void(const AnnotatedAcquisition &)> fn) {
+    void AcquisitionBuffer::add_post_update_callback(std::function<void(const mrd::Acquisition &)> fn) {
         post_update_callbacks.emplace_back(std::move(fn));
     }
 }

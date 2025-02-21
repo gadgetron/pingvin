@@ -35,7 +35,7 @@ mrd::ImageArray Gadgetron::PureCmrCartesianKSpaceBinningCineGadget::process_func
     size_t encoding = 0;
     auto result     = perform_binning(args.buffers[encoding], encoding);
     set_image_header(args.buffers[encoding], result.image, encoding);
-    set_time_stamps(result.image, result.acquisition_time, result.capture_time, time_tick);
+    set_time_stamps(result.image, result.acquisition_time, result.capture_time, params_.time_tick);
     prepare_image_array(result.image, 0, 2, GADGETRON_IMAGE_RETRO);
     return std::move(result.image);
 }
@@ -45,45 +45,45 @@ CmrKSpaceBinning<float> PureCmrCartesianKSpaceBinningCineGadget::create_binner()
     //    binner.perform_timing_ = this->perform_timing;
     //    binner.verbose_        = this->verbose;
 
-    binner.use_multiple_channel_recon_         = this->use_multiple_channel_recon;
+    binner.use_multiple_channel_recon_         = params_.use_multiple_channel_recon;
     binner.use_paralell_imaging_binning_recon_ = true;
-    binner.use_nonlinear_binning_recon_        = this->use_nonlinear_binning_recon;
+    binner.use_nonlinear_binning_recon_        = params_.use_nonlinear_binning_recon;
 
     binner.estimate_respiratory_navigator_          = true;
-    binner.respiratory_navigator_moco_reg_strength_ = this->respiratory_navigator_moco_reg_strength;
-    binner.respiratory_navigator_moco_iters_        = this->respiratory_navigator_moco_iters;
+    binner.respiratory_navigator_moco_reg_strength_ = params_.respiratory_navigator_moco_reg_strength;
+    binner.respiratory_navigator_moco_iters_        = params_.respiratory_navigator_moco_iters;
 
-    binner.time_tick_                  = this->time_tick;
+    binner.time_tick_                  = params_.time_tick;
     binner.trigger_time_index_         = 0;
-    binner.arrhythmia_rejector_factor_ = this->arrhythmia_rejector_factor;
+    binner.arrhythmia_rejector_factor_ = params_.arrhythmia_rejector_factor;
 
-    binner.grappa_kSize_RO_                           = this->grappa_kSize_RO;
-    binner.grappa_kSize_E1_                           = this->grappa_kSize_E1;
-    binner.grappa_reg_lamda_                          = this->grappa_reg_lamda;
-    binner.downstream_coil_compression_num_modesKept_ = this->downstream_coil_compression_num_modesKept;
-    binner.downstream_coil_compression_thres_         = this->downstream_coil_compression_thres;
+    binner.grappa_kSize_RO_                           = params_.grappa_kSize_RO;
+    binner.grappa_kSize_E1_                           = params_.grappa_kSize_E1;
+    binner.grappa_reg_lamda_                          = params_.grappa_reg_lamda;
+    binner.downstream_coil_compression_num_modesKept_ = params_.downstream_coil_compression_num_modesKept;
+    binner.downstream_coil_compression_thres_         = params_.downstream_coil_compression_thres;
 
-    binner.kspace_binning_interpolate_heart_beat_images_ = this->kspace_binning_interpolate_heart_beat_images;
-    binner.kspace_binning_navigator_acceptance_window_   = this->kspace_binning_navigator_acceptance_window;
+    binner.kspace_binning_interpolate_heart_beat_images_ = params_.kspace_binning_interpolate_heart_beat_images;
+    binner.kspace_binning_navigator_acceptance_window_   = params_.kspace_binning_navigator_acceptance_window;
 
-    binner.kspace_binning_moco_reg_strength_ = this->kspace_binning_moco_reg_strength;
-    binner.kspace_binning_moco_iters_        = this->kspace_binning_moco_iters;
+    binner.kspace_binning_moco_reg_strength_ = params_.kspace_binning_moco_reg_strength;
+    binner.kspace_binning_moco_iters_        = params_.kspace_binning_moco_iters;
 
-    binner.kspace_binning_max_temporal_window_             = this->kspace_binning_max_temporal_window;
-    binner.kspace_binning_minimal_cardiac_phase_width_     = this->kspace_binning_minimal_cardiac_phase_width;
-    binner.kspace_binning_kSize_RO_                        = this->kspace_binning_kSize_RO;
-    binner.kspace_binning_kSize_E1_                        = this->kspace_binning_kSize_E1;
-    binner.kspace_binning_reg_lamda_                       = this->kspace_binning_reg_lamda;
-    binner.kspace_binning_linear_iter_max_                 = this->kspace_binning_linear_iter_max;
-    binner.kspace_binning_linear_iter_thres_               = this->kspace_binning_linear_iter_thres;
-    binner.kspace_binning_nonlinear_iter_max_              = this->kspace_binning_nonlinear_iter_max;
-    binner.kspace_binning_nonlinear_iter_thres_            = this->kspace_binning_nonlinear_iter_thres;
-    binner.kspace_binning_nonlinear_data_fidelity_lamda_   = this->kspace_binning_nonlinear_data_fidelity_lamda;
-    binner.kspace_binning_nonlinear_image_reg_lamda_       = this->kspace_binning_nonlinear_image_reg_lamda;
-    binner.kspace_binning_nonlinear_reg_N_weighting_ratio_ = this->kspace_binning_nonlinear_reg_N_weighting_ratio;
-    binner.kspace_binning_nonlinear_reg_use_coil_sen_map_  = this->kspace_binning_nonlinear_reg_use_coil_sen_map;
-    binner.kspace_binning_nonlinear_reg_with_approx_coeff_ = this->kspace_binning_nonlinear_reg_with_approx_coeff;
-    binner.kspace_binning_nonlinear_reg_wav_name_          = this->kspace_binning_nonlinear_reg_wav_name;
+    binner.kspace_binning_max_temporal_window_             = params_.kspace_binning_max_temporal_window;
+    binner.kspace_binning_minimal_cardiac_phase_width_     = params_.kspace_binning_minimal_cardiac_phase_width;
+    binner.kspace_binning_kSize_RO_                        = params_.kspace_binning_kSize_RO;
+    binner.kspace_binning_kSize_E1_                        = params_.kspace_binning_kSize_E1;
+    binner.kspace_binning_reg_lamda_                       = params_.kspace_binning_reg_lamda;
+    binner.kspace_binning_linear_iter_max_                 = params_.kspace_binning_linear_iter_max;
+    binner.kspace_binning_linear_iter_thres_               = params_.kspace_binning_linear_iter_thres;
+    binner.kspace_binning_nonlinear_iter_max_              = params_.kspace_binning_nonlinear_iter_max;
+    binner.kspace_binning_nonlinear_iter_thres_            = params_.kspace_binning_nonlinear_iter_thres;
+    binner.kspace_binning_nonlinear_data_fidelity_lamda_   = params_.kspace_binning_nonlinear_data_fidelity_lamda;
+    binner.kspace_binning_nonlinear_image_reg_lamda_       = params_.kspace_binning_nonlinear_image_reg_lamda;
+    binner.kspace_binning_nonlinear_reg_N_weighting_ratio_ = params_.kspace_binning_nonlinear_reg_N_weighting_ratio;
+    binner.kspace_binning_nonlinear_reg_use_coil_sen_map_  = params_.kspace_binning_nonlinear_reg_use_coil_sen_map;
+    binner.kspace_binning_nonlinear_reg_with_approx_coeff_ = params_.kspace_binning_nonlinear_reg_with_approx_coeff;
+    binner.kspace_binning_nonlinear_reg_wav_name_          = params_.kspace_binning_nonlinear_reg_wav_name;
 
     return binner;
 }
@@ -97,7 +97,7 @@ PureCmrCartesianKSpaceBinningCineGadget::BinningResult PureCmrCartesianKSpaceBin
     size_t S   = recon_bit.data.data.get_size(5);
     size_t SLC = recon_bit.data.data.get_size(6);
 
-    size_t binned_N = number_of_output_phases;
+    size_t binned_N = params_.number_of_output_phases;
 
     auto binner = create_binner();
     BinningResult result;
@@ -138,8 +138,11 @@ PureCmrCartesianKSpaceBinningCineGadget::BinningResult PureCmrCartesianKSpaceBin
 }
 
 PureCmrCartesianKSpaceBinningCineGadget::PureCmrCartesianKSpaceBinningCineGadget(
-    const Core::Context& context, const Core::GadgetProperties& props)
-    : PureGadget(context,props) {
+    const Core::MRContext& context, const Parameters& params)
+    : MRPureGadget(context, params)
+    , params_(params)
+    , verbose(params_.verbose)
+{
     auto h    = context.header;
     size_t NE = h.encoding.size();
 

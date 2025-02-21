@@ -14,8 +14,9 @@ static const int GADGET_FAIL = -1;
 static const int GADGET_OK = 0;
 namespace Gadgetron {
 
-    GenericReconImageArrayScalingGadget::GenericReconImageArrayScalingGadget(const Core::Context &context, const Core::GadgetProperties &properties)
-        : BaseClass(context, properties)
+    GenericReconImageArrayScalingGadget::GenericReconImageArrayScalingGadget(const Core::MRContext &context, const Parameters& params)
+        : BaseClass(context, params)
+        , params_(params)
     {
         auto& h = context.header;
 
@@ -24,18 +25,18 @@ namespace Gadgetron {
         // resize the scaling_factor_ vector and set to negative
         scaling_factor_.resize(num_encoding_spaces_, -1);
 
-        if (use_constant_scalingFactor)
+        if (params_.use_constant_scalingFactor)
         {
-            float v = scalingFactor;
+            float v = params_.scalingFactor;
 
             if (v > 0)
             {
                 for (size_t e = 0; e < num_encoding_spaces_; e++)
-                    scaling_factor_[e] = scalingFactor;
+                    scaling_factor_[e] = params_.scalingFactor;
             }
             else
             {
-                use_constant_scalingFactor = false;
+                params_.use_constant_scalingFactor = false;
             }
         }
     }
@@ -43,7 +44,7 @@ namespace Gadgetron {
     void GenericReconImageArrayScalingGadget::process(Core::InputChannel< mrd::ImageArray >& in, Core::OutputChannel& out)
     {
         for (auto m1: in) {
-            if (perform_timing) { gt_timer_.start("GenericReconImageArrayScalingGadget::process"); }
+            if (params_.perform_timing) { gt_timer_.start("GenericReconImageArrayScalingGadget::process"); }
 
             GDEBUG_CONDITION_STREAM(verbose, "GenericReconImageArrayScalingGadget::process(...) starts ... ");
 
@@ -66,50 +67,50 @@ namespace Gadgetron {
             // snr map
             if (dataRole == GADGETRON_IMAGE_SNR_MAP)
             {
-                scale_factor = this->scalingFactor_snr_map;
+                scale_factor = this->params_.scalingFactor_snr_map;
                 Gadgetron::scal((real_value_type)(scale_factor), recon_res_->data);
 
                 std::ostringstream ostr_image;
-                ostr_image << "x" << std::setprecision(4) << this->scalingFactor_snr_map;
+                ostr_image << "x" << std::setprecision(4) << this->params_.scalingFactor_snr_map;
                 imageInfo = ostr_image.str();
             }
             // gfactor
             else if (dataRole == GADGETRON_IMAGE_GFACTOR)
             {
-                scale_factor = this->scalingFactor_gfactor_map;
+                scale_factor = this->params_.scalingFactor_gfactor_map;
                 Gadgetron::scal((real_value_type)(scale_factor), recon_res_->data);
 
                 std::ostringstream ostr_image;
-                ostr_image << "x" << std::setprecision(4) << this->scalingFactor_gfactor_map;
+                ostr_image << "x" << std::setprecision(4) << this->params_.scalingFactor_gfactor_map;
                 imageInfo = ostr_image.str();
             }
             // snr std map
             else if (dataRole == GADGETRON_IMAGE_STD_MAP)
             {
-                scale_factor = this->scalingFactor_snr_std_map;
+                scale_factor = this->params_.scalingFactor_snr_std_map;
                 Gadgetron::scal((real_value_type)(scale_factor), recon_res_->data);
 
                 std::ostringstream ostr_image;
-                ostr_image << "x" << std::setprecision(4) << this->scalingFactor_snr_std_map;
+                ostr_image << "x" << std::setprecision(4) << this->params_.scalingFactor_snr_std_map;
                 imageInfo = ostr_image.str();
             }
             // if the config file asks to use the specified scaling factor
-            else if (recon_res_->meta[0].count(use_dedicated_scalingFactor_meta_field)
-                    && recon_res_->meta[0][use_dedicated_scalingFactor_meta_field].size() > 0)
+            else if (recon_res_->meta[0].count(params_.use_dedicated_scalingFactor_meta_field)
+                    && recon_res_->meta[0][params_.use_dedicated_scalingFactor_meta_field].size() > 0)
             {
-                scale_factor = this->scalingFactor_dedicated;
+                scale_factor = this->params_.scalingFactor_dedicated;
                 Gadgetron::scal((real_value_type)(scale_factor), recon_res_->data);
 
                 std::ostringstream ostr_image;
-                ostr_image << "x" << std::setprecision(4) << this->scalingFactor_dedicated;
+                ostr_image << "x" << std::setprecision(4) << this->params_.scalingFactor_dedicated;
                 imageInfo = ostr_image.str();
             }
             else
             {
                 // compute scaling factor from image and apply it
-                if (perform_timing) { gt_timer_.start("compute_and_apply_scaling_factor"); }
+                if (params_.perform_timing) { gt_timer_.start("compute_and_apply_scaling_factor"); }
                 this->compute_and_apply_scaling_factor(*recon_res_, encoding);
-                if (perform_timing) { gt_timer_.stop(); }
+                if (params_.perform_timing) { gt_timer_.stop(); }
 
                 scale_factor = this->scaling_factor_[encoding];
 
@@ -132,7 +133,7 @@ namespace Gadgetron {
 
             out.push(std::move(m1));
 
-            if (perform_timing) { gt_timer_.stop(); }
+            if (params_.perform_timing) { gt_timer_.stop(); }
         }
     }
 
@@ -141,7 +142,7 @@ namespace Gadgetron {
         // if the scaling factor for this encoding space has not been set yet (it was initialized negative),
         //   compute it.  If it has already been set (therefore, it will be positive), only compute again if
         //   the auto-scaling factor is to be computed for every incoming image array
-        if ((scaling_factor_[encoding]<0 || !auto_scaling_only_once) && !use_constant_scalingFactor)
+        if ((scaling_factor_[encoding]<0 || !params_.auto_scaling_only_once) && !params_.use_constant_scalingFactor)
         {
             hoNDArray<real_value_type> mag;
             GADGET_CHECK_EXCEPTION_RETURN(Gadgetron::abs(res.data, mag), GADGET_FAIL);
@@ -168,7 +169,7 @@ namespace Gadgetron {
             if ( maxInten < FLT_EPSILON ) maxInten = 1.0f;
 
             // if the maximum image intensity is too small or too large
-            if ( (maxInten<min_intensity_value) || (maxInten>max_intensity_value) )
+            if ( (maxInten<params_.min_intensity_value) || (maxInten>params_.max_intensity_value) )
             {
                 GDEBUG_CONDITION_STREAM(verbose, "Using the dynamic intensity scaling factor - may not have noise prewhitening performed ... ");
                 // scale the image (so that the maximum image intensity is the default one)
@@ -181,17 +182,17 @@ namespace Gadgetron {
                 // starting with the fixed intensity scaling factor, check if the image will
                 //   be clipped and, if so, try halving it (up to a minimum)
                 scaling_factor_[encoding] = GENERICRECON_DEFAULT_INTENSITY_SCALING_FACTOR;
-                while ((maxInten*scaling_factor_[encoding] > max_intensity_value) && (scaling_factor_[encoding] >= 2))
+                while ((maxInten*scaling_factor_[encoding] > params_.max_intensity_value) && (scaling_factor_[encoding] >= 2))
                 {
                     scaling_factor_[encoding] /= 2;
                 }
 
                 // if even at the minimum we are still clipping, issue a warning and
                 //    calculate a scaling factor to cover the whole dynamic range
-                if (maxInten*scaling_factor_[encoding] > max_intensity_value)
+                if (maxInten*scaling_factor_[encoding] > params_.max_intensity_value)
                 {
                     GDEBUG_CONDITION_STREAM(verbose, "The fixed intensity scaling factor leads to dynamic range overflow - switch to dynamic intensity scaling ... ");
-                    scaling_factor_[encoding] = (float)(max_intensity_value) / maxInten;
+                    scaling_factor_[encoding] = (float)(params_.max_intensity_value) / maxInten;
                 }
             }
 
@@ -212,6 +213,5 @@ namespace Gadgetron {
 
     // ----------------------------------------------------------------------------------------
 
-    GADGETRON_GADGET_EXPORT(GenericReconImageArrayScalingGadget)
 
 }

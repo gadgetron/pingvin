@@ -92,8 +92,8 @@ def create_grappa_ai_model(gt_ker):
     model = None
 
     try:
-        print("Grappa ai", file=sys.stderr, file=sys.stderr)
-        print("----------------------------------------", file=sys.stderr, file=sys.stderr)
+        print("Grappa ai", file=sys.stderr)
+        print("----------------------------------------", file=sys.stderr)
 
         try:
             kRO, kNE1, srcCHA, dstCHA, oE1 = gt_ker.shape
@@ -115,12 +115,12 @@ def create_grappa_ai_model(gt_ker):
 
         model = GrappaAI(Din, Dout, params)
         print(model, file=sys.stderr)
-        print("----------------------------------------", file=sys.stderr, file=sys.stderr)
+        print("----------------------------------------", file=sys.stderr)
 
         sys.stderr.flush()
 
     except Exception as e:
-        print("Error happened in create_grappa_ai_model", file=sys.stderr, file=sys.stderr)
+        print("Error happened in create_grappa_ai_model", file=sys.stderr)
         print(e, file=sys.stderr)
 
     return model
@@ -151,7 +151,7 @@ def apply_grappa_ai_model(gt_dataA, model, device = torch.device('cpu')):
         recon = recon.detach().cpu().numpy().astype(np.float32)
         recon_kspace = real_2_complex(recon)
     except Exception as e:
-        print("Error happened in apply_grappa_ai_model", file=sys.stderr, file=sys.stderr)
+        print("Error happened in apply_grappa_ai_model", file=sys.stderr)
         print(e, file=sys.stderr)
 
     return recon_kspace

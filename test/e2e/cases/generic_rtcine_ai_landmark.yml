@@ -2,7 +2,7 @@ reconstruction:
   data: cmr/RTCine/CH4/rtcine_R4_CH2.mrd
   checksum: 5bf49331b41432b244d12654b9c6a446
   run:
-  - args: --config CMR_RTCine_LAX_AI.xml
+  - args: cmr-rtcine-lax-ai -c ${PINGVIN_CONFIG_DIR}/cmr-rtcine-lax-ai.conf
 validation:
   reference: cmr/RTCine/CH4/ref_20220124_173736_CMR_RTCine_LAX_AI.xml.mrd
   checksum: 491f51de1fc3b9982766fac94318f25e
@@ -19,4 +19,4 @@ requirements:
 tags:
 - slow
 - generic
-- skip
+- skip    # The Python code applying the AI model needs to be updated

@@ -20,32 +20,39 @@
 #include "hoNDFFT.h"
 
 #include "mri_core_partial_fourier.h"
-#include "PureGadget.h"
+#include "MRPureNode.h"
 
 namespace Gadgetron {
 
-class GenericReconPartialFourierHandlingGadget : public Core::PureGadget<mrd::ImageArray, mrd::ImageArray>
+class GenericReconPartialFourierHandlingGadget : public Core::MRPureGadget<mrd::ImageArray, mrd::ImageArray>
     {
     public:
-
         typedef float real_value_type;
         typedef std::complex<real_value_type> ValueType;
         typedef ValueType T;
-        using BaseClass = Core::PureGadget<mrd::ImageArray,mrd::ImageArray>;
+        using BaseClass = Core::MRPureGadget<mrd::ImageArray,mrd::ImageArray>;
 
-        GenericReconPartialFourierHandlingGadget(const Core::Context& context, const Core::GadgetProperties& props);
+        struct Parameters : public Core::NodeParameters {
+            Parameters(const std::string& prefix, const std::string& description) : NodeParameters(prefix, description) {
+                register_parameter("verbose", &verbose, "Verbose");
+                register_parameter("perform-timing", &perform_timing, "Perform timing");
+                register_parameter("skip-processing-meta-field", &skip_processing_meta_field, "If this meta field exists, pass the incoming image array to next gadget without processing");
+            }
+
+            bool verbose = false;
+            bool perform_timing = false;
+            std::string skip_processing_meta_field = "Skip_processing_after_recon";
+        };
+
+        GenericReconPartialFourierHandlingGadget(const Core::MRContext& context, const Parameters& params);
 
         virtual ~GenericReconPartialFourierHandlingGadget() = default;
 
         mrd::ImageArray process_function(mrd::ImageArray array) const override;
-        /// ------------------------------------------------------------------------------------
-        /// parameters to control the reconstruction
-        /// ------------------------------------------------------------------------------------
-        NODE_PROPERTY(skip_processing_meta_field, std::string, "If this meta field exists, pass the incoming image array to next gadget without processing", "Skip_processing_after_recon");
-        NODE_PROPERTY(verbose, bool, "Verbose",false);
-        NODE_PROPERTY(perform_timing, bool, "Perform timing",false);
 
     protected:
+        const Parameters params_;
+
         size_t num_encoding_spaces;
         // --------------------------------------------------
         // variables for protocol

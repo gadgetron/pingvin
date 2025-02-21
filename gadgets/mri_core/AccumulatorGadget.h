@@ -5,24 +5,32 @@
 
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 
 namespace Gadgetron{
-  class AccumulatorGadget : public Core::ChannelGadget<mrd::Acquisition>
+  class AccumulatorGadget : public Core::MRChannelGadget<mrd::Acquisition>
     {
       public:
-        using Core::ChannelGadget<mrd::Acquisition>::ChannelGadget;
-        AccumulatorGadget(const Core::Context& context, const Core::GadgetProperties& props);
-        ~AccumulatorGadget() override;
+        struct Parameters : public Core::NodeParameters
+        {
+            long long image_series = 1;
+            Parameters(const std::string& prefix) : Core::NodeParameters(prefix, "Accumulator Gadget")
+            {
+                register_parameter("image_series", &image_series, "Image series number");
+            }
+        };
+
+        AccumulatorGadget(const Core::MRContext& context, const Parameters& params);
         void process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& output) override;
+
       protected:
-        NODE_PROPERTY(image_series, int, "Image series", 0);
-        hoNDArray<std::complex<float>>* buffer_;
+        const Parameters parameters_;
+
+        hoNDArray<std::complex<float>> buffer_;
         std::vector<size_t> dimensions_;
         float field_of_view_[3];
         size_t slices_;
         long long image_counter_;
-        long long image_series_;
     };
 }

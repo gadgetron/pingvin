@@ -8,7 +8,7 @@
 #pragma once
 
 #include <complex>
-#include "Node.h"
+#include "MRNode.h"
 #include "GadgetronTimer.h"
 
 #include "mri_core_def.h"
@@ -26,22 +26,38 @@
 namespace Gadgetron {
 
     template <typename ...T>
-    class GenericReconBase : public Core::ChannelGadget<T...>
+    class GenericReconBase : public Core::MRChannelGadget<T...>
     {
     public:
-        typedef Core::ChannelGadget<T...> BaseClass;
+        typedef Core::MRChannelGadget<T...> BaseClass;
 
-        GenericReconBase(const Core::Context& context, const Core::GadgetProperties& properties)
-            : BaseClass(context, properties)
-            , num_encoding_spaces_(context.header.encoding.size()), process_called_times_(0)
+        struct Parameters : public Core::NodeParameters {
+            Parameters(const std::string& prefix, const std::string& description) : NodeParameters(prefix, description) {
+                register_flag("verbose", &verbose, "Whether to print more information");
+                register_flag("perform-timing", &perform_timing, "Whether to perform timing on some computational steps");
+                register_parameter("debug-folder", &debug_folder, "If set, the debug output will be written out");
+                // register_parameter("time-tick", &time_tick, "Time tick in ms");
+            };
+            bool verbose = false;
+            bool perform_timing = false;
+            std::string debug_folder;
+            // float time_tick = 2.5;
+        };
+
+        GenericReconBase(const Core::MRContext& context, const Parameters& params)
+            : BaseClass(context, params)
+            , params_(params)
+            , verbose(params_.verbose)
+            , num_encoding_spaces_(context.header.encoding.size())
+            , process_called_times_(0)
         {
             gt_timer_.set_timing_in_destruction(false);
             gt_timer_local_.set_timing_in_destruction(false);
 
-            if (!debug_folder.empty())
+            if (!params_.debug_folder.empty())
             {
-                Gadgetron::get_debug_folder_path(debug_folder, debug_folder_full_path_);
-                GDEBUG_CONDITION_STREAM(verbose, "Debug folder is " << debug_folder_full_path_);
+                Gadgetron::get_debug_folder_path(params_.debug_folder, debug_folder_full_path_);
+                GDEBUG_CONDITION_STREAM(params_.verbose, "Debug folder is " << debug_folder_full_path_);
 
                 // Create debug folder if necessary
                 boost::filesystem::path boost_folder_path(debug_folder_full_path_);
@@ -56,24 +72,22 @@ namespace Gadgetron {
             }
             else
             {
-                GDEBUG_CONDITION_STREAM(verbose, "Debug folder is not set ... ");
+                GDEBUG_CONDITION_STREAM(params_.verbose, "Debug folder is not set ... ");
             }
 
-            // find the buffer names if they are set
-            this->gt_streamer_.initialize_stream_name_buffer(context.parameters);
-            this->gt_streamer_.verbose_ = this->verbose;
+            this->gt_streamer_.verbose_ = this->params_.verbose;
+            this->gt_streamer_.initialize_stream_name_buffer(context.env);
         }
 
-        /// ------------------------------------------------------------------------------------
-        /// debug and timing
-        NODE_PROPERTY(verbose, bool, "Whether to print more information", false);
-        NODE_PROPERTY(debug_folder, std::string, "If set, the debug output will be written out", "");
-        NODE_PROPERTY(perform_timing, bool, "Whether to perform timing on some computational steps", false);
-
-        /// ms for every time tick
-        NODE_PROPERTY(time_tick, float, "Time tick in ms", 2.5);
+        /** TODO: This is a duplicate of this->params_.verbose, for convenience, since it is used
+         * by external classes, such as ImageArraySendMixin.
+         *
+         * This should be fixed...
+         */
+        const bool verbose;
 
     protected:
+        const Parameters params_;
 
         // number of encoding spaces in the protocol
         size_t num_encoding_spaces_;

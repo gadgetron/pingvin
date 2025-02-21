@@ -15,20 +15,28 @@ namespace Gadgetron {
     public:
         typedef CmrParametricMappingGadget BaseClass;
 
-        CmrParametricT1SRMappingGadget(const Core::Context& context, const Core::GadgetProperties& properties);
+        struct Parameters : public BaseClass::Parameters {
+            Parameters(const std::string& prefix): BaseClass::Parameters(prefix, "T1SR Mapping") {
+                register_parameter("max-iter", &max_iter, "Maximal number of iterations");
+                register_parameter("thres-func", &thres_func, "Threshold for minimal change of cost function");
+                register_parameter("max-T1", &max_T1, "Maximal T1 allowed in mapping (ms)");
 
-        /// ------------------------------------------------------------------------------------
-        /// parameters to control the mapping
-        /// ------------------------------------------------------------------------------------
+                register_parameter("anchor-image-index", &anchor_image_index, "Index for anchor image; by default, the first image is the anchor (without SR pulse)");
+                register_parameter("anchor-TS", &anchor_TS, "Saturation time for anchor");
+            }
 
-        NODE_PROPERTY(max_iter, size_t, "Maximal number of iterations", 150);
-        NODE_PROPERTY(thres_func, double, "Threshold for minimal change of cost function", 1e-4);
-        NODE_PROPERTY(max_T1, double, "Maximal T1 allowed in mapping (ms)", 4000);
+            size_t max_iter = 150;
+            double thres_func = 1e-4;
+            double max_T1 = 4000;
 
-        NODE_PROPERTY(anchor_image_index, size_t, "Index for anchor image; by default, the first image is the anchor (without SR pulse)", 0);
-        NODE_PROPERTY(anchor_TS, double, "Saturation time for anchor", 10000);
+            size_t anchor_image_index = 0;
+            double anchor_TS = 10000;
+        };
+
+        CmrParametricT1SRMappingGadget(const Core::MRContext& context, const Parameters& params);
 
     protected:
+        const Parameters params_;
 
         // --------------------------------------------------
         // variables for protocol

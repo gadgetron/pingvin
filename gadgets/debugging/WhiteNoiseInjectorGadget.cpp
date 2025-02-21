@@ -79,17 +79,18 @@ inline void RandNormGenerator<T>::gen(hoNDArray< std::complex<T> >& randNum)
     }
 }
 
-WhiteNoiseInjectorGadget::WhiteNoiseInjectorGadget(const Core::Context& context, const Core::GadgetProperties& props)
-    : Core::ChannelGadget<mrd::Acquisition>(context, props)
+WhiteNoiseInjectorGadget::WhiteNoiseInjectorGadget(const Core::MRContext& context, const Parameters& params)
+    : Core::MRChannelGadget<mrd::Acquisition>(context, params)
+    , params_(params)
     , acceFactorE1_(1), acceFactorE2_(1)
     , is_interleaved_(false), is_embeded_(false), is_seperate_(false), is_external_(false), is_other_(false), is_no_acceleration_(false)
 {
-    GDEBUG_STREAM("noise mean is " << noise_mean_);
-    GDEBUG_STREAM("noise std is " << noise_std_);
-    GDEBUG_STREAM("add_noise_ref is " << add_noise_ref_);
+    GDEBUG_STREAM("noise mean is " << params_.noise_mean_);
+    GDEBUG_STREAM("noise std is " << params_.noise_std_);
+    GDEBUG_STREAM("add_noise_ref is " << params_.add_noise_ref_);
 
     randn_ = new RandGenType();
-    randn_->setPara(noise_mean_, noise_std_);
+    randn_->setPara(params_.noise_mean_, params_.noise_std_);
 
     // get the current time and generate a seed
     time_t rawtime;
@@ -191,7 +192,7 @@ void WhiteNoiseInjectorGadget::process(Core::InputChannel<mrd::Acquisition>& in,
         bool add_noise = true;
         if ( is_ref && !is_ref_kspace && (is_seperate_||is_external_) )
         {
-            add_noise = add_noise_ref_;
+            add_noise = params_.add_noise_ref_;
 
             if ( !add_noise )
             {
@@ -236,5 +237,4 @@ void WhiteNoiseInjectorGadget::process(Core::InputChannel<mrd::Acquisition>& in,
     }
 }
 
-GADGETRON_GADGET_EXPORT(WhiteNoiseInjectorGadget)
 }

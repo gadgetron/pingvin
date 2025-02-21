@@ -18,8 +18,10 @@
 #include <boost/algorithm/string/split.hpp>
 #include <typeinfo>
 
+#include <filesystem>
+
+
 using namespace std::string_literals;
-namespace bf = boost::filesystem;
 
 namespace Gadgetron {
     namespace {
@@ -177,32 +179,30 @@ namespace Gadgetron {
         }
     }
 
-    NoiseAdjustGadget::NoiseAdjustGadget(const Core::Context& context, const Core::GadgetProperties& props)
-        : Core::ChannelGadget<mrd::Acquisition>(context, props)
-        , current_mrd_header(context.header)
+    NoiseAdjustGadget::NoiseAdjustGadget(const Core::MRContext& context, const Parameters& params)
+        : Core::MRChannelGadget<mrd::Acquisition>(context, params)
+        , parameters_(params)
         , receiver_noise_bandwidth{ bandwidth_from_header(context.header) }
         , measurement_id{ measurement_id_from_header(context.header) }
+        , acquisition_system_information_(context.header.acquisition_system_information)
     {
+        GDEBUG_STREAM("skip_noise_adjust is " << parameters_.skip_noise_adjust);
+        GDEBUG_STREAM("reject_nonconformant_data is " << parameters_.reject_nonconformant_data);
+        GDEBUG_STREAM("receiver_noise_bandwidth is " << receiver_noise_bandwidth);
 
-        if (!perform_noise_adjust)
+        if (parameters_.skip_noise_adjust)
             return;
-
-        GDEBUG("perform_noise_adjust_ is %d\n", perform_noise_adjust);
-        GDEBUG("pass_nonconformant_data_ is %d\n", pass_nonconformant_data);
-        GDEBUG("receiver_noise_bandwidth_ is %f\n", receiver_noise_bandwidth);
 
 #ifdef USE_OMP
         omp_set_num_threads(1);
 #endif // USE_OMP
 
-        if (context.parameters.find("noisecovariancein") != context.parameters.end()) {
-            noise_covariance_in = context.parameters.at("noisecovariancein");
-            GDEBUG_STREAM("Input noise covariance matrix is provided as a parameter: " << noise_covariance_in);
+        if (!parameters_.noise_covariance_in.empty()) {
+            GDEBUG_STREAM("Input noise covariance matrix provided as a parameter: " << parameters_.noise_covariance_in);
         }
 
-        if (context.parameters.find("noisecovarianceout") != context.parameters.end()) {
-            noise_covariance_out = context.parameters.at("noisecovarianceout");
-            GDEBUG_STREAM("Output noise covariance matrix is provided as a parameter: " << noise_covariance_out);
+        if (!parameters_.noise_covariance_out.empty()) {
+            GDEBUG_STREAM("Output noise covariance matrix provided as a parameter: " << parameters_.noise_covariance_out);
         }
 
         noisehandler = load_or_gather();
@@ -215,8 +215,8 @@ namespace Gadgetron {
             size_t CHA = noise_covariance->matrix.get_size(0);
             if (noise_covariance->coil_labels.size() == CHA) {
                 std::vector<std::string> current_coil_labels;
-                if (current_mrd_header.acquisition_system_information) {
-                    for (auto& l : current_mrd_header.acquisition_system_information->coil_label) {
+                if (acquisition_system_information_) {
+                    for (auto& l : acquisition_system_information_->coil_label) {
                         current_coil_labels.push_back(l.coil_name);
                     }
                 }
@@ -247,7 +247,7 @@ namespace Gadgetron {
                 }
                 return LoadedNoise{noise_covariance->matrix, noise_covariance->noise_dwell_time_us};
 
-            } else if (current_mrd_header.acquisition_system_information) {
+            } else if (acquisition_system_information_) {
                 GERROR("Noise covariance matrix is malformed. Number of labels does not match number of channels.");
             }
         }
@@ -294,7 +294,7 @@ namespace Gadgetron {
         normalize_covariance(ng);
 
         std::vector<mrd::CoilLabelType> coil_labels;
-        for (auto& label : current_mrd_header.acquisition_system_information->coil_label) {
+        for (auto& label : acquisition_system_information_->coil_label) {
             coil_labels.push_back(label);
         }
 
@@ -305,22 +305,21 @@ namespace Gadgetron {
         noise_covariance.receiver_noise_bandwidth = receiver_noise_bandwidth;
         noise_covariance.matrix = ng.tmp_covariance;
 
-        if (!noise_covariance_out.empty()) {
-            std::ofstream os(noise_covariance_out, std::ios::out | std::ios::binary);
+        if (!parameters_.noise_covariance_out.empty()) {
+            std::ofstream os(parameters_.noise_covariance_out, std::ios::out | std::ios::binary);
             if (os.is_open()) {
-                GDEBUG("Writing noise covariance to %s\n", noise_covariance_out.c_str());
+                GDEBUG_STREAM("Writing noise covariance to " << parameters_.noise_covariance_out);
                 mrd::binary::MrdNoiseCovarianceWriter writer(os);
                 writer.WriteNoiseCovariance(noise_covariance);
                 writer.Close();
                 os.flush();
                 os.close();
             } else {
-                GERROR("Unable to open file %s for writing noise covariance\n", noise_covariance_out.c_str());
-                throw std::runtime_error("Unable to open file for writing noise covariance");
+                GADGET_THROW("Unable to open file " << parameters_.noise_covariance_out << " for writing noise covariance");
             }
         } else {
             GERROR_STREAM("Unable to save noise covariance. Noise covariance output file must be provided as a parameter");
-            // throw std::runtime_error("Noise covariance output file must be provided as a parameter");
+            // GADGET_THROW("Noise covariance output file must be provided as a parameter");
         }
     }
 
@@ -342,8 +341,8 @@ namespace Gadgetron {
             auto dataM = as_arma_matrix(acq.data);
             auto pwm = as_arma_matrix(pw.prewhitening_matrix);
             dataM *= pwm;
-        } else if (!this->pass_nonconformant_data) {
-            throw std::runtime_error("Input data has different number of channels from noise data");
+        } else if (parameters_.reject_nonconformant_data) {
+            GADGET_THROW("Input data has different number of channels from noise data");
         }
         return std::move(pw);
     }
@@ -383,9 +382,9 @@ namespace Gadgetron {
 
     void NoiseAdjustGadget::process(Core::InputChannel<mrd::Acquisition>& input, Core::OutputChannel& output) {
 
-        scale_only_channels = current_mrd_header.acquisition_system_information
-                                  ? find_scale_only_channels(scale_only_channels_by_name,
-                                      current_mrd_header.acquisition_system_information->coil_label)
+        scale_only_channels = acquisition_system_information_
+                                  ? find_scale_only_channels(parameters_.scale_only_channels_by_name,
+                                      acquisition_system_information_->coil_label)
                                   : std::vector<size_t>{};
 
         for (auto acq : input) {
@@ -402,12 +401,11 @@ namespace Gadgetron {
 
     /** Returns NoiseCovariance if loaded from file/stream, otherwise None */
     std::optional<mrd::NoiseCovariance> NoiseAdjustGadget::load_noisedata() const {
-        if (!noise_covariance_in.empty()) {
-            std::ifstream file(noise_covariance_in, std::ios::binary);
+        if (!parameters_.noise_covariance_in.empty()) {
+            std::ifstream file(parameters_.noise_covariance_in, std::ios::binary);
             if (!file) {
-                GERROR("Could not open noise covariance file %s\n", noise_covariance_in.c_str());
+                GERROR_STREAM("Could not open noise covariance file " << parameters_.noise_covariance_in);
                 GWARN("Falling back to noise gathering\n");
-                // throw std::runtime_error("Could not open noise covariance file");
                 return std::nullopt;
             }
             mrd::binary::MrdNoiseCovarianceReader reader(file);
@@ -421,6 +419,5 @@ namespace Gadgetron {
         return std::nullopt;
     }
 
-    GADGETRON_GADGET_EXPORT(NoiseAdjustGadget)
 
 } // namespace Gadgetron

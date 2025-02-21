@@ -12,8 +12,9 @@
 
 namespace Gadgetron {
 
-    GenericReconKSpaceFilteringGadget::GenericReconKSpaceFilteringGadget(const Core::Context &context, const Core::GadgetProperties &properties)
-        : BaseClass(context, properties)
+    GenericReconKSpaceFilteringGadget::GenericReconKSpaceFilteringGadget(const Core::MRContext &context, const Parameters& params)
+        : BaseClass(context, params)
+        , params_(params)
     {
         auto& h = context.header;
 
@@ -57,7 +58,7 @@ namespace Gadgetron {
     {
         for (auto m1 : in)
         {
-            if (perform_timing) { gt_timer_.start("GenericReconKSpaceFilteringGadget::process"); }
+            if (params_.perform_timing) { gt_timer_.start("GenericReconKSpaceFilteringGadget::process"); }
 
             GDEBUG_CONDITION_STREAM(verbose, "GenericReconKSpaceFilteringGadget::process(...) starts ... ");
 
@@ -75,7 +76,7 @@ namespace Gadgetron {
             }
 
             // some images do not need kspace filter
-            if (recon_res_->meta[0].count(skip_processing_meta_field) && recon_res_->meta[0][skip_processing_meta_field].size() > 0)
+            if (recon_res_->meta[0].count(params_.skip_processing_meta_field) && recon_res_->meta[0][params_.skip_processing_meta_field].size() > 0)
             {
                 GDEBUG_CONDITION_STREAM(verbose, "Skip kspace filtering for this image array ... ");
 
@@ -155,21 +156,21 @@ namespace Gadgetron {
             {
                 if (sampling_limits.kspace_encoding_step_0.minimum == 0 || sampling_limits.kspace_encoding_step_0.maximum == RO - 1)
                 {
-                    if (filterRO != "None")
+                    if (params_.filterRO != "None")
                     {
                         filter_RO_[encoding].create(RO);
-                        Gadgetron::generate_symmetric_filter(RO, filter_RO_[encoding], Gadgetron::get_kspace_filter_type(filterRO), filterRO_sigma, (size_t)std::ceil(filterRO_width*RO));
+                        Gadgetron::generate_symmetric_filter(RO, filter_RO_[encoding], Gadgetron::get_kspace_filter_type(params_.filterRO), params_.filterRO_sigma, (size_t)std::ceil(params_.filterRO_width*RO));
                     }
                 }
                 else
                 {
-                    if (filterRO != "None")
+                    if (params_.filterRO != "None")
                     {
                         size_t len;
                         this->find_kspace_sampled_range(sampling_limits.kspace_encoding_step_0.minimum, sampling_limits.kspace_encoding_step_0.maximum, RO, len);
 
                         hoNDArray< std::complex<float> > f;
-                        Gadgetron::generate_symmetric_filter(len, f, Gadgetron::get_kspace_filter_type(filterRO), filterRO_sigma, (size_t)std::ceil(filterRO_width*len));
+                        Gadgetron::generate_symmetric_filter(len, f, Gadgetron::get_kspace_filter_type(params_.filterRO), params_.filterRO_sigma, (size_t)std::ceil(params_.filterRO_width*len));
                         Gadgetron::pad(RO, f, filter_RO_[encoding]);
                     }
                 }
@@ -200,21 +201,21 @@ namespace Gadgetron {
             {
                 if (sampling_limits.kspace_encoding_step_1.minimum == 0 || sampling_limits.kspace_encoding_step_1.maximum == E1 - 1)
                 {
-                    if (filterE1 != "None")
+                    if (params_.filterE1 != "None")
                     {
                         filter_E1_[encoding].create(E1);
-                        Gadgetron::generate_symmetric_filter(E1, filter_E1_[encoding], Gadgetron::get_kspace_filter_type(filterE1), filterE1_sigma, (size_t)std::ceil(filterE1_width*E1));
+                        Gadgetron::generate_symmetric_filter(E1, filter_E1_[encoding], Gadgetron::get_kspace_filter_type(params_.filterE1), params_.filterE1_sigma, (size_t)std::ceil(params_.filterE1_width*E1));
                     }
                 }
                 else
                 {
-                    if (filterE1 != "None")
+                    if (params_.filterE1 != "None")
                     {
                         size_t len;
                         this->find_kspace_sampled_range(sampling_limits.kspace_encoding_step_1.minimum, sampling_limits.kspace_encoding_step_1.maximum, E1, len);
 
                         hoNDArray< std::complex<float> > f;
-                        Gadgetron::generate_symmetric_filter(len, f, Gadgetron::get_kspace_filter_type(filterE1), filterE1_sigma, (size_t)std::ceil(filterE1_width*len));
+                        Gadgetron::generate_symmetric_filter(len, f, Gadgetron::get_kspace_filter_type(params_.filterE1), params_.filterE1_sigma, (size_t)std::ceil(params_.filterE1_width*len));
                         Gadgetron::pad(E1, f, filter_E1_[encoding]);
                     }
                 }
@@ -245,21 +246,21 @@ namespace Gadgetron {
             {
                 if (sampling_limits.kspace_encoding_step_2.minimum == 0 || sampling_limits.kspace_encoding_step_2.maximum == E1 - 1)
                 {
-                    if (filterE2 != "None")
+                    if (params_.filterE2 != "None")
                     {
                         filter_E2_[encoding].create(E2);
-                        Gadgetron::generate_symmetric_filter(E2, filter_E2_[encoding], Gadgetron::get_kspace_filter_type(filterE2), filterE2_sigma, (size_t)std::ceil(filterE2_width*E2));
+                        Gadgetron::generate_symmetric_filter(E2, filter_E2_[encoding], Gadgetron::get_kspace_filter_type(params_.filterE2), params_.filterE2_sigma, (size_t)std::ceil(params_.filterE2_width*E2));
                     }
                 }
                 else
                 {
-                    if (filterE2 != "None")
+                    if (params_.filterE2 != "None")
                     {
                         size_t len;
                         this->find_kspace_sampled_range(sampling_limits.kspace_encoding_step_2.minimum, sampling_limits.kspace_encoding_step_2.maximum, E2, len);
 
                         hoNDArray< std::complex<float> > f;
-                        Gadgetron::generate_symmetric_filter(len, f, Gadgetron::get_kspace_filter_type(filterE2), filterE2_sigma, (size_t)std::ceil(filterE2_width*len));
+                        Gadgetron::generate_symmetric_filter(len, f, Gadgetron::get_kspace_filter_type(params_.filterE2), params_.filterE2_sigma, (size_t)std::ceil(params_.filterE2_width*len));
                         Gadgetron::pad(E2, f, filter_E2_[encoding]);
                     }
                 }
@@ -298,7 +299,7 @@ namespace Gadgetron {
                 // ----------------------------------------------------------
                 if (!debug_folder_full_path_.empty()) { gt_exporter_.export_array_complex(recon_res_->data, debug_folder_full_path_ + "image_before_filtering_" + str); }
 
-                if (perform_timing) { gt_timer_.start("GenericReconKSpaceFilteringGadget: fftc"); }
+                if (params_.perform_timing) { gt_timer_.start("GenericReconKSpaceFilteringGadget: fftc"); }
                 if (E2 > 1)
                 {
                     Gadgetron::hoNDFFT<float>::instance()->fft3c(recon_res_->data, kspace_buf_);
@@ -307,7 +308,7 @@ namespace Gadgetron {
                 {
                     Gadgetron::hoNDFFT<float>::instance()->fft2c(recon_res_->data, kspace_buf_);
                 }
-                if (perform_timing) { gt_timer_.stop(); }
+                if (params_.perform_timing) { gt_timer_.stop(); }
 
                 if (!debug_folder_full_path_.empty()) { gt_exporter_.export_array_complex(kspace_buf_, debug_folder_full_path_ + "kspace_before_filtering_" + str); }
 
@@ -321,18 +322,18 @@ namespace Gadgetron {
                     && (filter_E1_[encoding].get_number_of_elements() == E1)
                     && (E2>1) && (filter_E2_[encoding].get_number_of_elements() == E2) )
                 {
-                    if (perform_timing) { gt_timer_.start("GenericReconKSpaceFilteringGadget, apply_kspace_filter_ROE1E2 ... "); }
+                    if (params_.perform_timing) { gt_timer_.start("GenericReconKSpaceFilteringGadget, apply_kspace_filter_ROE1E2 ... "); }
                     Gadgetron::apply_kspace_filter_ROE1E2(kspace_buf_, filter_RO_[encoding], filter_E1_[encoding], filter_E2_[encoding], filter_res_);
-                    if (perform_timing) { gt_timer_.stop(); }
+                    if (params_.perform_timing) { gt_timer_.stop(); }
 
                     if (!debug_folder_full_path_.empty()) { gt_exporter_.export_array_complex(filter_res_, debug_folder_full_path_ + "kspace_after_filtered_" + str); }
                     inKSpace = true;
                 }
                 else if ( (filter_RO_[encoding].get_number_of_elements() == RO) && (filter_E1_[encoding].get_number_of_elements() == E1) )
                 {
-                    if (perform_timing) { gt_timer_.start("GenericReconKSpaceFilteringGadget, apply_kspace_filter_ROE1 ... "); }
+                    if (params_.perform_timing) { gt_timer_.start("GenericReconKSpaceFilteringGadget, apply_kspace_filter_ROE1 ... "); }
                     Gadgetron::apply_kspace_filter_ROE1(kspace_buf_, filter_RO_[encoding], filter_E1_[encoding], filter_res_);
-                    if (perform_timing) { gt_timer_.stop(); }
+                    if (params_.perform_timing) { gt_timer_.stop(); }
 
                     if (!debug_folder_full_path_.empty()) { gt_exporter_.export_array_complex(filter_res_, debug_folder_full_path_ + "kspace_after_filtered_" + str); }
 
@@ -403,7 +404,7 @@ namespace Gadgetron {
             // ----------------------------------------------------------
             out.push(std::move(m1));
 
-            if (perform_timing) { gt_timer_.stop(); }
+            if (params_.perform_timing) { gt_timer_.stop(); }
         }
 
     }
@@ -424,6 +425,5 @@ namespace Gadgetron {
 
     // ----------------------------------------------------------------------------------------
 
-    GADGETRON_GADGET_EXPORT(GenericReconKSpaceFilteringGadget)
 
 }

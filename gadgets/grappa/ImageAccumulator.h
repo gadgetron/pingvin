@@ -1,19 +1,22 @@
 #pragma once
 
 #include "SliceAccumulator.h"
+#include "common/AcquisitionBuffer.h"
 
-#include "Channel.h"
-#include "Node.h"
+#include "MRNode.h"
 
 namespace Gadgetron::Grappa {
 
-    class ImageAccumulator : public Core::ChannelGadget<Slice> {
+    class ImageAccumulator : public Core::MRChannelGadget<Slice> {
     public:
-        ImageAccumulator(const Core::Context &, const std::unordered_map<std::string, std::string> &);
+        ImageAccumulator(const Core::MRContext &context, const Core::NodeParameters& params)
+            : Core::MRChannelGadget<Slice>(context, params)
+            , buffer(context.header)
+        {}
 
         void process(Core::InputChannel<Slice> &in, Core::OutputChannel &out) override;
 
     private:
-        const Core::Context context;
+        AcquisitionBuffer buffer;
     };
 }

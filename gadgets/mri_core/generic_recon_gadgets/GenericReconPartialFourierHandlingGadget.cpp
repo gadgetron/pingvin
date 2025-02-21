@@ -10,13 +10,15 @@
 
 namespace Gadgetron {
     GenericReconPartialFourierHandlingGadget::GenericReconPartialFourierHandlingGadget(
-        const Core::Context& context, const Core::GadgetProperties& props) : BaseClass(context,props)
+        const Core::MRContext& context, const Parameters& params)
+        : BaseClass(context, params)
+        , params_(params)
     {
         const auto& h = context.header;
 
         num_encoding_spaces = h.encoding.size();
 
-        GDEBUG_CONDITION_STREAM(verbose, "Number of encoding spaces: " << num_encoding_spaces);
+        GDEBUG_CONDITION_STREAM(params_.verbose, "Number of encoding spaces: " << num_encoding_spaces);
 
         acceFactorE1_.resize(num_encoding_spaces, 1);
         acceFactorE2_.resize(num_encoding_spaces, 1);
@@ -32,22 +34,22 @@ namespace Gadgetron {
 
                 acceFactorE1_[e] = p_imaging.acceleration_factor.kspace_encoding_step_1;
                 acceFactorE2_[e] = p_imaging.acceleration_factor.kspace_encoding_step_2;
-                GDEBUG_CONDITION_STREAM(verbose, "acceFactorE1 is " << acceFactorE1_[e]);
-                GDEBUG_CONDITION_STREAM(verbose, "acceFactorE2 is " << acceFactorE2_[e]);
+                GDEBUG_CONDITION_STREAM(params_.verbose, "acceFactorE1 is " << acceFactorE1_[e]);
+                GDEBUG_CONDITION_STREAM(params_.verbose, "acceFactorE2 is " << acceFactorE2_[e]);
             }
         }
     }
 
     mrd::ImageArray GenericReconPartialFourierHandlingGadget::process_function(mrd::ImageArray recon_res) const {
         std::optional<GadgetronTimer> gt_timer;
-        if (perform_timing) {
+        if (params_.perform_timing) {
             gt_timer = GadgetronTimer("GenericReconPartialFourierHandlingGadget::process");
         }
 
-        GDEBUG_CONDITION_STREAM(verbose, "GenericReconPartialFourierHandlingGadget::process(...) starts ... ");
+        GDEBUG_CONDITION_STREAM(params_.verbose, "GenericReconPartialFourierHandlingGadget::process(...) starts ... ");
 
         // some images do not need partial fourier handling processing
-        if (recon_res.meta[0].count(skip_processing_meta_field) && recon_res.meta[0][skip_processing_meta_field].size() > 0) {
+        if (recon_res.meta[0].count(params_.skip_processing_meta_field) && recon_res.meta[0][params_.skip_processing_meta_field].size() > 0) {
             return std::move(recon_res);
         }
 
@@ -147,7 +149,7 @@ namespace Gadgetron {
         long lenE2 = endE2_ - startE2_ + 1;
 
         if (lenRO == RO && lenE1 == E1 && lenE2 == E2) {
-            GDEBUG_CONDITION_STREAM(verbose, "lenRO == RO && lenE1 == E1 && lenE2 == E2");
+            GDEBUG_CONDITION_STREAM(params_.verbose, "lenRO == RO && lenE1 == E1 && lenE2 == E2");
             return recon_res;
         }
 
@@ -176,7 +178,7 @@ namespace Gadgetron {
             Gadgetron::hoNDFFT<typename realType<T>::Type>::instance()->ifft2c(pf_res, recon_res.data);
         }
 
-        GDEBUG_CONDITION_STREAM(verbose, "GenericReconPartialFourierHandlingGadget::process(...) ends ... ");
+        GDEBUG_CONDITION_STREAM(params_.verbose, "GenericReconPartialFourierHandlingGadget::process(...) ends ... ");
         return std::move(recon_res);
 
     }

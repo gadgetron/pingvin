@@ -13,6 +13,7 @@ add_library(pingvin_toolbox_python SHARED
 
 target_link_libraries(pingvin_toolbox_python
         pingvin_core
+        mrd::mrd
         pingvin_toolbox_mri_core
         pingvin_toolbox_cpucore
         Boost::system

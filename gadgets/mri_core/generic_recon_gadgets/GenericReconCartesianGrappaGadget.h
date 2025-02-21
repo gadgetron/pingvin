@@ -56,36 +56,44 @@ namespace Gadgetron {
         typedef GenericReconGadget BaseClass;
         typedef Gadgetron::GenericReconCartesianGrappaObj< std::complex<float> > ReconObjType;
 
-        GenericReconCartesianGrappaGadget(const Core::Context &context, const Core::GadgetProperties &properties);
+        struct Parameters : BaseClass::Parameters {
+            Parameters(const std::string& prefix) : Parameters(prefix, "Cartesian Grappa")
+            {}
+
+            Parameters(const std::string& prefix, const std::string& description) : BaseClass::Parameters(prefix, description)
+            {
+                register_flag("send-out-gfactor", &send_out_gfactor, "Whether to send out gfactor map");
+                register_flag("send-out-snr-map", &send_out_snr_map, "Whether to send out SNR map");
+                register_parameter("grappa-kSize-RO", &grappa_kSize_RO, "Grappa kernel size RO");
+                register_parameter("grappa-kSize-E1", &grappa_kSize_E1, "Grappa kernel size E1");
+                register_parameter("grappa-kSize-E2", &grappa_kSize_E2, "Grappa kernel size E2");
+                register_parameter("grappa-reg-lamda", &grappa_reg_lamda, "Grappa regularization threshold");
+                register_parameter("grappa-calib-over-determine-ratio", &grappa_calib_over_determine_ratio, "Grappa calibration overdermination ratio");
+                register_parameter("downstream-coil-compression", &downstream_coil_compression, "Whether to perform downstream coil compression");
+                register_parameter("downstream-coil-compression-thres", &downstream_coil_compression_thres, "Threadhold for downstream coil compression");
+                register_parameter("downstream-coil-compression-num-modesKept", &downstream_coil_compression_num_modesKept, "Number of modes to keep for downstream coil compression");
+            }
+            bool send_out_gfactor = false;
+            bool send_out_snr_map = false;
+            int grappa_kSize_RO = 5;
+            int grappa_kSize_E1 = 4;
+            int grappa_kSize_E2 = 4;
+            double grappa_reg_lamda = 0.0005;
+            double grappa_calib_over_determine_ratio = 45;
+
+            /// if downstream_coil_compression==true, down stream coil compression is used
+            bool downstream_coil_compression = true;
+            /// if downstream_coil_compression_num_modesKept > 0, this number of channels will be used as the dst channels
+            double downstream_coil_compression_thres = 0.002;
+            /// if downstream_coil_compression_num_modesKept==0 and downstream_coil_compression_thres>0, the number of dst channels will be determined  by this threshold
+            size_t downstream_coil_compression_num_modesKept = 0;
+        };
+
+        GenericReconCartesianGrappaGadget(const Core::MRContext &context, const Parameters& params);
         ~GenericReconCartesianGrappaGadget() override;
 
-        /// ------------------------------------------------------------------------------------
-        /// parameters to control the reconstruction
-        /// ------------------------------------------------------------------------------------
-
-        /// ------------------------------------------------------------------------------------
-        /// image sending
-        NODE_PROPERTY(send_out_gfactor, bool, "Whether to send out gfactor map", false);
-        NODE_PROPERTY(send_out_snr_map, bool, "Whether to send out SNR map", false);
-
-        /// ------------------------------------------------------------------------------------
-        /// Grappa parameters
-        NODE_PROPERTY(grappa_kSize_RO, int, "Grappa kernel size RO", 5);
-        NODE_PROPERTY(grappa_kSize_E1, int, "Grappa kernel size E1", 4);
-        NODE_PROPERTY(grappa_kSize_E2, int, "Grappa kernel size E2", 4);
-        NODE_PROPERTY(grappa_reg_lamda, double, "Grappa regularization threshold", 0.0005);
-        NODE_PROPERTY(grappa_calib_over_determine_ratio, double, "Grappa calibration overdermination ratio", 45);
-
-        /// ------------------------------------------------------------------------------------
-        /// down stream coil compression
-        /// if downstream_coil_compression==true, down stream coil compression is used
-        /// if downstream_coil_compression_num_modesKept > 0, this number of channels will be used as the dst channels
-        /// if downstream_coil_compression_num_modesKept==0 and downstream_coil_compression_thres>0, the number of dst channels will be determined  by this threshold
-        NODE_PROPERTY(downstream_coil_compression, bool, "Whether to perform downstream coil compression", true);
-        NODE_PROPERTY(downstream_coil_compression_thres, double, "Threadhold for downstream coil compression", 0.002);
-        NODE_PROPERTY(downstream_coil_compression_num_modesKept, size_t, "Number of modes to keep for downstream coil compression", 0);
-
     protected:
+        const Parameters params_;
 
         // --------------------------------------------------
         // variable for recon
@@ -98,11 +106,6 @@ namespace Gadgetron {
         // --------------------------------------------------
         // default interface function
         virtual void process(Core::InputChannel< mrd::ReconData > &in, Core::OutputChannel &out) override;
-
-        /*** TODO: Delete */
-        // virtual int process_config(const mrd::Header& header) override;
-        // virtual int process(Gadgetron::GadgetContainerMessage< mrd::ReconData >* m1) override;
-        // virtual int close(unsigned long flags) override;
 
         // --------------------------------------------------
         // recon step functions

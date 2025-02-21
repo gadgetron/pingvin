@@ -169,6 +169,10 @@ auto const expression_def = andop | orop | negateop | term | x3::lit('(') >> exp
 BOOST_SPIRIT_DEFINE(expression, andop, orop, negateop, term);
 
 } // namespace boolean_grammer
+
+
+namespace Gadgetron {
+
 std::function<bool(const mrd::Acquisition& acq)>
 FlagTriggerGadget::create_trigger_filter(const std::string& trigger_string) {
     namespace x3 = boost::spirit::x3;
@@ -188,7 +192,7 @@ FlagTriggerGadget::create_trigger_filter(const std::string& trigger_string) {
     };
 }
 
-void Gadgetron::FlagTriggerGadget::process(Core::InputChannel<mrd::Acquisition>& in, Core::OutputChannel& out) {
+void FlagTriggerGadget::process(Core::InputChannel<mrd::Acquisition>& in, Core::OutputChannel& out) {
 
     for (const auto& group : Core::Algorithm::buffer(in, this->predicate)) {
         auto bucket = mrd::AcquisitionBucket();
@@ -199,12 +203,12 @@ void Gadgetron::FlagTriggerGadget::process(Core::InputChannel<mrd::Acquisition>&
     }
 }
 
-Gadgetron::FlagTriggerGadget::FlagTriggerGadget(const Core::Context& context, const Core::GadgetProperties& props)
-    : ChannelGadget(context, props) {
+FlagTriggerGadget::FlagTriggerGadget(const Core::MRContext& context, const Parameters& params)
+    : MRChannelGadget(context, params)
+    , parameters_(params)
+{
     using namespace ranges;
-    this->predicate = create_trigger_filter(trigger_flags);
+    this->predicate = create_trigger_filter(parameters_.trigger_flags);
 }
 
-namespace Gadgetron {
-GADGETRON_GADGET_EXPORT(FlagTriggerGadget);
 }

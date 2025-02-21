@@ -2,21 +2,22 @@
 
 namespace Gadgetron {
 
-CoilReductionGadget::CoilReductionGadget(const Core::Context& context, const Core::GadgetProperties& props)
-    : Core::ChannelGadget<mrd::Acquisition>(context, props)
+CoilReductionGadget::CoilReductionGadget(const Core::MRContext& context, const Parameters& params)
+    : Core::MRChannelGadget<mrd::Acquisition>(context, params)
+    , parameters_(params)
 {
     auto h = context.header;
     coils_in_ = h.acquisition_system_information->receiver_channels.value_or(128);
 
-    if (coil_mask.empty()) {
-        if (coils_out <= 0) {
-            GERROR("Invalid number of output coils %d\n", coils_out);
+    if (parameters_.coil_mask.empty()) {
+        if (parameters_.coils_out > 128) {
+            GERROR_STREAM("Invalid number of output coils " << parameters_.coils_out);
         }
-        coil_mask_ = std::vector<unsigned short>(coils_out, 1);
+        coil_mask_ = std::vector<unsigned short>(parameters_.coils_out, 1);
     }
     else {
         std::vector<std::string> chm;
-        boost::split(chm, coil_mask, boost::is_any_of(" "));
+        boost::split(chm, parameters_.coil_mask, boost::is_any_of(" "));
         for (size_t i = 0; i < chm.size(); i++) {
             std::string ch = boost::algorithm::trim_copy(chm[i]);
             if (ch.size() > 0) {
@@ -88,5 +89,4 @@ void CoilReductionGadget::process(Core::InputChannel<mrd::Acquisition>& in, Core
         out.push(std::move(acq));
     }
 }
-GADGETRON_GADGET_EXPORT(CoilReductionGadget)
 }

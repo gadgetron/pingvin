@@ -23,7 +23,7 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
-ARG MINIFORGE_VERSION=24.3.0-0
+ARG MINIFORGE_VERSION=24.11.3-0
 ARG CONDA_GID=900
 
 # Based on https://github.com/conda-forge/miniforge-images/blob/master/ubuntu/Dockerfile
@@ -70,13 +70,16 @@ RUN wget --quiet "https://github.com/microsoft/yardl/releases/download/v${YARDL_
     && mv yardl "/usr/local/bin/" \
     && rm "yardl_${YARDL_VERSION}_linux_x86_64.tar.gz"
 
+# Set OMP wait policy for better OpenMP performance on Ubuntu
+ENV OMP_WAIT_POLICY=PASSIVE
+
 FROM pingvin_baseimage AS pingvin_dev_cuda
 ARG USER_UID
 ARG HOME
 USER ${USER_UID}
 RUN mkdir -p ${HOME}/.cache/conda/notices && sudo chown -R ${USER_UID}:conda ${HOME}/.cache/conda/notices
 RUN grep -v "#.*\<NOFILTER\>" /tmp/build/environment.yml > /tmp/build/filtered_environment.yml
-RUN umask 0002 && /opt/conda/bin/conda env create -f /tmp/build/filtered_environment.yml && /opt/conda/bin/conda clean -afy && sudo chown -R :conda /opt/conda
+RUN umask 0002 && /opt/conda/bin/mamba env create -f /tmp/build/filtered_environment.yml && /opt/conda/bin/conda clean -afy && sudo chown -R :conda /opt/conda
 USER root
 
 FROM pingvin_baseimage AS pingvin_dev_nocuda
@@ -85,7 +88,7 @@ ARG HOME
 USER ${USER_UID}
 RUN mkdir -p ${HOME}/.cache/conda/notices && sudo chown -R ${USER_UID}:conda ${HOME}/.cache/conda/notices
 RUN grep -v "#.*\<cuda\>" /tmp/build/environment.yml > /tmp/build/filtered_environment.yml
-RUN umask 0002 && /opt/conda/bin/conda env create -f /tmp/build/filtered_environment.yml && /opt/conda/bin/conda clean -afy && sudo chown -R :conda /opt/conda
+RUN umask 0002 && /opt/conda/bin/mamba env create -f /tmp/build/filtered_environment.yml && /opt/conda/bin/conda clean -afy && sudo chown -R :conda /opt/conda
 USER root
 
 FROM pingvin_dev_cuda AS pingvin_build_cuda
@@ -100,8 +103,7 @@ RUN . /opt/conda/etc/profile.d/conda.sh && umask 0002 && conda activate pingvin 
     mkdir build && \
     cd build && \
     cmake ../ -GNinja -DUSE_MKL=ON -DCMAKE_INSTALL_PREFIX=/opt/package && \
-    ninja && \
-    ninja install
+    ninja -j $(nproc) install
 
 FROM pingvin_dev_nocuda AS pingvin_build_nocuda
 ARG USER_UID
@@ -115,8 +117,7 @@ RUN . /opt/conda/etc/profile.d/conda.sh && umask 0002 && conda activate pingvin 
     mkdir build && \
     cd build && \
     cmake ../ -GNinja -DUSE_MKL=ON -DCMAKE_INSTALL_PREFIX=/opt/package && \
-    ninja && \
-    ninja install
+    ninja -j $(nproc) install
 
 FROM pingvin_baseimage AS pingvin_rt_cuda
 ARG USER_UID
@@ -124,7 +125,7 @@ ARG HOME
 USER ${USER_UID}
 RUN mkdir -p ${HOME}/.cache/conda/notices && sudo chown -R ${USER_UID}:conda ${HOME}/.cache/conda/notices
 RUN grep -v "#.*\<dev\>" /tmp/build/environment.yml > /tmp/build/filtered_environment.yml
-RUN umask 0002 && /opt/conda/bin/conda env create -f /tmp/build/filtered_environment.yml && /opt/conda/bin/conda clean -afy && sudo chown -R :conda /opt/conda
+RUN umask 0002 && /opt/conda/bin/mamba env create -f /tmp/build/filtered_environment.yml && /opt/conda/bin/conda clean -afy && sudo chown -R :conda /opt/conda
 COPY --from=pingvin_build_cuda --chown=$USER_UID:conda /opt/package /opt/conda/envs/pingvin/
 COPY --from=pingvin_build_cuda --chown=$USER_UID:conda /opt/code/pingvin/docker/entrypoint.sh /opt/
 RUN chmod +x /opt/entrypoint.sh
@@ -138,7 +139,7 @@ ARG HOME
 USER ${USER_UID}
 RUN mkdir -p ${HOME}/.cache/conda/notices && sudo chown -R ${USER_UID}:conda ${HOME}/.cache/conda/notices
 RUN grep -v "#.*\<cuda\|dev\>" /tmp/build/environment.yml > /tmp/build/filtered_environment.yml
-RUN umask 0002 && /opt/conda/bin/conda env create -f /tmp/build/filtered_environment.yml && /opt/conda/bin/conda clean -afy && sudo chown -R :conda /opt/conda
+RUN umask 0002 && /opt/conda/bin/mamba env create -f /tmp/build/filtered_environment.yml && /opt/conda/bin/conda clean -afy && sudo chown -R :conda /opt/conda
 COPY --from=pingvin_build_nocuda --chown=$USER_UID:conda /opt/package /opt/conda/envs/pingvin/
 COPY --from=pingvin_build_nocuda --chown=$USER_UID:conda /opt/code/pingvin/docker/entrypoint.sh /opt/
 RUN chmod +x /opt/entrypoint.sh

@@ -15,8 +15,8 @@ static const int GADGET_FAIL = -1;
 static const int GADGET_OK = 0;
 namespace Gadgetron {
 
-    GenericReconFieldOfViewAdjustmentGadget::GenericReconFieldOfViewAdjustmentGadget(const Core::Context& context, const Core::GadgetProperties& properties)
-        : BaseClass(context, properties)
+    GenericReconFieldOfViewAdjustmentGadget::GenericReconFieldOfViewAdjustmentGadget(const Core::MRContext& context, const Parameters& params)
+        : BaseClass(context, params)
     {
         auto& h = context.header;
 
@@ -63,7 +63,7 @@ namespace Gadgetron {
     {
         for (auto m1 : in)
         {
-            if (perform_timing) { gt_timer_.start("GenericReconFieldOfViewAdjustmentGadget::process"); }
+            if (params_.perform_timing) { gt_timer_.start("GenericReconFieldOfViewAdjustmentGadget::process"); }
 
             GDEBUG_CONDITION_STREAM(verbose, "GenericReconFieldOfViewAdjustmentGadget::process(...) starts ... ");
 
@@ -99,7 +99,7 @@ namespace Gadgetron {
             // ----------------------------------------------------------
             out.push(std::move(m1));
 
-            if (perform_timing) { gt_timer_.stop(); }
+            if (params_.perform_timing) { gt_timer_.stop(); }
         }
     }
 
@@ -278,12 +278,12 @@ namespace Gadgetron {
 
     GenericReconFieldOfViewAdjustmentGadget::~GenericReconFieldOfViewAdjustmentGadget()
     {
+        /** TODO: This is unnecessary, just make GenericReconMrdStreamer close the buffers in its own destructor... */
         this->gt_streamer_.close_stream_buffer();
     }
 
 
     // ----------------------------------------------------------------------------------------
 
-    GADGETRON_GADGET_EXPORT(GenericReconFieldOfViewAdjustmentGadget)
 
 }

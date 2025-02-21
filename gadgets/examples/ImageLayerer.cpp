@@ -5,8 +5,6 @@
 #include "hoNDArray_math.h"
 #include "hoNDArray_utils.h"
 
-#include "mri_core_utility.h"
-
 using namespace Gadgetron;
 namespace {
 
@@ -43,8 +41,6 @@ namespace {
 
 namespace Gadgetron::Examples {
 
-    ImageLayerer::ImageLayerer(const Core::Context &, const Core::GadgetProperties &properties) : Merge(properties) {}
-
     void ImageLayerer::process(std::map<std::string, Core::GenericInputChannel> input, Core::OutputChannel output) {
 
         auto unchanged = Core::InputChannel<mrd::AnyImage>(input.at("unchanged"), output);
@@ -57,13 +53,9 @@ namespace Gadgetron::Examples {
                     inverted.pop()
             );
 
-
-
             GINFO_STREAM("Images combined; pushing out result.");
 
             output.push(std::move(merged));
         }
     }
-
-    GADGETRON_MERGE_EXPORT(ImageLayerer)
 }

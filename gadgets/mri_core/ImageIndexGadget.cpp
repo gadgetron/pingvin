@@ -17,9 +17,6 @@ namespace {
 
 namespace Gadgetron {
 
-    ImageIndexGadget::ImageIndexGadget(const Core::Context &context, const Core::GadgetProperties &properties)
-        : ChannelGadget(context, properties) {}
-
     void ImageIndexGadget::process(Core::InputChannel<mrd::AnyImage> &input, Core::OutputChannel &output) {
 
         std::map<uint16_t, uint16_t> indices{};
@@ -39,5 +36,4 @@ namespace Gadgetron {
         }
     }
 
-    GADGETRON_GADGET_EXPORT(ImageIndexGadget);
 }

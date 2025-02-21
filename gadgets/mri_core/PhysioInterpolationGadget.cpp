@@ -155,18 +155,13 @@ namespace Gadgetron {
     void PhysioInterpolationGadget::process(Core::InputChannel<mrd::Image<std::complex<float>>> &in,
                                             Core::OutputChannel &out) {
 
-
-        mrd::EncodingLimitsType e_limits = header.encoding[0].encoding_limits;
-        auto slc_limit = e_limits.slice ? e_limits.slice->maximum + 1 : 1;
-
-
         auto buffers = std::map<int, std::vector<mrd::Image<std::complex<float>>>>{};
         auto time_stamp_buffer = std::map<int, std::vector<float>>{};
 
         for (auto image: in) {
             auto slice = image.head.slice.value_or(0);
             buffers[slice].emplace_back(image);
-            time_stamp_buffer[slice].push_back((float) (image.head.physiology_time_stamp[physiology_time_index]));
+            time_stamp_buffer[slice].push_back((float) (image.head.physiology_time_stamp[parameters_.physiology_time_index]));
             out.push(std::move(image));
         }
 
@@ -178,7 +173,7 @@ namespace Gadgetron {
 
             auto time_stamps = time_stamp_buffer[slc];
 
-            auto[intervals, cycle_starts] = find_intervals(time_stamps, first_beat_on_trigger);
+            auto[intervals, cycle_starts] = find_intervals(time_stamps, parameters_.first_beat_on_trigger);
 
             if (intervals.empty()) continue;
 
@@ -201,7 +196,7 @@ namespace Gadgetron {
             GDEBUG("Mean/Median cycle_length %f/%f\n", mean_cycle_length, median_cycle_length);
 
             //Correct the first cycle assuming it is of median length:
-            if (!first_beat_on_trigger) {
+            if (!parameters_.first_beat_on_trigger) {
                 float first_cycle_offset = (median_cycle_length - median_interval) + time_stamps[cycle_starts[0]] -
                                            time_stamps[cycle_starts[0] - 1];
                 std::transform(time_stamps.begin(), time_stamps.end(), time_stamps.begin(),
@@ -213,15 +208,15 @@ namespace Gadgetron {
 
             //Let's figure out which time points we would like to interpolate on:
             ///TODO: Deal with mode 1 and other future modes, we are only implementing mode 0 at the moment
-            float phase_interval = 1.0f / static_cast<float>(phases);
+            float phase_interval = 1.0f / static_cast<float>(parameters_.phases);
             float max_time = std::floor(relative_cycle_time[relative_cycle_time.size() - 1]);
             std::vector<float> recon_cycle_time;
             for (float t = 1.0; t < (max_time - 0.001); t += phase_interval) {
                 recon_cycle_time.push_back(t);
             }
 
-            if (mode == PhysioInterpolationMode::complete) {
-                recon_cycle_time.resize(phases);
+            if (parameters_.mode == PhysioInterpolationMode::complete) {
+                recon_cycle_time.resize(parameters_.phases);
             }
 
             //Now we can loop over each pixel and estimate the new frames, but first we have to have somewhere to put the data
@@ -236,9 +231,9 @@ namespace Gadgetron {
 
                 unsigned short current_cycle = static_cast<unsigned short>(std::floor(cycle_time + 0.0001));
                 unsigned short current_phase = static_cast<unsigned short>(
-                        (cycle_time + 0.0001 - current_cycle) / (1.0 / static_cast<float>(phases)) + 0.0001);
+                        (cycle_time + 0.0001 - current_cycle) / (1.0 / static_cast<float>(parameters_.phases)) + 0.0001);
 
-                header.physiology_time_stamp[physiology_time_index] = static_cast<unsigned>(std::floor(
+                header.physiology_time_stamp[parameters_.physiology_time_index] = static_cast<unsigned>(std::floor(
                         (cycle_time + 0.0001 - current_cycle) * cycle_lengths[current_cycle]));
                 header.phase = current_phase;
                 header.image_index = current_phase + 1;
@@ -250,9 +245,9 @@ namespace Gadgetron {
                     meta[GADGETRON_IMAGENUMBER] = {long(header.image_index.value_or(0))};
                     meta[GADGETRON_DATA_ROLE].push_back("PhysionInterp");
 
-                    double cycle_length_in_ms = time_stamp_resolution_ * cycle_lengths[current_cycle];
+                    double cycle_length_in_ms = parameters_.time_stamp_resolution * cycle_lengths[current_cycle];
                     std::ostringstream ostr;
-                    if (slc_limit > 1) {
+                    if (slice_limit_ > 1) {
                         ostr << "_SLC_" << header.slice.value_or(0) << "_RR" << cycle_length_in_ms << "ms";
                     } else {
                         ostr << "_RR" << cycle_length_in_ms << "ms";
@@ -276,7 +271,7 @@ namespace Gadgetron {
             auto output = ranges::transform_view(recon_cycle_time, image_generator) | to<std::vector>;
 
 
-            if ((interp_method == PhysioInterpolationMethod::Spline) || (mode != PhysioInterpolationMode::complete)) {
+            if ((parameters_.interp_method == PhysioInterpolationMethod::Spline) || (parameters_.mode != PhysioInterpolationMode::complete)) {
                 spline_interpolate_series(buffer, relative_cycle_time, recon_cycle_time, output);
 
             } else {
@@ -288,5 +283,4 @@ namespace Gadgetron {
         }
     }
 
-    GADGETRON_GADGET_EXPORT(PhysioInterpolationGadget)
 }

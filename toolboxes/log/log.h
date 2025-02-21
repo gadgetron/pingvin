@@ -190,10 +190,17 @@ namespace Gadgetron
 #define GDEBUG_CONDITION_STREAM(con, message) { if ( con ) GDEBUG_STREAM(message) }
 #define GWARN_CONDITION_STREAM(con, message) { if ( con ) GWARN_STREAM(message) }
 
-#define GADGET_THROW(msg) { GERROR_STREAM(msg); throw std::runtime_error(msg); }
-#define GADGET_CHECK_THROW(con) { if ( !(con) ) { GERROR_STREAM(#con); throw std::runtime_error(#con); } }
+#define GADGET_THROW(msg)     \
+  {                           \
+    std::stringstream ss;			\
+    ss  << msg << std::endl;	\
+    GERROR(ss.str().c_str()); \
+    throw std::runtime_error(std::string(__FILE__) + ":" + std::to_string(__LINE__) + " -- " + ss.str()); \
+  }
 
-#define GADGET_CATCH_THROW(con) { try { con; } catch(...) { GERROR_STREAM(#con); throw std::runtime_error(#con); } }
+#define GADGET_CHECK_THROW(con) { if ( !(con) ) { GADGET_THROW(#con); } }
+
+#define GADGET_CATCH_THROW(con) { try { con; } catch(...) { GADGET_THROW(#con); } }
 
 #define GADGET_CHECK_RETURN(con, value) { if ( ! (con) ) { GERROR_STREAM("Returning '" << value << "' due to failed check: '" << #con << "'"); return (value); } }
 #define GADGET_CHECK_RETURN_FALSE(con) { if ( ! (con) ) { GERROR_STREAM("Returning false due to failed check: '" << #con << "'"); return false; } }

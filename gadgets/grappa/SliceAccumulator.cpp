@@ -1,11 +1,5 @@
 #include "SliceAccumulator.h"
 
-#include "common/AnnotatedAcquisition.h"
-#include "common/grappa_common.h"
-
-#include "Context.h"
-#include "Channel.h"
-
 #include "hoNDArray.h"
 
 namespace {
@@ -15,24 +9,18 @@ namespace {
 
 namespace Gadgetron::Grappa {
 
-    SliceAccumulator::SliceAccumulator(
-            const Core::Context &context,
-            const std::unordered_map<std::string, std::string> &props
-    ) : ChannelGadget(context,props), context(context) {}
+    void SliceAccumulator::process(Core::InputChannel<mrd::Acquisition> &in, Core::OutputChannel &out) {
 
-    void SliceAccumulator::process(Core::InputChannel<AnnotatedAcquisition> &in, Core::OutputChannel &out) {
-
-        std::vector<AnnotatedAcquisition> acquisitions{};
+        std::vector<mrd::Acquisition> acquisitions{};
 
         for (auto acquisition : in) {
             acquisitions.emplace_back(std::move(acquisition));
 
-            if (is_last_in_slice(acquisitions.back())) {
+            if (acquisitions.back().head.flags.HasFlags(mrd::AcquisitionFlags::kLastInSlice)) {
                 out.push(std::move(acquisitions));
-                acquisitions = std::vector<AnnotatedAcquisition>{};
+                acquisitions = std::vector<mrd::Acquisition>{};
             }
         }
     }
 
-    GADGETRON_GADGET_EXPORT(SliceAccumulator);
 }

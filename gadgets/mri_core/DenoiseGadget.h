@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 
-#include "PureGadget.h"
+#include "MRPureNode.h"
 #include <string>
 
 namespace Gadgetron {
@@ -11,18 +11,32 @@ namespace Gadgetron {
     using DenoiseSupportedTypes =
         std::variant<mrd::Image<float>, mrd::Image<std::complex<float>>, mrd::ImageArray>;
 
-    class DenoiseGadget
-        : public Core::PureGadget<DenoiseSupportedTypes, DenoiseSupportedTypes> {
+    class DenoiseGadget : public Core::MRPureGadget<DenoiseSupportedTypes, DenoiseSupportedTypes> {
 
     public:
-        using Core::PureGadget<DenoiseSupportedTypes, DenoiseSupportedTypes>::PureGadget;
+        struct Parameters : public Core::NodeParameters {
+            float image_std = 1;
+            int search_radius = 25;
+            std::string denoiser = "non_local_bayes";
+
+            Parameters(const std::string& prefix) : Core::NodeParameters(prefix, "Denoising Options")
+            {
+                register_parameter("image-std", &image_std, "Standard deviation of the noise in the produced image");
+                register_parameter("search-radius", &search_radius, "Standard deviation of the noise in the produced image");
+                register_parameter("denoiser", &denoiser, "Type of denoiser - non_local_means or non_local_bayes");
+            }
+        };
+
+        DenoiseGadget(const Core::MRContext& context, const Parameters& params)
+            : Core::MRPureGadget<DenoiseSupportedTypes, DenoiseSupportedTypes>(context, params)
+            , parameters_(params)
+        {}
 
         DenoiseSupportedTypes process_function(DenoiseSupportedTypes input) const;
-        NODE_PROPERTY(image_std, float, "Standard deviation of the noise in the produced image", 1);
-        NODE_PROPERTY(search_radius, int, "Standard deviation of the noise in the produced image", 25);
-        NODE_PROPERTY(denoiser, std::string, "Type of denoiser - non_local_means or non_local_bayes", "non_local_bayes");
 
     protected:
+        const Parameters parameters_;
+
         template <class T>
         mrd::Image<T> denoise(mrd::Image<T> image) const;
         mrd::ImageArray denoise(mrd::ImageArray image_array) const;

@@ -7,8 +7,9 @@
 
 namespace Gadgetron {
 
-    GenericReconEigenChannelGadget::GenericReconEigenChannelGadget(const Core::Context &context, const Core::GadgetProperties &properties)
-        : BaseClass(context, properties)
+    GenericReconEigenChannelGadget::GenericReconEigenChannelGadget(const Core::MRContext &context, const Parameters& params)
+        : BaseClass(context, params)
+        , params_(params)
     {
         auto& h = context.header;
 
@@ -53,7 +54,7 @@ namespace Gadgetron {
     {
         for (auto m1 : in)
         {
-            if (perform_timing) { gt_timer_.start("GenericReconEigenChannelGadget::process"); }
+            if (params_.perform_timing) { gt_timer_.start("GenericReconEigenChannelGadget::process"); }
             process_called_times_++;
 
             mrd::ReconData* recon_data = &m1;
@@ -89,7 +90,7 @@ namespace Gadgetron {
 
                 // whether it is needed to update coefficients
                 bool recompute_coeff = false;
-                if ( (KLT_[e].size()!=SLC) || update_eigen_channel_coefficients )
+                if ( (KLT_[e].size()!=SLC) || params_.update_eigen_channel_coefficients )
                 {
                     recompute_coeff = true;
                 }
@@ -119,8 +120,8 @@ namespace Gadgetron {
                     }
                 }
 
-                    bool average_N = average_all_ref_N;
-                    bool average_S = average_all_ref_S;
+                    bool average_N = params_.average_all_ref_N;
+                    bool average_S = params_.average_all_ref_S;
 
                 if(recompute_coeff)
                 {
@@ -128,13 +129,13 @@ namespace Gadgetron {
                     {
                         // use ref to compute coefficients
                         Gadgetron::compute_eigen_channel_coefficients(rbit.ref->data, average_N, average_S,
-                            (calib_mode_[e] == mrd::CalibrationMode::kInterleaved), N, S, upstream_coil_compression_thres, upstream_coil_compression_num_modesKept, KLT_[e]);
+                            (calib_mode_[e] == mrd::CalibrationMode::kInterleaved), N, S, params_.upstream_coil_compression_thres, params_.upstream_coil_compression_num_modesKept, KLT_[e]);
                     }
                     else
                     {
                         // use data to compute coefficients
                         Gadgetron::compute_eigen_channel_coefficients(data, average_N, average_S,
-                            (calib_mode_[e] == mrd::CalibrationMode::kInterleaved), N, S, upstream_coil_compression_thres, upstream_coil_compression_num_modesKept, KLT_[e]);
+                            (calib_mode_[e] == mrd::CalibrationMode::kInterleaved), N, S, params_.upstream_coil_compression_thres, params_.upstream_coil_compression_num_modesKept, KLT_[e]);
                     }
 
                     if (verbose)
@@ -229,11 +230,10 @@ namespace Gadgetron {
                 }
             }
 
-            if (perform_timing) { gt_timer_.stop(); }
+            if (params_.perform_timing) { gt_timer_.stop(); }
 
             out.push(std::move(m1));
         }
     }
 
-    GADGETRON_GADGET_EXPORT(GenericReconEigenChannelGadget)
 }

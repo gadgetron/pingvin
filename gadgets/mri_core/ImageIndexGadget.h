@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 
 namespace Gadgetron {
 
@@ -10,9 +10,9 @@ namespace Gadgetron {
      * ImageIndexGadget will keep track of individual image series, and number images in each series
      * sequentially.
      */
-    class ImageIndexGadget : public Core::ChannelGadget<mrd::AnyImage> {
+    class ImageIndexGadget : public Core::MRChannelGadget<mrd::AnyImage> {
       public:
-        ImageIndexGadget(const Core::Context &, const Core::GadgetProperties &);
+        using Core::MRChannelGadget<mrd::AnyImage>::MRChannelGadget;
         void process(Core::InputChannel<mrd::AnyImage> &, Core::OutputChannel &) override;
     };
 }

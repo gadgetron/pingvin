@@ -9,9 +9,10 @@
 #include "log.h"
 
 
-Gadgetron::ComplexToFloatGadget::ComplexToFloatGadget(
-    const Gadgetron::Core::Context& context, const Gadgetron::Core::GadgetProperties& props)
-    : PureGadget(context,props)
+namespace Gadgetron {
+
+ComplexToFloatGadget::ComplexToFloatGadget(const Core::MRContext& context, const Parameters& params)
+    : MRPureGadget(context, params)
 {
 
     converters = { { mrd::ImageType::kMagnitude, [](const auto& image) { return abs(image); } },
@@ -20,7 +21,7 @@ Gadgetron::ComplexToFloatGadget::ComplexToFloatGadget(
                    { mrd::ImageType::kImag,      [](const auto& image) { return imag(image); } }};
 };
 
-mrd::Image<float> Gadgetron::ComplexToFloatGadget::process_function(
+mrd::Image<float> ComplexToFloatGadget::process_function(
     mrd::Image<std::complex<float>> input_image) const
 {
     mrd::Image<float> out;
@@ -41,6 +42,4 @@ mrd::Image<float> Gadgetron::ComplexToFloatGadget::process_function(
     return out;
 }
 
-namespace Gadgetron{
-    GADGETRON_GADGET_EXPORT(ComplexToFloatGadget)
 }

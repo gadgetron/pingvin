@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 
 #include <random>
@@ -36,18 +36,28 @@ protected:
 };
 
 /// add white noise to the kspace data
-class WhiteNoiseInjectorGadget : public Core::ChannelGadget<mrd::Acquisition>
+class WhiteNoiseInjectorGadget : public Core::MRChannelGadget<mrd::Acquisition>
 {
 public:
     typedef Gadgetron::RandNormGenerator<double> RandGenType;
 
-    WhiteNoiseInjectorGadget(const Core::Context& context, const Core::GadgetProperties& props);
+    struct Parameters : public Core::NodeParameters {
+        Parameters(const std::string& prefix) : Core::NodeParameters(prefix, "White Noise Injector") {
+            register_parameter("noise-mean", &noise_mean_, "Noise mean");
+            register_parameter("noise-std", &noise_std_, "Noise standard deviation");
+            register_parameter("add-noise-ref", &add_noise_ref_, "Add noise to reference scans");
+        }
+
+        float noise_mean_ = 0.0;
+        float noise_std_ = 1.0;
+        bool add_noise_ref_ = false;
+    };
+
+    WhiteNoiseInjectorGadget(const Core::MRContext& context, const Parameters& params);
     ~WhiteNoiseInjectorGadget() override;
 
 protected:
-    NODE_PROPERTY(noise_mean_, float, "Noise mean", 0.0);
-    NODE_PROPERTY(noise_std_, float, "Noise standard deviation", 1.0);
-    NODE_PROPERTY(add_noise_ref_, bool, "Add noise to reference scans", false);
+    const Parameters params_;
 
     void process(Core::InputChannel<mrd::Acquisition>& in, Core::OutputChannel& out) override;
 

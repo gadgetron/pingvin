@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 
 #include <complex>
@@ -8,14 +8,9 @@
 
 namespace Gadgetron {
 
-
-
     class AcquisitionAccumulateTriggerGadget
-        : public Core::ChannelGadget<std::variant<mrd::Acquisition, mrd::WaveformUint32>> {
+        : public Core::MRChannelGadget<std::variant<mrd::Acquisition, mrd::WaveformUint32>> {
     public:
-        using Core::ChannelGadget<std::variant<mrd::Acquisition, mrd::WaveformUint32>>::ChannelGadget;
-        void process(Core::InputChannel<std::variant<mrd::Acquisition, mrd::WaveformUint32>>& in,
-            Core::OutputChannel& out) override;
         enum class TriggerDimension {
             kspace_encode_step_1,
             kspace_encode_step_2,
@@ -37,17 +32,39 @@ namespace Gadgetron {
             n_acquisitions,
             none
         };
-        NODE_PROPERTY(trigger_dimension, TriggerDimension, "Dimension to trigger on", TriggerDimension::none);
-        NODE_PROPERTY(sorting_dimension, TriggerDimension, "Dimension to trigger on", TriggerDimension::none);
 
-        NODE_PROPERTY(n_acquisitions_before_trigger, unsigned long, "Number of acquisition before first trigger", 40);
-        NODE_PROPERTY(n_acquisitions_before_ongoing_trigger, unsigned long, "Number of acquisition before ongoing triggers", 40);
+        struct Parameters : public Core::NodeParameters {
+            using NodeParameters::NodeParameters;
+            Parameters(const std::string& prefix) : NodeParameters(prefix, "Acquisition Accumulate Trigger Options") {
+                register_parameter("trigger-dimension", &trigger_dimension, "Dimension to trigger on");
+                register_parameter("sorting-dimension", &sorting_dimension, "Dimension to sort on");
+                register_parameter("n-acquisitions-before-trigger", &n_acquisitions_before_trigger,
+                                   "Number of acquisition before first trigger");
+                register_parameter("n-acquisitions-before-ongoing-trigger", &n_acquisitions_before_ongoing_trigger,
+                                   "Number of acquisition before ongoing triggers");
+            }
+            TriggerDimension trigger_dimension = TriggerDimension::none;
+            TriggerDimension sorting_dimension = TriggerDimension::none;
+            unsigned long n_acquisitions_before_trigger = 40;
+            unsigned long n_acquisitions_before_ongoing_trigger = 40;
+        };
 
+        AcquisitionAccumulateTriggerGadget(const Core::MRContext& context, const Parameters& params)
+            : Core::MRChannelGadget<std::variant<mrd::Acquisition, mrd::WaveformUint32>>(context, params)
+            , parameters_(params) {}
+
+        void process(Core::InputChannel<std::variant<mrd::Acquisition, mrd::WaveformUint32>>& in,
+            Core::OutputChannel& out) override;
+
+        const Parameters parameters_;
         size_t trigger_events = 0;
     private:
         void send_data(Core::OutputChannel& out, std::map<unsigned int, mrd::AcquisitionBucket>& buckets,
                        std::vector<mrd::WaveformUint32>& waveforms);
     };
+
+    std::ostream& operator<<(std::ostream& out, const AcquisitionAccumulateTriggerGadget::TriggerDimension& param);
+    void validate(boost::any& v, const std::vector<std::string>& values, AcquisitionAccumulateTriggerGadget::TriggerDimension*, int);
 
     void from_string(const std::string& str, AcquisitionAccumulateTriggerGadget::TriggerDimension& val);
 

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 
 #include "hoNDArray_math.h"
@@ -14,13 +14,10 @@
 
 namespace Gadgetron {
 
-    class SimpleReconGadget : public Core::ChannelGadget<mrd::ReconData> {
+    class SimpleReconGadget : public Core::MRChannelGadget<mrd::ReconData> {
     public:
-        SimpleReconGadget(const Core::Context& context, const Core::GadgetProperties& props);
-        void process(Core::InputChannel<mrd::ReconData>& input, Core::OutputChannel& out) override;
+        using Core::MRChannelGadget<mrd::ReconData>::MRChannelGadget;
 
-    protected:
-        mrd::Header header;
-        long long image_counter_;
+        void process(Core::InputChannel<mrd::ReconData>& input, Core::OutputChannel& out) override;
     };
 }

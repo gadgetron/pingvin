@@ -273,7 +273,6 @@ if (BUILD_PYTHON_SUPPORT)
 
     message(STATUS "Found NumPy:")
     message(STATUS "NumPy include: ${Python3_NumPy_INCLUDE_DIRS}")
-    message(STATUS "NumPy libraries: ${Python3_NumPy_LIBRARIES}")
     message(STATUS "Python3 libraries: ${Python3_LIBRARIES}")
 
     if (Python3_VERSION_MINOR LESS 7)
@@ -318,6 +317,7 @@ add_subdirectory(cmake)
 add_subdirectory(core)
 add_subdirectory(gadgets)
 add_subdirectory(toolboxes)
+add_subdirectory(mri)
 
 option(BUILD_WITH_GPERFTOOLS_PROFILER "Build with the gperftools profiler." Off)
 if (BUILD_WITH_GPERFTOOLS_PROFILER)

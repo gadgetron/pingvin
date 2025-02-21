@@ -59,10 +59,10 @@ namespace Gadgetron {
                 uint32_t espace       = acq.head.encoding_space_ref.value_or(0);
                 mrd::ReconAssembly& assembly = getReconAssembly(recon_data_buffers, key, espace);
                 if (!assembly.ref) {
-                    assembly.ref = makeDataBuffer(acq, header.encoding[espace], acq_bucket.refstats[espace], true);
+                    assembly.ref = makeDataBuffer(acq, encoding_[espace], acq_bucket.refstats[espace], true);
                 }
 
-                add_acquisition(*assembly.ref, acq, header.encoding[espace], acq_bucket.refstats[espace], true);
+                add_acquisition(*assembly.ref, acq, encoding_[espace], acq_bucket.refstats[espace], true);
             }
 
             // Buffer the bucketed Acquisitions
@@ -71,10 +71,10 @@ namespace Gadgetron {
                 uint32_t espace       = acq.head.encoding_space_ref.value_or(0);
                 mrd::ReconAssembly& assembly = getReconAssembly(recon_data_buffers, key, espace);
                 if (assembly.data.data.empty()) {
-                    assembly.data = makeDataBuffer(acq, header.encoding[espace], acq_bucket.datastats[espace], false);
+                    assembly.data = makeDataBuffer(acq, encoding_[espace], acq_bucket.datastats[espace], false);
                 }
 
-                add_acquisition(assembly.data, acq, header.encoding[espace], acq_bucket.datastats[espace], false);
+                add_acquisition(assembly.data, acq, encoding_[espace], acq_bucket.datastats[espace], false);
             }
 
             // Send all the ReconData messages
@@ -131,11 +131,11 @@ namespace Gadgetron {
 
     BufferKey BucketToBufferGadget::getKey(const mrd::EncodingCounters& idx) const {
         BufferKey key(idx);
-        clear(N_dimension, key);
-        clear(S_dimension, key);
-        if (!split_slices)
+        clear(parameters_.N_dimension, key);
+        clear(parameters_.S_dimension, key);
+        if (!parameters_.split_slices)
             key.slice = 0;
-        if (ignore_segment)
+        if (parameters_.ignore_segment)
             key.segment = 0;
         return key;
     }
@@ -188,10 +188,10 @@ namespace Gadgetron {
         uint32_t NE2 = getNE2(encoding, stats, forref);
         size_t NCHA = acq.Coils();
         uint32_t NLOC = getNLOC(encoding, stats);
-        uint32_t NN = getSizeFromDimension(N_dimension, stats);
-        uint32_t NS = getSizeFromDimension(S_dimension, stats);
+        uint32_t NN = getSizeFromDimension(parameters_.N_dimension, stats);
+        uint32_t NS = getSizeFromDimension(parameters_.S_dimension, stats);
 
-        GDEBUG_CONDITION_STREAM(verbose, "Data dimensions [RO E1 E2 CHA N S SLC] : ["
+        GDEBUG_CONDITION_STREAM(parameters_.verbose, "Data dimensions [RO E1 E2 CHA N S SLC] : ["
                                              << NE0 << " " << NE1 << " " << NE2 << " " << NCHA << " " << NN << " " << NS
                                              << " " << NLOC << "]");
 
@@ -221,7 +221,7 @@ namespace Gadgetron {
     uint32_t BucketToBufferGadget::getNLOC(
         const mrd::EncodingType& encoding, const mrd::EncodingLimitsType& stats) const {
         uint32_t NLOC;
-        if (split_slices) {
+        if (parameters_.split_slices) {
             NLOC = 1;
         } else {
             if (encoding.encoding_limits.slice.has_value()) {
@@ -343,7 +343,7 @@ namespace Gadgetron {
         sampling.sampling_limits.kspace_encoding_step_2.maximum = encoding.encoding_limits.kspace_encoding_step_2->maximum;
         sampling.sampling_limits.kspace_encoding_step_2.center = encoding.encoding_limits.kspace_encoding_step_2->center;
 
-        if (verbose) {
+        if (parameters_.verbose) {
             GDEBUG_STREAM("Encoding space : " << acq.head.encoding_space_ref.value_or(0) << " - "
                           << int(encoding.trajectory) << " - FOV : [ " << encoding.encoded_space.field_of_view_mm.x << " "
                           << encoding.encoded_space.field_of_view_mm.y << " " << encoding.encoded_space.field_of_view_mm.z
@@ -432,7 +432,7 @@ namespace Gadgetron {
             sampling.sampling_limits.kspace_encoding_step_2.center = encoding.encoding_limits.kspace_encoding_step_2->center;
         }
 
-        if (verbose) {
+        if (parameters_.verbose) {
             GDEBUG_STREAM("Encoding space : "
                           << int(encoding.trajectory) << " - FOV : [ " << encoding.encoded_space.field_of_view_mm.x << " "
                           << encoding.encoded_space.field_of_view_mm.y << " " << encoding.encoded_space.field_of_view_mm.z
@@ -462,7 +462,7 @@ namespace Gadgetron {
         uint16_t NS   = (uint16_t)dataBuffer.data.get_size(5);
         uint16_t NLOC = (uint16_t)dataBuffer.data.get_size(6);
 
-        const size_t slice_loc = split_slices || NLOC == 1 ? 0 : acq.head.idx.slice.value_or(0);
+        const size_t slice_loc = parameters_.split_slices || NLOC == 1 ? 0 : acq.head.idx.slice.value_or(0);
 
         // Stuff the data
         uint32_t npts_to_copy = acq.Samples() - acq.head.discard_pre.value_or(0) - acq.head.discard_post.value_or(0);
@@ -488,11 +488,11 @@ namespace Gadgetron {
             throw std::runtime_error("Acquired reference data does not fit into the reference data buffer.\n");
         }
 
-        uint32_t NUsed = (uint32_t)getDimensionKey(N_dimension, acq.head.idx);
+        uint32_t NUsed = (uint32_t)getDimensionKey(parameters_.N_dimension, acq.head.idx);
         if (NUsed >= NN)
             NUsed = NN - 1;
 
-        uint32_t SUsed = (uint32_t)getDimensionKey(S_dimension, acq.head.idx);
+        uint32_t SUsed = (uint32_t)getDimensionKey(parameters_.S_dimension, acq.head.idx);
         if (SUsed >= NS)
             SUsed = NS - 1;
 
@@ -593,10 +593,6 @@ namespace Gadgetron {
         }
     }
 
-
-    BucketToBufferGadget::BucketToBufferGadget(const Core::Context& context, const Core::GadgetProperties& props)
-        : ChannelGadget(context, props), header{ context.header } {}
-
     namespace {
         using Dimension = BucketToBufferGadget::Dimension;
         const std::map<std::string, BucketToBufferGadget::Dimension> dimension_from_name
@@ -612,6 +608,32 @@ namespace Gadgetron {
         dim = dimension_from_name.at(lower);
     }
 
-    GADGETRON_GADGET_EXPORT(BucketToBufferGadget)
+    std::ostream& operator<<(std::ostream& out, const BucketToBufferGadget::Dimension& param) {
+        for (auto it = dimension_from_name.begin(); it != dimension_from_name.end(); ++it) {
+            if (it->second == param) {
+                out << it->first;
+                break;
+            }
+        }
+        return out;
+    }
+
+    void validate(boost::any& v, const std::vector<std::string>& values, BucketToBufferGadget::Dimension*, int)
+    {
+        // Make sure no previous assignment to 'a' was made.
+        po::validators::check_first_occurrence(v);
+        // Extract the first string from 'values'. If there is more than
+        // one string, it's an error, and exception will be thrown.
+        const std::string& s = po::validators::get_single_string(values);
+
+        BucketToBufferGadget::Dimension d;
+        try {
+            Gadgetron::from_string(s, d);
+        } catch (std::exception& e) {
+            throw po::validation_error(po::validation_error::invalid_option_value);
+        }
+        v = boost::any(d);
+    }
+
 
 } // namespace Gadgetron

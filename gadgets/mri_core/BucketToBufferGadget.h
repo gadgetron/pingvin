@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Node.h"
+#include "MRNode.h"
 #include "hoNDArray.h"
 #include <complex>
 
@@ -17,10 +17,34 @@ namespace Gadgetron {
     // Since the order of data can be changed from its acquried time order, there is no easy way to resort waveform data
     // Therefore, the waveform data was copied and passed with every buffer
 
-    class BucketToBufferGadget : public Core::ChannelGadget<mrd::AcquisitionBucket> {
+    class BucketToBufferGadget : public Core::MRChannelGadget<mrd::AcquisitionBucket> {
     public:
-        BucketToBufferGadget(const Core::Context& context, const Core::GadgetProperties& props);
+
         enum class Dimension { average, contrast, phase, repetition, set, segment, slice, none };
+
+        struct Parameters : public Core::NodeParameters {
+            using NodeParameters::NodeParameters;
+            Parameters(const std::string& prefix) : NodeParameters(prefix, "Bucket To Buffer Options")
+            {
+                register_parameter("N-dimension", &N_dimension, "N-Dimension");
+                register_parameter("S-dimension", &S_dimension, "S-Dimension");
+                register_flag("split-slices", &split_slices, "Split slices");
+                register_flag("ignore-segment", &ignore_segment, "Ignore segment");
+                register_flag("verbose", &verbose, "Whether to print more information");
+            }
+            Dimension N_dimension = Dimension::none;
+            Dimension S_dimension = Dimension::none;
+            bool split_slices = false;
+            bool ignore_segment = false;
+            bool verbose = false;
+        };
+
+        BucketToBufferGadget(const Core::MRContext& context, const Parameters& params)
+            : Core::MRChannelGadget<mrd::AcquisitionBucket>(context, params)
+            , parameters_(params)
+        {
+            encoding_ = context.header.encoding;
+        }
 
     struct BufferKey {
         uint32_t average,slice,contrast,phase,repetition,set,segment;
@@ -37,14 +61,9 @@ namespace Gadgetron {
     };
 
     protected:
-        NODE_PROPERTY(N_dimension, Dimension, "N-Dimensions", Dimension::none);
-        NODE_PROPERTY(S_dimension, Dimension, "S-Dimensions", Dimension::none);
+        const Parameters parameters_;
 
-        NODE_PROPERTY(split_slices, bool, "Split slices", false);
-        NODE_PROPERTY(ignore_segment, bool, "Ignore segment", false);
-        NODE_PROPERTY(verbose, bool, "Whether to print more information", false);
-
-        mrd::Header header;
+        std::vector<mrd::EncodingType> encoding_;
 
         void process(Core::InputChannel<mrd::AcquisitionBucket>& in, Core::OutputChannel& out) override;
         BufferKey getKey(const mrd::EncodingCounters& idx) const;
@@ -65,4 +84,6 @@ namespace Gadgetron {
     };
 
     void from_string(const std::string&, BucketToBufferGadget::Dimension&);
+    std::ostream& operator<<(std::ostream& out, const BucketToBufferGadget::Dimension& param);
+    void validate(boost::any& v, const std::vector<std::string>& values, BucketToBufferGadget::Dimension*, int);
 }

@@ -4,8 +4,8 @@
 
 namespace Gadgetron{
 
-    CutXGadget::CutXGadget(const Core::Context& context, const Core::GadgetProperties& props)
-        : ChannelGadget(context, props)
+    CutXGadget::CutXGadget(const Core::MRContext& context, const Core::NodeParameters& parameters)
+        : CutXGadget::MRChannelGadget(context, parameters)
     {
         auto& h = context.header;
 
@@ -65,5 +65,4 @@ namespace Gadgetron{
         }
     }
 
-    GADGETRON_GADGET_EXPORT(CutXGadget)
 }

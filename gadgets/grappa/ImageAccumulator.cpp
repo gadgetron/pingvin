@@ -4,7 +4,6 @@
 #include <boost/range/algorithm/copy.hpp>
 
 #include "Unmixing.h"
-#include "common/AcquisitionBuffer.h"
 
 #include "Node.h"
 #include "hoNDArray.h"
@@ -19,12 +18,10 @@ namespace {
 
 
     Grappa::Image create_reconstruction_job(
-            const AnnotatedAcquisition &first,
-            const AnnotatedAcquisition &last,
+            const mrd::Acquisition &first_acq,
+            const mrd::Acquisition &last_acq,
             AcquisitionBuffer &buffer
     ) {
-        auto &first_acq = std::get<mrd::Acquisition>(first);
-        auto &last_acq = std::get<mrd::Acquisition>(last);
         auto slice = last_acq.head.idx.slice.value_or(0);
 
         Grappa::Image image{};
@@ -47,23 +44,15 @@ namespace {
 
 namespace Gadgetron::Grappa {
 
-    ImageAccumulator::ImageAccumulator(
-            const Core::Context &context,
-            const std::unordered_map<std::string, std::string> &props
-    ) : ChannelGadget<Slice>(context,props), context(context) {}
-
     void ImageAccumulator::process(Core::InputChannel<Slice> &in, Core::OutputChannel &out) {
-
-        AcquisitionBuffer buffer{context};
 
         for (auto slice : in) {
 
-            slice = std::move(slice) | ranges::actions::remove_if([](auto& acq){return std::get<mrd::Acquisition>(acq).head.flags.HasFlags(mrd::AcquisitionFlags::kIsParallelCalibration);});
+            slice = std::move(slice) | ranges::actions::remove_if([](auto& acq){return acq.head.flags.HasFlags(mrd::AcquisitionFlags::kIsParallelCalibration);});
 
             buffer.add(slice);
             out.push(create_reconstruction_job(slice.front(), slice.back(), buffer));
         }
     }
 
-    GADGETRON_GADGET_EXPORT(ImageAccumulator);
 }

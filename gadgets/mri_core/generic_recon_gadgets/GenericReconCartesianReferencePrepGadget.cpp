@@ -7,8 +7,9 @@
 namespace Gadgetron {
 
     GenericReconCartesianReferencePrepGadget::GenericReconCartesianReferencePrepGadget(
-            const Core::Context &context, const Core::GadgetProperties &properties)
-        : BaseClass(context, properties)
+            const Core::MRContext &context, const Parameters& params)
+        : BaseClass(context, params)
+        , params_(params)
     {
         auto& h = context.header;
 
@@ -59,7 +60,7 @@ namespace Gadgetron {
     {
         for (auto m1 : in)
         {
-            if (perform_timing) { gt_timer_.start("GenericReconCartesianReferencePrepGadget::process"); }
+            if (params_.perform_timing) { gt_timer_.start("GenericReconCartesianReferencePrepGadget::process"); }
             process_called_times_++;
 
             mrd::ReconData* recon_data = &m1;
@@ -83,7 +84,7 @@ namespace Gadgetron {
                 // no acceleration mode
                 // check the availability of ref data
                 // -----------------------------------------
-                if (prepare_ref_always || !ref_prepared_[e])
+                if (params_.prepare_ref_always || !ref_prepared_[e])
                 {
                     // if no ref data is set, make copy the ref point from the  data
                     if (!rbit.ref)
@@ -135,7 +136,7 @@ namespace Gadgetron {
                 // -----------------------------------------
 
                 // if embedded mode, fill back ref if required
-                if((calib_mode_[e] == mrd::CalibrationMode::kEmbedded) && ref_fill_into_data_embedded)
+                if((calib_mode_[e] == mrd::CalibrationMode::kEmbedded) && params_.ref_fill_into_data_embedded)
                 {
                     hoNDArray< std::complex<float> >& data = rbit.data.data;
 
@@ -180,30 +181,30 @@ namespace Gadgetron {
                 // step 1
                 bool count_sampling_freq = (calib_mode_[e] == mrd::CalibrationMode::kInterleaved);
 
-                bool valid_N_for_ref = (N_for_ref<N && N_for_ref >= 0);
-                bool valid_S_for_ref = (S_for_ref<S && S_for_ref >= 0);
+                bool valid_N_for_ref = (params_.N_for_ref<N && params_.N_for_ref >= 0);
+                bool valid_S_for_ref = (params_.S_for_ref<S && params_.S_for_ref >= 0);
 
                 if (!valid_N_for_ref && !valid_S_for_ref)
                 {
                     // use average N S
-                    GADGET_CATCH_THROW(Gadgetron::compute_averaged_data_N_S(ref, average_all_ref_N, average_all_ref_S, count_sampling_freq, ref_calib));
+                    GADGET_CATCH_THROW(Gadgetron::compute_averaged_data_N_S(ref, params_.average_all_ref_N, params_.average_all_ref_S, count_sampling_freq, ref_calib));
                 }
                 else if(valid_N_for_ref && !valid_S_for_ref)
                 {
                     // pick N, average S if needed
-                    GADGET_CATCH_THROW(Gadgetron::select_data_N_S(ref, true, N_for_ref, false, 0, ref_selected_N_S));
-                    GADGET_CATCH_THROW(Gadgetron::compute_averaged_data_N_S(ref_selected_N_S, false, average_all_ref_S, count_sampling_freq, ref_calib));
+                    GADGET_CATCH_THROW(Gadgetron::select_data_N_S(ref, true, params_.N_for_ref, false, 0, ref_selected_N_S));
+                    GADGET_CATCH_THROW(Gadgetron::compute_averaged_data_N_S(ref_selected_N_S, false, params_.average_all_ref_S, count_sampling_freq, ref_calib));
                 }
                 else if(!valid_N_for_ref && valid_S_for_ref)
                 {
                     // pick S, average N if needed
-                    GADGET_CATCH_THROW(Gadgetron::select_data_N_S(ref, false, 0, true, S_for_ref, ref_selected_N_S));
-                    GADGET_CATCH_THROW(Gadgetron::compute_averaged_data_N_S(ref_selected_N_S, false, average_all_ref_S, count_sampling_freq, ref_calib));
+                    GADGET_CATCH_THROW(Gadgetron::select_data_N_S(ref, false, 0, true, params_.S_for_ref, ref_selected_N_S));
+                    GADGET_CATCH_THROW(Gadgetron::compute_averaged_data_N_S(ref_selected_N_S, false, params_.average_all_ref_S, count_sampling_freq, ref_calib));
                 }
                 else if (valid_N_for_ref && valid_S_for_ref)
                 {
                     // pick N and S
-                    GADGET_CATCH_THROW(Gadgetron::select_data_N_S(ref, true, N_for_ref, true, S_for_ref, ref_calib));
+                    GADGET_CATCH_THROW(Gadgetron::select_data_N_S(ref, true, params_.N_for_ref, true, params_.S_for_ref, ref_calib));
                 }
 
                 if (!debug_folder_full_path_.empty())
@@ -301,8 +302,7 @@ namespace Gadgetron {
             out.push(std::move(m1));
         }
 
-        if (perform_timing) { gt_timer_.stop(); }
+        if (params_.perform_timing) { gt_timer_.stop(); }
     }
 
-    GADGETRON_GADGET_EXPORT(GenericReconCartesianReferencePrepGadget)
 }

@@ -23,5 +23,4 @@ mrd::Image<std::complex<float>> AugmentImageMetadataGadget::process_function(
     return input_image;
 }
 
-GADGETRON_GADGET_EXPORT(AugmentImageMetadataGadget)
 }
