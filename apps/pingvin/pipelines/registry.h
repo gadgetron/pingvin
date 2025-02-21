@@ -30,8 +30,10 @@ public:
 
         register_pipeline(&epi_2d);
 
-        register_pipeline(&grappa);
         register_pipeline(&grappa_cpu);
+#ifdef USE_CUDA
+        register_pipeline(&grappa_gpu);
+#endif // USE_CUDA
 
         register_pipeline(&cartesian_grappa);
         register_pipeline(&cartesian_grappa_snr);

@@ -23,7 +23,7 @@ namespace Pingvin {
 
 using namespace Gadgetron;
 
-static auto grappa = PipelineBuilder<Gadgetron::Core::MRContext>("grappa", "Basic GRAPPA Reconstruction")
+static auto grappa_cpu = PipelineBuilder<Gadgetron::Core::MRContext>("grappa-cpu", "Basic GRAPPA Reconstruction")
                         .withSource<MRSource>()
                         .withSink<MRSink>()
                         .withNode<NoiseAdjustGadget>("noise-adjust")
@@ -49,7 +49,9 @@ static auto grappa = PipelineBuilder<Gadgetron::Core::MRContext>("grappa", "Basi
                         .withNode<ExtractGadget>("extract")
                         ;
 
-static auto grappa_cpu = PipelineBuilder<Gadgetron::Core::MRContext>("grappa-cpu", "Basic GRAPPA Reconstruction")
+#ifdef USE_CUDA
+
+static auto grappa_gpu = PipelineBuilder<Gadgetron::Core::MRContext>("grappa-gpu", "Basic GRAPPA Reconstruction")
                         .withSource<MRSource>()
                         .withSink<MRSink>()
                         .withNode<NoiseAdjustGadget>("noise-adjust")
@@ -68,5 +70,6 @@ static auto grappa_cpu = PipelineBuilder<Gadgetron::Core::MRContext>("grappa-cpu
 
                         .withNode<ExtractGadget>("extract")
                         ;
+#endif // USE_CUDA
 
 } // namespace pingvin
