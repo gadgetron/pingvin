@@ -273,7 +273,6 @@ if (BUILD_PYTHON_SUPPORT)
 
     message(STATUS "Found NumPy:")
     message(STATUS "NumPy include: ${Python3_NumPy_INCLUDE_DIRS}")
-    message(STATUS "NumPy libraries: ${Python3_NumPy_LIBRARIES}")
     message(STATUS "Python3 libraries: ${Python3_LIBRARIES}")
 
     if (Python3_VERSION_MINOR LESS 7)

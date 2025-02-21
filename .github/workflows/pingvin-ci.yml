@@ -14,6 +14,7 @@ permissions:
 
 env:
   imageBaseName: ghcr.io/gadgetron/pingvin/ubuntu22.04
+  miniforgeVersion: 24.11.3-0
 
 defaults:
   run:
@@ -105,8 +106,8 @@ jobs:
       - name: Setup Miniforge
         uses: conda-incubator/setup-miniconda@v3
         with:
-          miniforge-version: latest
-          environment-file: conda/environment.yml
+          miniforge-version: ${{env.miniforgeVersion}}
+          environment-file: conda/build-environment.yml
           activate-environment: pingvin-build
 
       - name: Build conda package
@@ -129,8 +130,8 @@ jobs:
       - name: Setup Miniforge
         uses: conda-incubator/setup-miniconda@v3
         with:
-          miniforge-version: latest
-          environment-file: conda/environment.yml
+          miniforge-version: ${{env.miniforgeVersion}}
+          environment-file: conda/build-environment.yml
           activate-environment: pingvin-build
 
       - name: Download Conda package
