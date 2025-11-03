@@ -72,6 +72,9 @@ namespace Gadgetron {
                         acq.head.discard_post = maxRO_[encoding_ref] - samples;
                     }
                     acq.head.center_sample = acq.Samples() / 2;
+
+                    // std::cerr << "Adjusted RO from " << samples << " to " << acq.Samples() << " discards (pre,post) = ("
+                    //           << acq.head.discard_pre.value_or(0) << "," << acq.head.discard_post.value_or(0) << ")" << " center " << acq.head.center_sample.value_or(0) << std::endl;
                 }
             }
             out.push(std::move(acq));

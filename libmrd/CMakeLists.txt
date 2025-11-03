@@ -1,7 +1,7 @@
 include(FetchContent)
 FetchContent_Declare(mrd2
     GIT_REPOSITORY https://github.com/ismrmrd/mrd.git
-    GIT_TAG v2.1.0
+    GIT_TAG 0f7684d55cc80d9e69cbe4df21e6a4f3b41515e3
     EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(mrd2)

@@ -100,7 +100,7 @@ namespace Gadgetron::Grappa {
         mrd::ImageHeader header;
 
         header.slice = image.meta.slice;
-        header.acquisition_time_stamp = image.meta.time_stamp;
+        header.acquisition_time_stamp_ns = image.meta.time_stamp_ns;
 
         std::copy(image_fov.begin(), image_fov.end(), std::begin(header.field_of_view));
 

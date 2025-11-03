@@ -28,7 +28,7 @@ namespace {
 
         image.data = buffer.take(slice);
         image.meta.slice = slice;
-        image.meta.time_stamp = first_acq.head.acquisition_time_stamp.value_or(0);
+        image.meta.time_stamp_ns = first_acq.head.acquisition_time_stamp_ns.value_or(0);
 
         boost::copy(last_acq.head.position, image.meta.position.begin());
         boost::copy(last_acq.head.read_dir, image.meta.read_dir.begin());

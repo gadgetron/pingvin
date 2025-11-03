@@ -94,7 +94,7 @@ namespace Gadgetron {
                 size_t ii;
                 for (ii=0; ii<recon_bit_->buffers[0].data.headers.get_number_of_elements(); ii++)
                 {
-                    if( recon_bit_->buffers[0].data.headers(ii).acquisition_time_stamp>0 ) break;
+                    if( recon_bit_->buffers[0].data.headers(ii).acquisition_time_stamp_ns>0 ) break;
                 }
 
                 size_t curr_slc = recon_bit_->buffers[0].data.headers(ii).idx.slice.value_or(0);
@@ -379,8 +379,8 @@ namespace Gadgetron {
                 {
                     for (n=0; n<N; n++)
                     {
-                        res.headers(n, s, slc).acquisition_time_stamp = (uint32_t)(acq_time(n, s, slc)/ this->params_.time_tick + 0.5);
-                        res.headers(n, s, slc).physiology_time_stamp[0] = (uint32_t)(cpt_time(n, s, slc)/ this->params_.time_tick + 0.5);
+                        res.headers(n, s, slc).acquisition_time_stamp_ns = (uint32_t)(acq_time(n, s, slc)/ this->params_.time_tick + 0.5);
+                        res.headers(n, s, slc).physiology_time_stamp_ns[0] = (uint32_t)(cpt_time(n, s, slc)/ this->params_.time_tick + 0.5);
                     }
                 }
             }

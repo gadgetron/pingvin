@@ -1,15 +1,15 @@
 dependency:
   data: generic/meas_MID00424_FID114626_R2_spat__PEFOV100_PERes120/meas_MID00424_FID114626_R2_spat__PEFOV100_PERes120_meas1.mrd
-  checksum: d43bf8c9efa72ffe5fdaa911f6cafb4f
-  args: noise --noise.covariance-output=./noisecovariance.bin
+  checksum: b4ccbce2fa93555bd11cdad4ba2712dc
+  args: --config default_measurement_dependencies.xml --parameter noisecovarianceout=./noisecovariance.bin
 reconstruction:
   data: generic/meas_MID00424_FID114626_R2_spat__PEFOV100_PERes120/meas_MID00424_FID114626_R2_spat__PEFOV100_PERes120_meas2.mrd
-  checksum: ed86f567f579c65dd678b78c8a5ede9c
+  checksum: 3d11012e9bbe601175970502291ce0cb
   run:
-  - args: cartesian-grappa-snr -c ${PINGVIN_CONFIG_DIR}/cartesian-grappa-snr.conf --noise.covariance-input=./noisecovariance.bin
+  - args: --config Generic_Cartesian_Grappa_SNR.xml --parameter noisecovariancein=./noisecovariance.bin
 validation:
   reference: generic/meas_MID00424_FID114626_R2_spat__PEFOV100_PERes120/ref_20160401_Generic_Cartesian_Grappa_SNR.xml.mrd
-  checksum: efbb2277ccc715173f53e16ac3f5ff42
+  checksum: 9a24d8a2dc8a6e48c4931de178ac9512
   tests:
   - image_series: 300
 requirements:

@@ -1,11 +1,11 @@
 reconstruction:
   data: cmr/CineBinning/meas_MID838_PK_rt_test_2slice_FID22519/meas_MID838_PK_rt_test_2slice_FID22519_meas2.mrd
-  checksum: 74a86376c119141f42088b906c33ed7d
+  checksum: a1d42e01e988cc1ab514ef3cdb7a8306
   run:
-  - args: cmr-cine-binning -c ${PINGVIN_CONFIG_DIR}/cmr-cine-binning.conf
+  - args: --config CMR_2DT_RTCine_KspaceBinning.xml
 validation:
   reference: cmr/CineBinning/meas_MID838_PK_rt_test_2slice_FID22519/cmr_cine_binning_2slice_ref_20220817_CMR_2DT_RTCine_KspaceBinning.xml.mrd
-  checksum: cd2db40590514e5d6b27125e5284217f
+  checksum: 9fe6d2f0d1afddfda195ef71e13fb138
   tests:
   - image_series: 2
 requirements:

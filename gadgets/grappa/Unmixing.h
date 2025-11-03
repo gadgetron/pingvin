@@ -8,7 +8,7 @@ namespace Gadgetron::Grappa {
     public:
 
         struct {
-            uint32_t time_stamp;
+            uint64_t time_stamp_ns;
             uint16_t slice;
             std::array<float, 3> position, read_dir, phase_dir, slice_dir, table_pos;
         } meta;

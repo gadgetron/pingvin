@@ -167,13 +167,13 @@ namespace Gadgetron {
         }
 
         float calculate_scale_factor(
-            float acquisition_dwell_time_us, float noise_dwell_time_us, float receiver_noise_bandwidth) {
+            uint64_t acquisition_dwell_time_ns, uint64_t noise_dwell_time_ns, float receiver_noise_bandwidth) {
             float noise_bw_scale_factor;
-            if ((noise_dwell_time_us == 0.0f) || (acquisition_dwell_time_us == 0.0f)) {
+            if ((noise_dwell_time_ns == 0) || (acquisition_dwell_time_ns == 0)) {
                 noise_bw_scale_factor = 1.0f;
             } else {
                 noise_bw_scale_factor
-                    = std::sqrt(2.0f * acquisition_dwell_time_us / noise_dwell_time_us * receiver_noise_bandwidth);
+                    = std::sqrt(2.0f * float(acquisition_dwell_time_ns) / noise_dwell_time_ns * receiver_noise_bandwidth);
             }
             return noise_bw_scale_factor;
         }
@@ -245,7 +245,7 @@ namespace Gadgetron {
                         }
                     }
                 }
-                return LoadedNoise{noise_covariance->matrix, noise_covariance->noise_dwell_time_us};
+                return LoadedNoise{noise_covariance->matrix, noise_covariance->noise_dwell_time_ns};
 
             } else if (acquisition_system_information_) {
                 GERROR("Noise covariance matrix is malformed. Number of labels does not match number of channels.");
@@ -271,8 +271,8 @@ namespace Gadgetron {
             std::fill(ng.tmp_covariance.begin(), ng.tmp_covariance.end(), std::complex<float>(0));
         }
 
-        if (ng.noise_dwell_time_us == 0) {
-            ng.noise_dwell_time_us = acq.head.sample_time_us.value_or(0);
+        if (ng.noise_dwell_time_ns == 0) {
+            ng.noise_dwell_time_ns = acq.head.sample_time_ns.value_or(0);
         }
 
         auto dataM = as_arma_matrix(acq.data);
@@ -301,7 +301,7 @@ namespace Gadgetron {
         mrd::NoiseCovariance noise_covariance;
         noise_covariance.coil_labels = coil_labels;
         noise_covariance.sample_count = ng.total_number_of_samples;
-        noise_covariance.noise_dwell_time_us = ng.noise_dwell_time_us;
+        noise_covariance.noise_dwell_time_ns = ng.noise_dwell_time_ns;
         noise_covariance.receiver_noise_bandwidth = receiver_noise_bandwidth;
         noise_covariance.matrix = ng.tmp_covariance;
 
@@ -360,7 +360,7 @@ namespace Gadgetron {
 
         auto prewhitening_matrix = computeNoisePrewhitener(masked_covariance);
         prewhitening_matrix
-            *= calculate_scale_factor(acq.head.sample_time_us.value_or(0), ng.noise_dwell_time_us, receiver_noise_bandwidth);
+            *= calculate_scale_factor(acq.head.sample_time_ns.value_or(0), ng.noise_dwell_time_ns, receiver_noise_bandwidth);
         return handle_acquisition(Prewhitener{ prewhitening_matrix }, acq);
     }
 
@@ -370,7 +370,7 @@ namespace Gadgetron {
         auto masked_covariance   = mask_channels(std::move(ln.covariance), scale_only_channels);
         auto prewhitening_matrix = computeNoisePrewhitener(masked_covariance);
         prewhitening_matrix
-            *= calculate_scale_factor(acq.head.sample_time_us.value_or(0), ln.noise_dwell_time_us, receiver_noise_bandwidth);
+            *= calculate_scale_factor(acq.head.sample_time_ns.value_or(0), ln.noise_dwell_time_ns, receiver_noise_bandwidth);
         return handle_acquisition(Prewhitener{ prewhitening_matrix }, acq);
     }
 

@@ -12,7 +12,7 @@ namespace Gadgetron {
         hoNDArray<std::complex<float>> tmp_covariance;
         size_t normalized_number_of_samples = 0;
         size_t total_number_of_samples = 0;
-        float noise_dwell_time_us = 0;
+        uint64_t noise_dwell_time_ns = 0;
     };
 
     struct Prewhitener {
@@ -21,7 +21,7 @@ namespace Gadgetron {
 
     struct LoadedNoise {
         hoNDArray<std::complex<float>> covariance;
-        float noise_dwell_time_us;
+        uint64_t noise_dwell_time_ns;
     };
 
     struct IgnoringNoise {};
@@ -36,7 +36,7 @@ namespace Gadgetron {
 
             bool skip_noise_adjust = false;
             bool reject_nonconformant_data = false;
-            float noise_dwell_time_us_preset = 0.0;
+            uint64_t noise_dwell_time_ns_preset = 0;
             std::string scale_only_channels_by_name = "";
 
             Parameters(const std::string& prefix) : NodeParameters(prefix, "Noise Adjustment Options") {
@@ -44,7 +44,7 @@ namespace Gadgetron {
                 register_parameter("covariance-output", &noise_covariance_out, "Output file containing noise covariance matrix");
                 register_flag("skip", &skip_noise_adjust, "Skip noise adjustment");
                 register_flag("reject-nonconformant-data", &reject_nonconformant_data, "Reject data that does not conform (i.e. channels mismatch)");
-                register_parameter("dwell-time-us-preset", &noise_dwell_time_us_preset, "Preset dwell time for noise measurement");
+                register_parameter("dwell-time-ns-preset", &noise_dwell_time_ns_preset, "Preset dwell time for noise measurement");
                 register_parameter("scale-only-channels-by-name", &scale_only_channels_by_name, "List of named channels that should only be scaled");
             }
         };

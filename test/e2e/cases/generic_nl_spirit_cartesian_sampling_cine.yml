@@ -1,15 +1,15 @@
 dependency:
   data: generic/meas_MID836_1slice_FID22517/meas_MID836_1slice_FID22517_meas1.mrd
-  checksum: 597bebf9348947443f18012d88805c2d
-  args: noise
+  checksum: 9a803b0eadea4c61a5e0b032e9d6b35b
+  args: --config default_measurement_dependencies.xml
 reconstruction:
   data: generic/meas_MID836_1slice_FID22517/meas_MID836_1slice_FID22517_meas2.mrd
-  checksum: 7744e379a2433bf279219d60b5eb927b
+  checksum: 082dae31bd40525d62ad5d2e1d726de1
   run:
-  - args: cartesian-nonlinear-spirit -c ${PINGVIN_CONFIG_DIR}/cartesian-nonlinear-spirit-realtimecine.conf
+  - args: --config Generic_Cartesian_NonLinear_Spirit_RealTimeCine.xml
 validation:
   reference: generic/meas_MID836_1slice_FID22517/ref_20220817_klk_Generic_Cartesian_NonLinear_Spirit_RealTimeCine.xml.mrd
-  checksum: c89fd653df87cba4f28c05c28540826d
+  checksum: f31bcf43f1784b562893de0cd5053b8f
   tests:
   - image_series: 1
     value_comparison_threshold: 0.005

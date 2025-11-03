@@ -464,24 +464,24 @@ namespace Gadgetron {
                         for (size_t e1 = 0; e1 < header_E1; e1++) {
                             mrd::AcquisitionHeader& curr_header = recon_bit.data.headers(e1, e2, n, s, slc);
 
-                            if (curr_header.acquisition_time_stamp>0) {
-                                if (min_acq_time > curr_header.acquisition_time_stamp)
-                                    min_acq_time = curr_header.acquisition_time_stamp.value_or(0);
+                            if (curr_header.acquisition_time_stamp_ns>0) {
+                                if (min_acq_time > curr_header.acquisition_time_stamp_ns)
+                                    min_acq_time = curr_header.acquisition_time_stamp_ns.value_or(0);
 
-                                if (max_acq_time < curr_header.acquisition_time_stamp)
-                                    max_acq_time = curr_header.acquisition_time_stamp.value_or(0);
+                                if (max_acq_time < curr_header.acquisition_time_stamp_ns)
+                                    max_acq_time = curr_header.acquisition_time_stamp_ns.value_or(0);
 
                                 for (size_t ii = 0; ii < MAX_PHYSIO_TIMESTAMPS; ii++) {
-                                    if (ii >= curr_header.physiology_time_stamp.size()) {
+                                    if (ii >= curr_header.physiology_time_stamp_ns.size()) {
                                         break;
                                     }
 
-                                    if (min_physio_time[ii] > curr_header.physiology_time_stamp[ii]) {
-                                        min_physio_time[ii] = curr_header.physiology_time_stamp[ii];
+                                    if (min_physio_time[ii] > curr_header.physiology_time_stamp_ns[ii]) {
+                                        min_physio_time[ii] = curr_header.physiology_time_stamp_ns[ii];
                                     }
 
-                                    if (max_physio_time[ii] < curr_header.physiology_time_stamp[ii]) {
-                                        max_physio_time[ii] = curr_header.physiology_time_stamp[ii];
+                                    if (max_physio_time[ii] < curr_header.physiology_time_stamp_ns[ii]) {
+                                        max_physio_time[ii] = curr_header.physiology_time_stamp_ns[ii];
                                     }
                                 }
                             }
@@ -536,9 +536,9 @@ namespace Gadgetron {
                     im_header.repetition = acq_header.idx.repetition;
                     im_header.set        = acq_header.idx.set;
 
-                    im_header.acquisition_time_stamp = acq_header.acquisition_time_stamp;
+                    im_header.acquisition_time_stamp_ns = acq_header.acquisition_time_stamp_ns;
 
-                    im_header.physiology_time_stamp = acq_header.physiology_time_stamp;
+                    im_header.physiology_time_stamp_ns = acq_header.physiology_time_stamp_ns;
 
                     im_header.image_type         = mrd::ImageType::kMagnitude;
                     im_header.image_index        = n + s * N + slc * N * S;
@@ -573,9 +573,9 @@ namespace Gadgetron {
 
                     meta["patient_table_position"] = {im_header.patient_table_position[0], im_header.patient_table_position[1], im_header.patient_table_position[2]};
 
-                    meta["acquisition_time_stamp"] = {(long)im_header.acquisition_time_stamp.value_or(0)};
+                    meta["acquisition_time_stamp_ns"] = {(long)im_header.acquisition_time_stamp_ns.value_or(0)};
 
-                    std::transform(im_header.physiology_time_stamp.begin(), im_header.physiology_time_stamp.end(), std::back_inserter(meta["physiology_time_stamp"]), [](const auto& i) { return (long)i; });
+                    std::transform(im_header.physiology_time_stamp_ns.begin(), im_header.physiology_time_stamp_ns.end(), std::back_inserter(meta["physiology_time_stamp"]), [](const auto& i) { return (long)i; });
 
                     meta["acquisition_time_range"] = {(long)min_acq_time, (long)max_acq_time};
 

@@ -161,7 +161,7 @@ namespace Gadgetron {
         for (auto image: in) {
             auto slice = image.head.slice.value_or(0);
             buffers[slice].emplace_back(image);
-            time_stamp_buffer[slice].push_back((float) (image.head.physiology_time_stamp[parameters_.physiology_time_index]));
+            time_stamp_buffer[slice].push_back((float) (image.head.physiology_time_stamp_ns[parameters_.physiology_time_index]));
             out.push(std::move(image));
         }
 
@@ -233,7 +233,7 @@ namespace Gadgetron {
                 unsigned short current_phase = static_cast<unsigned short>(
                         (cycle_time + 0.0001 - current_cycle) / (1.0 / static_cast<float>(parameters_.phases)) + 0.0001);
 
-                header.physiology_time_stamp[parameters_.physiology_time_index] = static_cast<unsigned>(std::floor(
+                header.physiology_time_stamp_ns[parameters_.physiology_time_index] = static_cast<unsigned>(std::floor(
                         (cycle_time + 0.0001 - current_cycle) * cycle_lengths[current_cycle]));
                 header.phase = current_phase;
                 header.image_index = current_phase + 1;

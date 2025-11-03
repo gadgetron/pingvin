@@ -132,14 +132,14 @@ struct AcquisitionHeader_converter {
             head->idx = bp::extract<mrd::EncodingCounters>(pyhead.attr("idx"));
             head->measurement_uid = bp::extract<uint32_t>(pyhead.attr("measurement_uid"));
             head->scan_counter = bp::extract<std::optional<uint32_t>>(pyhead.attr("scan_counter"));
-            head->acquisition_time_stamp = bp::extract<std::optional<uint32_t>>(pyhead.attr("acquisition_time_stamp"));
-            head->physiology_time_stamp = bp::extract<std::vector<uint32_t>>(pyhead.attr("physiology_time_stamp"));
+            head->acquisition_time_stamp_ns = bp::extract<std::optional<uint64_t>>(pyhead.attr("acquisition_time_stamp_ns"));
+            head->physiology_time_stamp_ns = bp::extract<std::vector<uint64_t>>(pyhead.attr("physiology_time_stamp_ns"));
             head->channel_order = bp::extract<std::vector<uint32_t>>(pyhead.attr("channel_order"));
             head->discard_pre = bp::extract<std::optional<uint32_t>>(pyhead.attr("discard_pre"));
             head->discard_post = bp::extract<std::optional<uint32_t>>(pyhead.attr("discard_post"));
             head->center_sample = bp::extract<std::optional<uint32_t>>(pyhead.attr("center_sample"));
             head->encoding_space_ref = bp::extract<std::optional<uint32_t>>(pyhead.attr("encoding_space_ref"));
-            head->sample_time_us = bp::extract<std::optional<float>>(pyhead.attr("sample_time_us"));
+            head->sample_time_ns = bp::extract<std::optional<uint64_t>>(pyhead.attr("sample_time_ns"));
             head->position = bp::extract<yardl::FixedNDArray<float, 3>>(pyhead.attr("position"));
             head->read_dir = bp::extract<yardl::FixedNDArray<float, 3>>(pyhead.attr("read_dir"));
             head->phase_dir = bp::extract<yardl::FixedNDArray<float, 3>>(pyhead.attr("phase_dir"));
@@ -165,14 +165,14 @@ struct AcquisitionHeader_converter {
             pyhead.attr("idx") = head.idx;
             pyhead.attr("measurement_uid") = head.measurement_uid;
             pyhead.attr("scan_counter") = head.scan_counter;
-            pyhead.attr("acquisition_time_stamp") = head.acquisition_time_stamp;
-            pyhead.attr("physiology_time_stamp") = head.physiology_time_stamp;
+            pyhead.attr("acquisition_time_stamp_ns") = head.acquisition_time_stamp_ns;
+            pyhead.attr("physiology_time_stamp_ns") = head.physiology_time_stamp_ns;
             pyhead.attr("channel_order") = head.channel_order;
             pyhead.attr("discard_pre") = head.discard_pre;
             pyhead.attr("discard_post") = head.discard_post;
             pyhead.attr("center_sample") = head.center_sample;
             pyhead.attr("encoding_space_ref") = head.encoding_space_ref;
-            pyhead.attr("sample_time_us") = head.sample_time_us;
+            pyhead.attr("sample_time_ns") = head.sample_time_ns;
             pyhead.attr("position") = head.position;
             pyhead.attr("read_dir") = head.read_dir;
             pyhead.attr("phase_dir") = head.phase_dir;
@@ -221,8 +221,8 @@ struct ImageHeader_converter {
             head->phase = bp::extract<std::optional<uint32_t>>(pyhead.attr("phase"));
             head->repetition = bp::extract<std::optional<uint32_t>>(pyhead.attr("repetition"));
             head->set = bp::extract<std::optional<uint32_t>>(pyhead.attr("set"));
-            head->acquisition_time_stamp = bp::extract<std::optional<uint32_t>>(pyhead.attr("acquisition_time_stamp"));
-            head->physiology_time_stamp = bp::extract<std::vector<uint32_t>>(pyhead.attr("physiology_time_stamp"));
+            head->acquisition_time_stamp_ns = bp::extract<std::optional<uint64_t>>(pyhead.attr("acquisition_time_stamp_ns"));
+            head->physiology_time_stamp_ns = bp::extract<std::vector<uint64_t>>(pyhead.attr("physiology_time_stamp_ns"));
             head->image_type = static_cast<mrd::ImageType>(bp::extract<int32_t>(pyhead.attr("image_type"))());
             head->image_index = bp::extract<std::optional<uint32_t>>(pyhead.attr("image_index"));
             head->image_series_index = bp::extract<std::optional<uint32_t>>(pyhead.attr("image_series_index"));
@@ -260,8 +260,8 @@ struct ImageHeader_converter {
             pyhead.attr("phase") = head.phase;
             pyhead.attr("repetition") = head.repetition;
             pyhead.attr("set") = head.set;
-            pyhead.attr("acquisition_time_stamp") = head.acquisition_time_stamp;
-            pyhead.attr("physiology_time_stamp") = head.physiology_time_stamp;
+            pyhead.attr("acquisition_time_stamp") = head.acquisition_time_stamp_ns;
+            pyhead.attr("physiology_time_stamp") = head.physiology_time_stamp_ns;
             pyhead.attr("image_index") = head.image_index;
             pyhead.attr("image_series_index") = head.image_series_index;
             pyhead.attr("user_int") = head.user_int;
@@ -391,8 +391,8 @@ struct Waveform_converter
             wav->flags = bp::extract<uint64_t>(pyWav.attr("flags"));
             wav->measurement_uid = bp::extract<uint32_t>(pyWav.attr("measurement_uid"));
             wav->scan_counter = bp::extract<uint32_t>(pyWav.attr("scan_counter"));
-            wav->time_stamp = bp::extract<uint32_t>(pyWav.attr("time_stamp"));
-            wav->sample_time_us = bp::extract<float>(pyWav.attr("sample_time_us"));
+            wav->time_stamp_ns = bp::extract<uint32_t>(pyWav.attr("time_stamp_ns"));
+            wav->sample_time_ns = bp::extract<float>(pyWav.attr("sample_time_ns"));
             wav->waveform_id = bp::extract<uint32_t>(pyWav.attr("waveform_id"));
 
             auto data = bp::extract<hoNDArray<uint32_t>>(pyWav.attr("data"));
@@ -428,8 +428,8 @@ struct Waveform_converter
             pyWav.attr("flags") = wav.flags;
             pyWav.attr("measurement_uid") = wav.measurement_uid;
             pyWav.attr("scan_counter") = wav.scan_counter;
-            pyWav.attr("time_stamp") = wav.time_stamp;
-            pyWav.attr("sample_time_us") = wav.sample_time_us;
+            pyWav.attr("time_stamp_ns") = wav.time_stamp_ns;
+            pyWav.attr("sample_time_ns") = wav.sample_time_ns;
             pyWav.attr("waveform_id") = wav.waveform_id;
 
             // increment the reference count so it exists after `return`

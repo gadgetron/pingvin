@@ -46,7 +46,7 @@ namespace Gadgetron{
         imghdr.phase = acqhdr.idx.phase;
         imghdr.repetition = acqhdr.idx.repetition;
         imghdr.set = acqhdr.idx.set;
-        imghdr.acquisition_time_stamp = acqhdr.acquisition_time_stamp;
+        imghdr.acquisition_time_stamp_ns = acqhdr.acquisition_time_stamp_ns;
 
         imghdr.position = acqhdr.position;
         imghdr.col_dir = acqhdr.read_dir;

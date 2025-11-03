@@ -81,8 +81,8 @@ namespace Gadgetron {
                             imghdr.phase = acqhdr.idx.phase;
                             imghdr.repetition = acqhdr.idx.repetition;
                             imghdr.set = acqhdr.idx.set;
-                            imghdr.acquisition_time_stamp = acqhdr.acquisition_time_stamp;
-                            imghdr.physiology_time_stamp = acqhdr.physiology_time_stamp;
+                            imghdr.acquisition_time_stamp_ns = acqhdr.acquisition_time_stamp_ns;
+                            imghdr.physiology_time_stamp_ns = acqhdr.physiology_time_stamp_ns;
                             imghdr.image_type = mrd::ImageType::kComplex;
                             imghdr.image_index = ++image_counter;
                             imghdr.image_series_index = 0;

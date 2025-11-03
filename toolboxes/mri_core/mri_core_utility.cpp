@@ -981,9 +981,9 @@ namespace Gadgetron
         im_header.repetition = acq_header.idx.repetition;
         im_header.set        = acq_header.idx.set;
 
-        im_header.acquisition_time_stamp = acq_header.acquisition_time_stamp;
+        im_header.acquisition_time_stamp_ns = acq_header.acquisition_time_stamp_ns;
 
-        im_header.physiology_time_stamp = acq_header.physiology_time_stamp;
+        im_header.physiology_time_stamp_ns = acq_header.physiology_time_stamp_ns;
 
         im_header.image_type = mrd::ImageType::kComplex;
         im_header.image_index = 0;

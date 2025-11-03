@@ -18,8 +18,8 @@ namespace {
         for (slc = 0; slc < SLC; slc++) {
             for (s = 0; s < S; s++) {
                 for (n = 0; n < N; n++) {
-                    res.headers(n, s, slc).acquisition_time_stamp = (uint32_t)lround(acq_time(n, s, slc) / time_tick);
-                    res.headers(n, s, slc).physiology_time_stamp[0]
+                    res.headers(n, s, slc).acquisition_time_stamp_ns = (uint32_t)lround(acq_time(n, s, slc) / time_tick);
+                    res.headers(n, s, slc).physiology_time_stamp_ns[0]
                         = (uint32_t)lround(cpt_time(n, s, slc) / time_tick);
                 }
             }
@@ -269,9 +269,9 @@ void PureCmrCartesianKSpaceBinningCineGadget::set_image_header(
                 im_header.repetition = acq_header.idx.repetition;
                 im_header.set        = acq_header.idx.set;
 
-                im_header.acquisition_time_stamp = acq_header.acquisition_time_stamp;
+                im_header.acquisition_time_stamp_ns = acq_header.acquisition_time_stamp_ns;
 
-                im_header.physiology_time_stamp = acq_header.physiology_time_stamp;
+                im_header.physiology_time_stamp_ns = acq_header.physiology_time_stamp_ns;
 
                 im_header.image_type         = mrd::ImageType::kMagnitude;
                 im_header.image_index        = (uint16_t)(n + s * N + slc * N * S);
@@ -317,10 +317,10 @@ void PureCmrCartesianKSpaceBinningCineGadget::set_image_header(
                 auto &patient_table_position = hdrsrc.patient_table_position;
                 meta["patient_table_position"] = { (double)patient_table_position[0], (double)patient_table_position[1], (double)patient_table_position[2] };
 
-                meta["acquisition_time_stamp"] = { (long)hdrsrc.acquisition_time_stamp.value_or(0) };
+                meta["acquisition_time_stamp_ns"] = { (long)hdrsrc.acquisition_time_stamp_ns.value_or(0) };
 
-                auto& physio_times = hdrsrc.physiology_time_stamp;
-                meta["physiology_time_stamp"] = { (long)physio_times[0], (long)physio_times[1], (long)physio_times[2] };
+                auto& physio_times = hdrsrc.physiology_time_stamp_ns;
+                meta["physiology_time_stamp_ns"] = { (long)physio_times[0], (long)physio_times[1], (long)physio_times[2] };
             }
         }
     }

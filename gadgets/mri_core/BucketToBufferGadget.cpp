@@ -90,7 +90,7 @@ namespace Gadgetron {
                 {
                     // GDEBUG_STREAM("Sending out ReconData buffers with waveforms ...");
                     /// NOTE: For ChannelGadgets to receive the waveforms, they must accept a `std::optional<std::vector<mrd::WaveformUint32>>`
-                    ///     as well as the `mrd::ReconData` message. For "old" Gadgets, this is not a problem, because they will be "attached". 
+                    ///     as well as the `mrd::ReconData` message. For "old" Gadgets, this is not a problem, because they will be "attached".
                     out.push(recon_data_buffer.second, acq_bucket.waveforms);
                 }
             }
@@ -319,6 +319,7 @@ namespace Gadgetron {
         } else {
             NE0 = acq.Samples() - acq.head.discard_pre.value_or(0) - acq.head.discard_post.value_or(0);
         }
+        std::cerr << "NE0: " << NE0 << " samples: " << acq.Samples() << " discard (pre,post): (" << acq.head.discard_pre.value_or(0) << "," << acq.head.discard_post.value_or(0) << ")" << std::endl;
         return NE0;
     }
 
@@ -521,6 +522,7 @@ namespace Gadgetron {
                                              - (int32_t)encoding.encoding_limits.kspace_encoding_step_2->center;
                 }
 
+                std::cerr << "e1: " << acq.head.idx.kspace_encode_step_1.value_or(0) << " + offset: " << space_matrix_offset_E1 << std::endl;
                 // compute the used e1 and e2 indices and make sure they are in the valid range
                 e1 = (int32_t)acq.head.idx.kspace_encode_step_1.value_or(0) + space_matrix_offset_E1;
                 e2 = (int32_t)acq.head.idx.kspace_encode_step_2.value_or(0) + space_matrix_offset_E2;
@@ -572,6 +574,8 @@ namespace Gadgetron {
                 return;
             }
         }
+
+        std::cerr << "e2: " << e2 << " e1: " << e1 << " offset: " << offset << std::endl;
 
         // Stuff the data
         std::complex<float>* pData = &dataBuffer.data(offset, e1, e2, 0, NUsed, SUsed, slice_loc);

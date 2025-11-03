@@ -1,11 +1,11 @@
 reconstruction:
   data: simple_gre/meas_MiniGadgetron_GRE_meas1.mrd
-  checksum: 382b7f32b77d3a078d8af75a365cec4c
+  checksum: 790c58e3c6c184bfb18b79c3da0c3941
   run:
-  - args: default --acctrig.trigger-dimension=repetition --acctrig.sorting-dimension=slice --buffer.split-slices
+  - args: --config default.xml
 validation:
   reference: simple_gre/simple_gre_out_20210909_klk_default.xml.mrd
-  checksum: 5539627da4affccf396a39ffae0005e0
+  checksum: 161ec0015902a22fb3b1c63e918a8941
   tests:
   - image_series: 0
     value_comparison_threshold: 1.0e-05

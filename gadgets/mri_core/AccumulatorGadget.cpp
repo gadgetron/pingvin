@@ -115,8 +115,8 @@ void AccumulatorGadget::process(Core::InputChannel<mrd::Acquisition>& in, Core::
             img.head.phase = acq.head.idx.phase;
             img.head.repetition = acq.head.idx.repetition;
             img.head.set = acq.head.idx.set;
-            img.head.acquisition_time_stamp = acq.head.acquisition_time_stamp;
-            img.head.physiology_time_stamp = acq.head.physiology_time_stamp;
+            img.head.acquisition_time_stamp_ns = acq.head.acquisition_time_stamp_ns;
+            img.head.physiology_time_stamp_ns = acq.head.physiology_time_stamp_ns;
             img.head.image_type = mrd::ImageType::kComplex;
             img.head.image_index = ++image_counter_;
             img.head.image_series_index = parameters_.image_series;

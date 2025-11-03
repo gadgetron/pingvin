@@ -1,11 +1,11 @@
 reconstruction:
   data: rtgrappa/acc_data_with_device_2_meas1.mrd
-  checksum: 7fa1d38320b2a544148096ce09041b2a
+  checksum: b68011e85f496ff01e93e0f77d812a29
   run:
-  - args: grappa-cpu --coil-reduction.coils-out=8
+  - args: --config grappa_float_cpu.xml
 validation:
   reference: rtgrappa/grappa_rate2_cpu_out_grappa_float_cpu.xml.mrd
-  checksum: f24f9b93670cfa0c1723493ce52c07c5
+  checksum: 78f0aefd3a4f635f7ca1b080fc2ea1a2
   tests:
   - image_series: 0
     value_comparison_threshold: 0.1
